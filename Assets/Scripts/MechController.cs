@@ -27,20 +27,17 @@ public class MechController : MonoBehaviour
     }
 
     private void HandleBodyRotation()
+{
+    if (lookTargetForward != Vector3.zero)
     {
-        if (lookTargetForward != Vector3.zero)
-        {
-            // Flatten the look direction so the mech doesn't tilt up/down
-            Vector3 flattenedForward = lookTargetForward;
-            flattenedForward.y = 0;
-
-            Quaternion targetRotation = Quaternion.LookRotation(flattenedForward);
-            
-            // This Slerp provides the "Heavy Mech" turn speed from AC3/Vertical Armor
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, stats.turnSpeed * Time.deltaTime);
-        }
+        // Create the rotation we want to reach
+        Quaternion targetRot = Quaternion.LookRotation(lookTargetForward);
+        
+        // Use stats.turnSpeed to dictate how "heavy" the turn is
+        // If turnSpeed is 2, it's a slow tank. If 10, it's a nimble mech.
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, stats.turnSpeed * Time.deltaTime);
     }
-
+}
     private void ApplyMovement()
     {
         bool canBoost = isBoosting && !stats.energyIsDepleted && (moveInput.magnitude > 0 || !controller.isGrounded);
