@@ -46,58 +46,53 @@ public class MechController : MonoBehaviour
         bool canHorizontalBoost = isBoosting && !stats.energyIsDepleted && (moveInput.magnitude > 0 || !controller.isGrounded);
         float currentSpeed = canHorizontalBoost ? stats.boostHorizontalSpeed : stats.walkSpeed;
 
-        // Calculate horizontal movement relative to look direction
         Vector3 forward = lookTargetForward;
         Vector3 right = Vector3.Cross(Vector3.up, forward);
         Vector3 move = (forward * moveInput.z + right * moveInput.x).normalized * currentSpeed;
 
-        // Unified flag to check if ANY boosting happened this frame
+        // Unified flag: ensures 1x drain regardless of how many thrusters are firing
         bool energyUsedThisFrame = false;
 
-        // 2. Vertical & Flight Logic
+        // 2. Vertical Logic (Jump vs Vertical Boost)
         if (controller.isGrounded)
         {
-            verticalVelocity = -2f; // Keeps the mech grounded on slopes
+            verticalVelocity = -2f; // Snap to ground
             
-            // Initial Jump Burst from the ground
-            if (isJumping && !stats.energyIsDepleted)
+            // THE JUMP: Instant upward velocity. No energy cost.
+            if (isJumping)
             {
                 verticalVelocity = stats.jumpForce;
             }
         }
         else
         {
-            // Mid-air: Vertical Boosting (Holding Space)
+            // THE VERTICAL BOOST: Mid-air thrusters. Costs energy.
             if (isJumping && !stats.energyIsDepleted)
             {
-                // Apply upward acceleration instead of instantly snapping to max speed.
-                // This preserves the initial jump arc and feels like firing heavy thrusters.
+                // Upward acceleration up to the max vertical speed
                 verticalVelocity += (stats.boostVerticalSpeed * 2f) * Time.deltaTime;
-                
-                // Clamp it so we don't fly upwards infinitely fast
                 if (verticalVelocity > stats.boostVerticalSpeed)
                 {
                     verticalVelocity = stats.boostVerticalSpeed;
                 }
                 
-                energyUsedThisFrame = true; // Mark vertical thrusters as active
+                energyUsedThisFrame = true; // Mark vertical thrusters as firing
             }
             else
             {
-                // Gravity takes over if we aren't firing upward thrusters
+                // Gravity (applies when falling or out of energy)
                 float weightFactor = stats.totalWeight / 5000f;
                 verticalVelocity -= 9.81f * weightFactor * 2f * Time.deltaTime;
             }
         }
 
-        // 3. Check for Horizontal Boosting
+        // 3. Horizontal Boost Check
         if (canHorizontalBoost && moveInput.magnitude > 0)
         {
-            energyUsedThisFrame = true; // Mark horizontal thrusters as active
+            energyUsedThisFrame = true; // Mark horizontal thrusters as firing
         }
 
         // 4. The 1x Energy Drain
-        // It only triggers once per frame, whether you are flying, dashing, or both.
         if (energyUsedThisFrame)
         {
             stats.ConsumeEnergy(stats.boostEnergyDrain * Time.deltaTime);
