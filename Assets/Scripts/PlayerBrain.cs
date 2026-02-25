@@ -41,7 +41,7 @@ public class PlayerBrain : MonoBehaviour
         // 3. Actions
         controller.isBoosting = Input.GetKey(KeyCode.LeftShift);
         controller.isJumping = Input.GetKey(KeyCode.Space);
-    }
+    } 
 
     private void HandleCameraRotation()
     {
