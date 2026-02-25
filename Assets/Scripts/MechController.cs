@@ -6,9 +6,13 @@ public class MechController : MonoBehaviour
     private CharacterController controller;
     private MechStats stats;
 
+    [Header("Visuals")]
+    [Tooltip("Drag the child Capsule/Mech Model here. This is what will visually rotate.")]
+    public Transform mechBody; 
+
     [Header("Input (Driven by Player or AI)")]
     public Vector3 moveInput; 
-    public Vector3 lookTargetForward; // The direction the mech wants to face
+    public Vector3 lookTargetForward; 
     public bool isBoosting;
     public bool isJumping;
 
@@ -27,23 +31,26 @@ public class MechController : MonoBehaviour
     }
 
     private void HandleBodyRotation()
-{
-    if (lookTargetForward != Vector3.zero)
     {
-        // Create the rotation we want to reach
-        Quaternion targetRot = Quaternion.LookRotation(lookTargetForward);
-        
-        // Use stats.turnSpeed to dictate how "heavy" the turn is
-        // If turnSpeed is 2, it's a slow tank. If 10, it's a nimble mech.
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, stats.turnSpeed * Time.deltaTime);
+        // Only rotate the visual body, leaving the root object's rotation at (0,0,0)
+        if (lookTargetForward != Vector3.zero && mechBody != null)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(lookTargetForward);
+            mechBody.rotation = Quaternion.Slerp(mechBody.rotation, targetRot, stats.turnSpeed * Time.deltaTime);
+        }
     }
-}
+
     private void ApplyMovement()
     {
         bool canBoost = isBoosting && !stats.energyIsDepleted && (moveInput.magnitude > 0 || !controller.isGrounded);
         float currentSpeed = canBoost ? stats.boostHorizontalSpeed : stats.walkSpeed;
 
-        Vector3 move = transform.TransformDirection(moveInput) * currentSpeed;
+        // Calculate movement relative to where we are aiming (the camera's forward)
+        // Since the root doesn't rotate, we must build the movement vector manually
+        Vector3 forward = lookTargetForward;
+        Vector3 right = Vector3.Cross(Vector3.up, forward);
+        
+        Vector3 move = (forward * moveInput.z + right * moveInput.x).normalized * currentSpeed;
 
         // Vertical / Gravity
         if (controller.isGrounded)
