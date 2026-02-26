@@ -507,6 +507,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bee596110ce8f141af3f4518334739b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  mechBody: {fileID: 90186454}
   moveInput: {x: 0, y: 0, z: 0}
   lookTargetForward: {x: 0, y: 0, z: 0}
   isBoosting: 0
@@ -590,7 +591,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4745a1512a7801a458b336912805ff80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerBrain
-  camTransform: {fileID: 820559478}
+  cameraPivot: {fileID: 0}
+  mouseSensitivity: 2
 --- !u!43 &152495736
 Mesh:
   m_ObjectHideFlags: 0
