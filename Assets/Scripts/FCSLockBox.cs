@@ -13,16 +13,18 @@ public class FCSLockBox : MonoBehaviour
     [Header("Mechanics")]
     public float stickyThreshold = 2f;
     public LayerMask targetLayer;
-    public bool isPlayer = true; 
+    public bool isPlayer = true;
 
     [Header("External References")]
-    public Transform aimMaster; 
+    public Transform aimMaster;
     public Camera mainCamera;
 
     [Header("UI Elements (Player Only)")]
-    public RectTransform lockBoxUI; 
-    public RectTransform reticleUI; 
-    public Image reticleImage;
+    public RectTransform lockBoxUI;
+    public RectTransform reticleUI;
+    // We removed the public reticleImage variable. 
+    // The script will now find all child images automatically!
+    private Image[] reticleChildImages;
 
     // State Variables
     public Transform currentTarget { get; private set; }
@@ -32,17 +34,30 @@ public class FCSLockBox : MonoBehaviour
 
     void Start()
     {
+        // 1. Calculate the static lockbox size
         if (isPlayer && lockBoxUI != null)
         {
             lockBoxUI.sizeDelta = new Vector2(fcsWidth * 15f, fcsHeight * 15f);
+        }
+
+        // 2. Automatically find all Image components on the Reticle's children
+        if (isPlayer && reticleUI != null)
+        {
+            reticleChildImages = reticleUI.GetComponentsInChildren<Image>(true);
         }
     }
 
     void Update()
     {
+        // 3. The Parallax Fix
+        if (isPlayer && mainCamera != null)
+        {
+            transform.position = mainCamera.transform.position;
+        }
+
         UpdateFCSTrailingRotation();
         DetectAndManageTargets();
-        
+
         if (isPlayer)
         {
             UpdateUI();
@@ -76,7 +91,7 @@ public class FCSLockBox : MonoBehaviour
             Transform targetTransform = col.transform;
             Vector3 localPos = transform.InverseTransformPoint(targetTransform.position);
 
-            if (localPos.z > 0) // In front of us
+            if (localPos.z > 0)
             {
                 float angleX = Mathf.Abs(Mathf.Atan2(localPos.x, localPos.z) * Mathf.Rad2Deg);
                 float angleY = Mathf.Abs(Mathf.Atan2(localPos.y, localPos.z) * Mathf.Rad2Deg);
@@ -127,17 +142,41 @@ public class FCSLockBox : MonoBehaviour
     {
         if (mainCamera == null || lockBoxUI == null || reticleUI == null) return;
 
-        // Project the UI based on the 3D rotation of the FCS
-        Vector3 projectionPoint = transform.position + transform.forward * 100f;
-        Vector2 screenPos = mainCamera.WorldToScreenPoint(projectionPoint);
-        lockBoxUI.position = screenPos;
+        RectTransform canvasRect = (RectTransform)lockBoxUI.parent;
 
+        // 4. Move the static Orange Box
+        Vector3 projectionPoint = transform.position + transform.forward * 100f;
+        Vector3 boxScreenPos = mainCamera.WorldToScreenPoint(projectionPoint);
+
+        if (boxScreenPos.z > 0)
+        {
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, boxScreenPos, mainCamera, out Vector2 boxLocalPos);
+            lockBoxUI.localPosition = boxLocalPos;
+        }
+
+        // 5. Handle the Reticle & Change Child Colors
         if (currentTarget != null)
         {
-            reticleUI.gameObject.SetActive(true);
-            Vector2 enemyScreenPos = mainCamera.WorldToScreenPoint(currentTarget.position);
-            reticleUI.position = enemyScreenPos;
-            reticleImage.color = isHardLocked ? Color.red : Color.green;
+            Vector3 enemyScreenPos = mainCamera.WorldToScreenPoint(currentTarget.position);
+
+            if (enemyScreenPos.z > 0)
+            {
+                reticleUI.gameObject.SetActive(true);
+
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, enemyScreenPos, mainCamera, out Vector2 reticleLocalPos);
+                reticleUI.localPosition = reticleLocalPos;
+
+                // NEW: Loop through every child image and update its color!
+                Color targetColor = isHardLocked ? Color.red : Color.green;
+                foreach (Image img in reticleChildImages)
+                {
+                    if (img != null) img.color = targetColor;
+                }
+            }
+            else
+            {
+                reticleUI.gameObject.SetActive(false);
+            }
         }
         else
         {
@@ -145,13 +184,11 @@ public class FCSLockBox : MonoBehaviour
         }
     }
 
-    // --- NEW: GIZMO DRAWING ---
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
         Vector3 origin = transform.position;
 
-        // Calculate the 4 corners of the frustum at max range
         Quaternion upLeft = Quaternion.Euler(-fcsHeight / 2f, -fcsWidth / 2f, 0);
         Quaternion upRight = Quaternion.Euler(-fcsHeight / 2f, fcsWidth / 2f, 0);
         Quaternion downLeft = Quaternion.Euler(fcsHeight / 2f, -fcsWidth / 2f, 0);
@@ -162,13 +199,11 @@ public class FCSLockBox : MonoBehaviour
         Vector3 bl = origin + (transform.rotation * downLeft * Vector3.forward) * fcsRange;
         Vector3 br = origin + (transform.rotation * downRight * Vector3.forward) * fcsRange;
 
-        // Draw lines from the pivot to the far corners
         Gizmos.DrawLine(origin, tl);
         Gizmos.DrawLine(origin, tr);
         Gizmos.DrawLine(origin, bl);
         Gizmos.DrawLine(origin, br);
 
-        // Draw the far plane rectangle
         Gizmos.DrawLine(tl, tr);
         Gizmos.DrawLine(tr, br);
         Gizmos.DrawLine(br, bl);
