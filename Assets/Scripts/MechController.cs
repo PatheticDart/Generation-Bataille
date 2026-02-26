@@ -32,10 +32,13 @@ public class MechController : MonoBehaviour
 
     private void HandleBodyRotation()
     {
-        // Only rotate the visual body, leaving the root object's rotation at (0,0,0)
+        // Ensure we have a direction to look and the visual model is assigned
         if (lookTargetForward != Vector3.zero && mechBody != null)
         {
+            // Calculate the target rotation based on the camera's heading
             Quaternion targetRot = Quaternion.LookRotation(lookTargetForward);
+            
+            // Slerp the capsule's rotation for that heavy, mechanical turn
             mechBody.rotation = Quaternion.Slerp(mechBody.rotation, targetRot, stats.turnSpeed * Time.deltaTime);
         }
     }
