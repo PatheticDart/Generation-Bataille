@@ -4,31 +4,24 @@ using UnityEngine.UI;
 public class FCSLockBox : MonoBehaviour
 {
     [Header("FCS Stats (Loaded from MechLoader)")]
-    [Tooltip("The horizontal FOV of the lockbox in degrees.")]
     public float fcsWidth = 45f;
-    [Tooltip("The vertical FOV of the lockbox in degrees.")]
     public float fcsHeight = 30f;
-    [Tooltip("Maximum lock-on range in meters.")]
     public float fcsRange = 300f;
-    [Tooltip("Time in seconds to transition from Soft Lock to Hard Lock.")]
     public float lockSpeed = 1.5f;
-    [Tooltip("How fast the FCS box rotates to catch up to the camera/aim direction.")]
     public float fcsTurnRate = 10f;
 
     [Header("Mechanics")]
-    [Tooltip("If the angle between the camera and FCS is less than this, the box snaps to the center.")]
     public float stickyThreshold = 2f;
     public LayerMask targetLayer;
-    public bool isPlayer = true; // Set to false for AI
+    public bool isPlayer = true; 
 
     [Header("External References")]
-    [Tooltip("For Player: CameraPivot. For AI: The direction the AI wants to look.")]
     public Transform aimMaster; 
     public Camera mainCamera;
 
     [Header("UI Elements (Player Only)")]
-    public RectTransform lockBoxUI; // The Orange Box
-    public RectTransform reticleUI; // The Target Crosshair
+    public RectTransform lockBoxUI; 
+    public RectTransform reticleUI; 
     public Image reticleImage;
 
     // State Variables
@@ -39,10 +32,8 @@ public class FCSLockBox : MonoBehaviour
 
     void Start()
     {
-        // Setup initial UI size based on FCS stats
         if (isPlayer && lockBoxUI != null)
         {
-            // Rough conversion from degrees to screen pixels (adjust multiplier as needed for your resolution)
             lockBoxUI.sizeDelta = new Vector2(fcsWidth * 15f, fcsHeight * 15f);
         }
     }
@@ -62,47 +53,36 @@ public class FCSLockBox : MonoBehaviour
     {
         if (aimMaster == null) return;
 
-        // Calculate how far behind the FCS is from the master aim direction
         float angleDifference = Quaternion.Angle(transform.rotation, aimMaster.rotation);
 
         if (angleDifference <= stickyThreshold)
         {
-            // STICKY: It's close enough, snap to center
             transform.rotation = aimMaster.rotation;
         }
         else
         {
-            // CHASING: The camera moved too fast, Slerp to catch up
             transform.rotation = Quaternion.Slerp(transform.rotation, aimMaster.rotation, fcsTurnRate * Time.deltaTime);
         }
     }
 
     private void DetectAndManageTargets()
     {
-        // 1. Find all potential targets in range
         Collider[] potentialTargets = Physics.OverlapSphere(transform.position, fcsRange, targetLayer);
         Transform bestTarget = null;
         float closestDistance = Mathf.Infinity;
 
-        // 2. The 3D Frustum Check
         foreach (Collider col in potentialTargets)
         {
             Transform targetTransform = col.transform;
-            
-            // Convert target position to the FCS Pivot's local space
             Vector3 localPos = transform.InverseTransformPoint(targetTransform.position);
 
-            // Is it in front of us?
-            if (localPos.z > 0)
+            if (localPos.z > 0) // In front of us
             {
-                // Calculate horizontal and vertical angles
                 float angleX = Mathf.Abs(Mathf.Atan2(localPos.x, localPos.z) * Mathf.Rad2Deg);
                 float angleY = Mathf.Abs(Mathf.Atan2(localPos.y, localPos.z) * Mathf.Rad2Deg);
 
-                // Is it inside our specific FCS Width and Height bounds?
                 if (angleX <= fcsWidth / 2f && angleY <= fcsHeight / 2f)
                 {
-                    // It is inside the 3D Frustum! Find the closest one.
                     float dist = localPos.z;
                     if (dist < closestDistance)
                     {
@@ -113,12 +93,10 @@ public class FCSLockBox : MonoBehaviour
             }
         }
 
-        // 3. Manage Lock States
         if (bestTarget != null)
         {
             if (currentTarget != bestTarget)
             {
-                // New target acquired: Reset to Soft Lock
                 currentTarget = bestTarget;
                 isSoftLocked = true;
                 isHardLocked = false;
@@ -126,7 +104,6 @@ public class FCSLockBox : MonoBehaviour
             }
             else
             {
-                // Maintain lock, progress to Hard Lock
                 if (!isHardLocked)
                 {
                     currentLockTimer += Time.deltaTime;
@@ -139,7 +116,6 @@ public class FCSLockBox : MonoBehaviour
         }
         else
         {
-            // Target lost or left the box
             currentTarget = null;
             isSoftLocked = false;
             isHardLocked = false;
@@ -151,22 +127,16 @@ public class FCSLockBox : MonoBehaviour
     {
         if (mainCamera == null || lockBoxUI == null || reticleUI == null) return;
 
-        // 1. Move the Orange Lockbox to match the trailing FCSPivot
-        // We project a point far forward from the pivot to anchor the 2D UI
+        // Project the UI based on the 3D rotation of the FCS
         Vector3 projectionPoint = transform.position + transform.forward * 100f;
         Vector2 screenPos = mainCamera.WorldToScreenPoint(projectionPoint);
         lockBoxUI.position = screenPos;
 
-        // 2. Handle the Reticle
         if (currentTarget != null)
         {
             reticleUI.gameObject.SetActive(true);
-            
-            // Move reticle to enemy
             Vector2 enemyScreenPos = mainCamera.WorldToScreenPoint(currentTarget.position);
             reticleUI.position = enemyScreenPos;
-
-            // Update color based on lock state
             reticleImage.color = isHardLocked ? Color.red : Color.green;
         }
         else
@@ -175,21 +145,33 @@ public class FCSLockBox : MonoBehaviour
         }
     }
 
-    // Weapons will call this function to know where to shoot
-    public Vector3 GetAimPosition(float projectileSpeed = 0f)
+    // --- NEW: GIZMO DRAWING ---
+    private void OnDrawGizmosSelected()
     {
-        if (currentTarget == null) return transform.position + transform.forward * 100f;
+        Gizmos.color = Color.yellow;
+        Vector3 origin = transform.position;
 
-        if (isHardLocked && projectileSpeed > 0f)
-        {
-            // HARD LOCK: Predict target position based on velocities
-            // (We will implement the kinematic math here later when weapons are built)
-            return currentTarget.position; // Stubbed for now
-        }
-        else
-        {
-            // SOFT LOCK: Just aim at their current exact position
-            return currentTarget.position;
-        }
+        // Calculate the 4 corners of the frustum at max range
+        Quaternion upLeft = Quaternion.Euler(-fcsHeight / 2f, -fcsWidth / 2f, 0);
+        Quaternion upRight = Quaternion.Euler(-fcsHeight / 2f, fcsWidth / 2f, 0);
+        Quaternion downLeft = Quaternion.Euler(fcsHeight / 2f, -fcsWidth / 2f, 0);
+        Quaternion downRight = Quaternion.Euler(fcsHeight / 2f, fcsWidth / 2f, 0);
+
+        Vector3 tl = origin + (transform.rotation * upLeft * Vector3.forward) * fcsRange;
+        Vector3 tr = origin + (transform.rotation * upRight * Vector3.forward) * fcsRange;
+        Vector3 bl = origin + (transform.rotation * downLeft * Vector3.forward) * fcsRange;
+        Vector3 br = origin + (transform.rotation * downRight * Vector3.forward) * fcsRange;
+
+        // Draw lines from the pivot to the far corners
+        Gizmos.DrawLine(origin, tl);
+        Gizmos.DrawLine(origin, tr);
+        Gizmos.DrawLine(origin, bl);
+        Gizmos.DrawLine(origin, br);
+
+        // Draw the far plane rectangle
+        Gizmos.DrawLine(tl, tr);
+        Gizmos.DrawLine(tr, br);
+        Gizmos.DrawLine(br, bl);
+        Gizmos.DrawLine(bl, tl);
     }
 }
