@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+[DefaultExecutionOrder(1000)]
 public class FCSLockBox : MonoBehaviour
 {
     [Header("FCS Stats (Loaded from MechLoader)")]
