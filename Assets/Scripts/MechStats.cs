@@ -16,18 +16,28 @@ public class MechStats : MonoBehaviour
     public float boostVerticalSpeed = 25f;
     public float boostEnergyDrain = 200f;
     public float jumpForce = 12f;
-    public float totalWeight = 5000f;
+    public float totalWeight = 30000f;
+
+    [Tooltip("The 'standard' weight of a medium mech at your current scale. Used as the 1.0x math baseline.")]
+    public float baselineWeight = 30000f;
 
     [Header("Kinematics (Momentum)")]
-    [Tooltip("How fast it reaches walk speed. High = responsive.")]
     public float walkAcceleration = 25f;
-    [Tooltip("How fast it stops walking.")]
     public float walkDeceleration = 30f;
-    [Tooltip("LOWER acceleration makes the boost drift and slide when turning!")]
-    public float boostAcceleration = 10f;
-    [Tooltip("How fast you slide to a halt after letting go of boost.")]
+    public float boostAcceleration = 10f; // Lower = heavier drifting when turning
     public float boostDeceleration = 15f;
 
+    [Header("Air Kinematics")]
+    public float airAcceleration = 5f;    // Hard to change direction mid-air
+    public float airDeceleration = 1.5f;  // Takes a LONG time to stop moving mid-air
+
+    [Header("Landing & Impact")]
+    [Tooltip("How fast you must be falling to trigger a hard landing (Negative value).")]
+    public float hardLandingThreshold = -25f;
+    [Tooltip("The minimum stagger time when hitting the exact threshold at standard weight.")]
+    public float baseHardLandingTime = 0.5f;
+    [Tooltip("The absolute maximum time movement can be locked, regardless of weight/speed.")]
+    public float maxHardLandingTime = 2.5f;
     private void Start()
     {
         currentEnergy = maxEnergy;

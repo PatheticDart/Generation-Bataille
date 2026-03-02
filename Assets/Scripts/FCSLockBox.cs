@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 [DefaultExecutionOrder(1000)]
 public class FCSLockBox : MonoBehaviour
@@ -23,9 +24,12 @@ public class FCSLockBox : MonoBehaviour
     [Header("UI Elements (Player Only)")]
     public RectTransform lockBoxUI;
     public RectTransform reticleUI;
-    // We removed the public reticleImage variable. 
-    // The script will now find all child images automatically!
+    [Tooltip("Drag your TMPro text object here.")]
+    public TextMeshProUGUI rangefinderText;
+
+    // Arrays to hold all our visual components
     private Image[] reticleChildImages;
+    private TextMeshProUGUI[] reticleChildTexts; // NEW: Array for text components
 
     // State Variables
     public Transform currentTarget { get; private set; }
@@ -35,27 +39,21 @@ public class FCSLockBox : MonoBehaviour
 
     void Start()
     {
-        // 1. Calculate the static lockbox size
         if (isPlayer && lockBoxUI != null)
         {
             lockBoxUI.sizeDelta = new Vector2(fcsWidth * 15f, fcsHeight * 15f);
         }
 
-        // 2. Automatically find all Image components on the Reticle's children
         if (isPlayer && reticleUI != null)
         {
+            // Automatically find all images AND text components inside the reticle
             reticleChildImages = reticleUI.GetComponentsInChildren<Image>(true);
+            reticleChildTexts = reticleUI.GetComponentsInChildren<TextMeshProUGUI>(true);
         }
     }
 
-    void Update()
+    void LateUpdate()
     {
-        // 3. The Parallax Fix
-        if (isPlayer && mainCamera != null)
-        {
-            transform.position = mainCamera.transform.position;
-        }
-
         UpdateFCSTrailingRotation();
         DetectAndManageTargets();
 
@@ -83,14 +81,18 @@ public class FCSLockBox : MonoBehaviour
 
     private void DetectAndManageTargets()
     {
-        Collider[] potentialTargets = Physics.OverlapSphere(transform.position, fcsRange, targetLayer);
+        Vector3 origin = (isPlayer && mainCamera != null) ? mainCamera.transform.position : transform.position;
+
+        Collider[] potentialTargets = Physics.OverlapSphere(origin, fcsRange, targetLayer);
         Transform bestTarget = null;
         float closestDistance = Mathf.Infinity;
 
         foreach (Collider col in potentialTargets)
         {
             Transform targetTransform = col.transform;
-            Vector3 localPos = transform.InverseTransformPoint(targetTransform.position);
+
+            Vector3 toTarget = targetTransform.position - origin;
+            Vector3 localPos = Quaternion.Inverse(transform.rotation) * toTarget;
 
             if (localPos.z > 0)
             {
@@ -145,8 +147,8 @@ public class FCSLockBox : MonoBehaviour
 
         RectTransform canvasRect = (RectTransform)lockBoxUI.parent;
 
-        // 4. Move the static Orange Box
-        Vector3 projectionPoint = transform.position + transform.forward * 100f;
+        Vector3 origin = mainCamera.transform.position;
+        Vector3 projectionPoint = origin + transform.forward * 100f;
         Vector3 boxScreenPos = mainCamera.WorldToScreenPoint(projectionPoint);
 
         if (boxScreenPos.z > 0)
@@ -155,7 +157,6 @@ public class FCSLockBox : MonoBehaviour
             lockBoxUI.localPosition = boxLocalPos;
         }
 
-        // 5. Handle the Reticle & Change Child Colors
         if (currentTarget != null)
         {
             Vector3 enemyScreenPos = mainCamera.WorldToScreenPoint(currentTarget.position);
@@ -167,11 +168,24 @@ public class FCSLockBox : MonoBehaviour
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, enemyScreenPos, mainCamera, out Vector2 reticleLocalPos);
                 reticleUI.localPosition = reticleLocalPos;
 
-                // NEW: Loop through every child image and update its color!
                 Color targetColor = isHardLocked ? Color.red : Color.green;
+
+                // Color the Images
                 foreach (Image img in reticleChildImages)
                 {
                     if (img != null) img.color = targetColor;
+                }
+
+                // NEW: Color the Text elements
+                foreach (TextMeshProUGUI txt in reticleChildTexts)
+                {
+                    if (txt != null) txt.color = targetColor;
+                }
+
+                if (rangefinderText != null)
+                {
+                    float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
+                    rangefinderText.text = $"{distanceToTarget:F0}m";
                 }
             }
             else
@@ -183,31 +197,5 @@ public class FCSLockBox : MonoBehaviour
         {
             reticleUI.gameObject.SetActive(false);
         }
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Vector3 origin = transform.position;
-
-        Quaternion upLeft = Quaternion.Euler(-fcsHeight / 2f, -fcsWidth / 2f, 0);
-        Quaternion upRight = Quaternion.Euler(-fcsHeight / 2f, fcsWidth / 2f, 0);
-        Quaternion downLeft = Quaternion.Euler(fcsHeight / 2f, -fcsWidth / 2f, 0);
-        Quaternion downRight = Quaternion.Euler(fcsHeight / 2f, fcsWidth / 2f, 0);
-
-        Vector3 tl = origin + (transform.rotation * upLeft * Vector3.forward) * fcsRange;
-        Vector3 tr = origin + (transform.rotation * upRight * Vector3.forward) * fcsRange;
-        Vector3 bl = origin + (transform.rotation * downLeft * Vector3.forward) * fcsRange;
-        Vector3 br = origin + (transform.rotation * downRight * Vector3.forward) * fcsRange;
-
-        Gizmos.DrawLine(origin, tl);
-        Gizmos.DrawLine(origin, tr);
-        Gizmos.DrawLine(origin, bl);
-        Gizmos.DrawLine(origin, br);
-
-        Gizmos.DrawLine(tl, tr);
-        Gizmos.DrawLine(tr, br);
-        Gizmos.DrawLine(br, bl);
-        Gizmos.DrawLine(bl, tl);
     }
 }
