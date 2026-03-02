@@ -27,11 +27,9 @@ public class FCSLockBox : MonoBehaviour
     [Tooltip("Drag your TMPro text object here.")]
     public TextMeshProUGUI rangefinderText;
 
-    // Arrays to hold all our visual components
     private Image[] reticleChildImages;
-    private TextMeshProUGUI[] reticleChildTexts; // NEW: Array for text components
+    private TextMeshProUGUI[] reticleChildTexts; 
 
-    // State Variables
     public Transform currentTarget { get; private set; }
     public bool isSoftLocked { get; private set; }
     public bool isHardLocked { get; private set; }
@@ -46,7 +44,6 @@ public class FCSLockBox : MonoBehaviour
 
         if (isPlayer && reticleUI != null)
         {
-            // Automatically find all images AND text components inside the reticle
             reticleChildImages = reticleUI.GetComponentsInChildren<Image>(true);
             reticleChildTexts = reticleUI.GetComponentsInChildren<TextMeshProUGUI>(true);
         }
@@ -83,13 +80,29 @@ public class FCSLockBox : MonoBehaviour
     {
         Vector3 origin = (isPlayer && mainCamera != null) ? mainCamera.transform.position : transform.position;
 
-        Collider[] potentialTargets = Physics.OverlapSphere(origin, fcsRange, targetLayer);
+        // --- THE OVERSIZED PHYSICS SPHERE ---
+        // Multiply fcsRange by 1.5 to create a generous buffer net. 
+        // This guarantees targets don't slip out of the physics check prematurely.
+        float oversizedPhysicsRadius = fcsRange * 1.5f;
+        Collider[] potentialTargets = Physics.OverlapSphere(origin, oversizedPhysicsRadius, targetLayer);
+        
         Transform bestTarget = null;
         float closestDistance = Mathf.Infinity;
 
         foreach (Collider col in potentialTargets)
         {
             Transform targetTransform = col.transform;
+
+            // --- THE STRICT MATH FILTER ---
+            // Calculate the exact distance the Rangefinder UI will display
+            Vector3 distanceOrigin = (aimMaster != null) ? aimMaster.position : transform.position;
+            float distanceToTarget = Vector3.Distance(distanceOrigin, targetTransform.position);
+
+            // If the UI text says 101, and range is 100, instantly ignore this target
+            if (distanceToTarget > fcsRange) 
+            {
+                continue; 
+            }
 
             Vector3 toTarget = targetTransform.position - origin;
             Vector3 localPos = Quaternion.Inverse(transform.rotation) * toTarget;
@@ -170,13 +183,11 @@ public class FCSLockBox : MonoBehaviour
 
                 Color targetColor = isHardLocked ? Color.red : Color.green;
 
-                // Color the Images
                 foreach (Image img in reticleChildImages)
                 {
                     if (img != null) img.color = targetColor;
                 }
 
-                // NEW: Color the Text elements
                 foreach (TextMeshProUGUI txt in reticleChildTexts)
                 {
                     if (txt != null) txt.color = targetColor;
@@ -184,7 +195,9 @@ public class FCSLockBox : MonoBehaviour
 
                 if (rangefinderText != null)
                 {
-                    float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
+                    // Calculate the exact same distance to target as the detection logic
+                    Vector3 distanceOrigin = (aimMaster != null) ? aimMaster.position : transform.position;
+                    float distanceToTarget = Vector3.Distance(distanceOrigin, currentTarget.position);
                     rangefinderText.text = $"{distanceToTarget:F0}m";
                 }
             }

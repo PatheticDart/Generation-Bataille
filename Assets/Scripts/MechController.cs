@@ -16,15 +16,18 @@ public class MechController : MonoBehaviour
     public bool isJumping;
 
     [Header("Camera & Effects")]
-    [Tooltip("Drag the Virtual Camera here to trigger screen shake.")]
-    public CameraEffects cameraEffects; // <-- Updated reference name!
+    public CameraEffects cameraEffects;
 
     private float verticalVelocity;
     private Vector3 currentHorizontalVelocity;
 
-    // --- Landing State Variables ---
+    // --- State Variables ---
     public bool isRecoveringFromLanding { get; private set; }
     private float recoveryTimer = 0f;
+    private float jumpCooldownTimer = 0f;
+
+    // --- Direction Tracking Variables ---
+    private Vector3 lastActiveMoveInput;
 
     void Start()
     {
@@ -49,11 +52,30 @@ public class MechController : MonoBehaviour
 
     private void ApplyMovement()
     {
-        // --- 1. HANDLE HARD LANDING RECOVERY STATE ---
         Vector3 currentMoveInput = moveInput;
         bool currentIsJumping = isJumping;
         bool currentIsBoosting = isBoosting;
 
+        // --- 1. OPPOSITE DIRECTION SWITCH (INSTANT MOMENTUM RESET) ---
+        if (!isRecoveringFromLanding && currentMoveInput.magnitude > 0.1f)
+        {
+            // Only apply the instant momentum kill if we are GROUNDED and NOT boosting
+            if (controller.isGrounded && !currentIsBoosting)
+            {
+                if (lastActiveMoveInput.magnitude > 0.1f)
+                {
+                    // Dot product < -0.5f means the new input is generally opposite the old input
+                    if (Vector3.Dot(currentMoveInput.normalized, lastActiveMoveInput.normalized) < -0.5f)
+                    {
+                        currentHorizontalVelocity = Vector3.zero;
+                    }
+                }
+            }
+            // Always track the last input so the script knows what we were doing before landing
+            lastActiveMoveInput = currentMoveInput;
+        }
+
+        // --- 2. HARD LANDING RECOVERY STATE ---
         if (isRecoveringFromLanding)
         {
             recoveryTimer -= Time.deltaTime;
@@ -63,16 +85,23 @@ public class MechController : MonoBehaviour
             }
             else
             {
-                // Lock out all player input while recovering
+                // Lock player input, but preserve momentum for the slide
                 currentMoveInput = Vector3.zero;
                 currentIsJumping = false;
                 currentIsBoosting = false;
             }
         }
 
-        // --- 2. HORIZONTAL MOMENTUM ---
+        // --- 3. HORIZONTAL MOMENTUM & TARGET SPEED ---
         bool canHorizontalBoost = currentIsBoosting && !stats.energyIsDepleted && (currentMoveInput.magnitude > 0 || !controller.isGrounded);
-        float targetSpeed = canHorizontalBoost ? stats.boostHorizontalSpeed : stats.walkSpeed;
+
+        float currentWalkSpeed = stats.walkSpeed;
+        if (currentMoveInput.z < -0.1f)
+        {
+            currentWalkSpeed *= (1f - stats.backwardSpeedPenalty);
+        }
+
+        float targetSpeed = canHorizontalBoost ? stats.boostHorizontalSpeed : currentWalkSpeed;
 
         Vector3 forward = lookTargetForward;
         Vector3 right = Vector3.Cross(Vector3.up, forward);
@@ -80,35 +109,47 @@ public class MechController : MonoBehaviour
         Vector3 targetDirection = (forward * currentMoveInput.z + right * currentMoveInput.x).normalized;
         Vector3 targetVelocity = targetDirection * targetSpeed;
 
-        float accelRate;
-        if (!controller.isGrounded)
+        // --- 4. ACCELERATION & SLIDE LOGIC ---
+        if (isRecoveringFromLanding && controller.isGrounded)
         {
-            accelRate = (currentMoveInput.magnitude > 0) ? stats.airAcceleration : stats.airDeceleration;
+            // PURE FRICTION SLIDE: This perfectly preserves your exact entry velocity and smoothly decays it to zero.
+            currentHorizontalVelocity = Vector3.Lerp(currentHorizontalVelocity, Vector3.zero, stats.hardLandingSlideDeceleration * Time.deltaTime);
         }
         else
         {
-            if (currentMoveInput.magnitude > 0)
+            // Standard Movement Logic
+            float accelRate;
+            if (!controller.isGrounded)
             {
-                accelRate = canHorizontalBoost ? stats.boostAcceleration : stats.walkAcceleration;
+                accelRate = (currentMoveInput.magnitude > 0) ? stats.airAcceleration : stats.airDeceleration;
             }
             else
             {
-                accelRate = canHorizontalBoost ? stats.boostDeceleration : stats.walkDeceleration;
+                if (currentMoveInput.magnitude > 0)
+                {
+                    accelRate = canHorizontalBoost ? stats.boostAcceleration : stats.walkAcceleration;
+                }
+                else
+                {
+                    accelRate = canHorizontalBoost ? stats.boostDeceleration : stats.walkDeceleration;
+                }
             }
+            currentHorizontalVelocity = Vector3.MoveTowards(currentHorizontalVelocity, targetVelocity, accelRate * Time.deltaTime);
         }
-
-        currentHorizontalVelocity = Vector3.MoveTowards(currentHorizontalVelocity, targetVelocity, accelRate * Time.deltaTime);
 
         bool energyUsedThisFrame = false;
 
-        // --- 3. VERTICAL LOGIC ---
+        // --- 5. VERTICAL LOGIC ---
         if (controller.isGrounded)
         {
             verticalVelocity = -2f;
 
-            if (currentIsJumping)
+            if (jumpCooldownTimer > 0f) jumpCooldownTimer -= Time.deltaTime;
+
+            if (currentIsJumping && jumpCooldownTimer <= 0f)
             {
                 verticalVelocity = stats.jumpForce;
+                jumpCooldownTimer = stats.jumpCooldown;
             }
         }
         else
@@ -116,58 +157,45 @@ public class MechController : MonoBehaviour
             if (currentIsJumping && !stats.energyIsDepleted)
             {
                 verticalVelocity += (stats.boostVerticalSpeed * 2f) * Time.deltaTime;
-                if (verticalVelocity > stats.boostVerticalSpeed)
-                {
-                    verticalVelocity = stats.boostVerticalSpeed;
-                }
+                if (verticalVelocity > stats.boostVerticalSpeed) verticalVelocity = stats.boostVerticalSpeed;
                 energyUsedThisFrame = true;
             }
             else
             {
-                // Keeping your 10f multiplier here!
                 float weightFactor = stats.totalWeight / stats.baselineWeight;
-                verticalVelocity -= 9.81f * weightFactor * 12f * Time.deltaTime;
+                verticalVelocity -= 9.81f * weightFactor * 11f * Time.deltaTime;
             }
         }
 
-        if (canHorizontalBoost && currentMoveInput.magnitude > 0)
-        {
-            energyUsedThisFrame = true;
-        }
+        if (canHorizontalBoost && currentMoveInput.magnitude > 0) energyUsedThisFrame = true;
+        if (energyUsedThisFrame) stats.ConsumeEnergy(stats.boostEnergyDrain * Time.deltaTime);
 
-        if (energyUsedThisFrame)
-        {
-            stats.ConsumeEnergy(stats.boostEnergyDrain * Time.deltaTime);
-        }
-
-        // --- 4. THE MOVEMENT & IMPACT DETECTION ---
         Vector3 finalMove = new Vector3(currentHorizontalVelocity.x, verticalVelocity, currentHorizontalVelocity.z);
-
-        // Save the ground state BEFORE we move
         bool wasGroundedBeforeMove = controller.isGrounded;
-
-        // Execute the physical movement
         controller.Move(finalMove * Time.deltaTime);
 
-        // Check the ground state AFTER we move to see if we just impacted
+        // --- 6. IMPACT DETECTION ---
         if (!wasGroundedBeforeMove && controller.isGrounded)
         {
-            if (verticalVelocity <= stats.hardLandingThreshold)
+            jumpCooldownTimer = stats.jumpCooldown;
+
+            if (verticalVelocity <= stats.minHardLandingThreshold)
             {
                 isRecoveringFromLanding = true;
-
                 float weightFactor = stats.totalWeight / stats.baselineWeight;
-                float speedFactor = verticalVelocity / stats.hardLandingThreshold;
-                float calculatedTime = stats.baseHardLandingTime * weightFactor * speedFactor;
+                float speedFactor = Mathf.InverseLerp(stats.minHardLandingThreshold, stats.maxHardLandingThreshold, verticalVelocity);
+
+                float baseCalculatedTime = Mathf.Lerp(stats.baseHardLandingTime, stats.maxHardLandingTime, speedFactor);
+                float calculatedTime = baseCalculatedTime * weightFactor;
                 recoveryTimer = Mathf.Clamp(calculatedTime, stats.baseHardLandingTime, stats.maxHardLandingTime);
 
-                // --- TRIGGER CAMERA SHAKE ---
                 if (cameraEffects != null)
                 {
-                    cameraEffects.TriggerImpactShake(speedFactor);
+                    float shakeSeverity = Mathf.Lerp(1.0f, 3.0f, speedFactor) * weightFactor;
+                    cameraEffects.TriggerImpactShake(shakeSeverity);
                 }
 
-                Debug.Log($"HARD LANDING! Speed: {verticalVelocity:F1} | Weight: {stats.totalWeight} | Stagger Time: {recoveryTimer:F2}s");
+                Debug.Log($"HARD LANDING! Speed: {verticalVelocity:F1} | Stagger Time: {recoveryTimer:F2}s");
             }
         }
     }

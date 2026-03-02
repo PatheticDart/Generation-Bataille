@@ -16,28 +16,34 @@ public class MechStats : MonoBehaviour
     public float boostVerticalSpeed = 25f;
     public float boostEnergyDrain = 200f;
     public float jumpForce = 12f;
+    [Tooltip("How long after landing before the mech can jump again.")]
+    public float jumpCooldown = 0.8f;
     public float totalWeight = 30000f;
-
-    [Tooltip("The 'standard' weight of a medium mech at your current scale. Used as the 1.0x math baseline.")]
     public float baselineWeight = 30000f;
 
     [Header("Kinematics (Momentum)")]
     public float walkAcceleration = 25f;
     public float walkDeceleration = 30f;
-    public float boostAcceleration = 10f; // Lower = heavier drifting when turning
+    public float boostAcceleration = 10f;
     public float boostDeceleration = 15f;
+    
+    // --- MOVEMENT REFINEMENTS ---
+    [Tooltip("Penalty applied to walk speed when moving backwards (0.3 = 30% slower).")]
+    [Range(0f, 1f)]
+    public float backwardSpeedPenalty = 0.3f;
+    [Tooltip("Friction multiplier during a hard landing slide. E.g., 2f for a long slide, 10f for a short stop.")]
+    public float hardLandingSlideDeceleration = 5f; 
 
     [Header("Air Kinematics")]
-    public float airAcceleration = 5f;    // Hard to change direction mid-air
-    public float airDeceleration = 1.5f;  // Takes a LONG time to stop moving mid-air
+    public float airAcceleration = 5f;
+    public float airDeceleration = 1.5f;
 
     [Header("Landing & Impact")]
-    [Tooltip("How fast you must be falling to trigger a hard landing (Negative value).")]
-    public float hardLandingThreshold = -25f;
-    [Tooltip("The minimum stagger time when hitting the exact threshold at standard weight.")]
+    public float minHardLandingThreshold = -25f;
+    public float maxHardLandingThreshold = -80f;
     public float baseHardLandingTime = 0.5f;
-    [Tooltip("The absolute maximum time movement can be locked, regardless of weight/speed.")]
     public float maxHardLandingTime = 2.5f;
+
     private void Start()
     {
         currentEnergy = maxEnergy;
@@ -45,20 +51,17 @@ public class MechStats : MonoBehaviour
 
     private void Update()
     {
-        // If we are at or below 0, lock the mech into Depleted state
         if (currentEnergy <= 0.01f)
         {
             currentEnergy = 0;
             energyIsDepleted = true;
         }
 
-        // Unlock Depleted state only at 100% charge
         if (energyIsDepleted && currentEnergy >= maxEnergy)
         {
             energyIsDepleted = false;
         }
 
-        // Apply Regen
         float regen = energyIsDepleted ? depletedRegenRate : energyRegenRate;
         if (currentEnergy < maxEnergy)
         {
