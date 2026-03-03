@@ -12,6 +12,10 @@ public class FCSLockBox : MonoBehaviour
     public float lockSpeed = 1.5f;
     public float fcsTurnRate = 10f;
 
+    [Header("Colors")]
+    public Color softLockColor = Color.green;
+    public Color hardLockColor = Color.red; // Kept separate so it always turns red on lock
+
     [Header("Mechanics")]
     public float stickyThreshold = 2f;
     public LayerMask targetLayer;
@@ -28,7 +32,7 @@ public class FCSLockBox : MonoBehaviour
     public TextMeshProUGUI rangefinderText;
 
     private Image[] reticleChildImages;
-    private TextMeshProUGUI[] reticleChildTexts; 
+    private TextMeshProUGUI[] reticleChildTexts;
 
     public Transform currentTarget { get; private set; }
     public bool isSoftLocked { get; private set; }
@@ -81,11 +85,9 @@ public class FCSLockBox : MonoBehaviour
         Vector3 origin = (isPlayer && mainCamera != null) ? mainCamera.transform.position : transform.position;
 
         // --- THE OVERSIZED PHYSICS SPHERE ---
-        // Multiply fcsRange by 1.5 to create a generous buffer net. 
-        // This guarantees targets don't slip out of the physics check prematurely.
         float oversizedPhysicsRadius = fcsRange * 1.5f;
         Collider[] potentialTargets = Physics.OverlapSphere(origin, oversizedPhysicsRadius, targetLayer);
-        
+
         Transform bestTarget = null;
         float closestDistance = Mathf.Infinity;
 
@@ -94,14 +96,12 @@ public class FCSLockBox : MonoBehaviour
             Transform targetTransform = col.transform;
 
             // --- THE STRICT MATH FILTER ---
-            // Calculate the exact distance the Rangefinder UI will display
             Vector3 distanceOrigin = (aimMaster != null) ? aimMaster.position : transform.position;
             float distanceToTarget = Vector3.Distance(distanceOrigin, targetTransform.position);
 
-            // If the UI text says 101, and range is 100, instantly ignore this target
-            if (distanceToTarget > fcsRange) 
+            if (distanceToTarget > fcsRange)
             {
-                continue; 
+                continue;
             }
 
             Vector3 toTarget = targetTransform.position - origin;
@@ -181,7 +181,8 @@ public class FCSLockBox : MonoBehaviour
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, enemyScreenPos, mainCamera, out Vector2 reticleLocalPos);
                 reticleUI.localPosition = reticleLocalPos;
 
-                Color targetColor = isHardLocked ? Color.red : Color.green;
+                // --- NEW: Using the exposed variables for customization ---
+                Color targetColor = isHardLocked ? hardLockColor : softLockColor;
 
                 foreach (Image img in reticleChildImages)
                 {
@@ -195,7 +196,6 @@ public class FCSLockBox : MonoBehaviour
 
                 if (rangefinderText != null)
                 {
-                    // Calculate the exact same distance to target as the detection logic
                     Vector3 distanceOrigin = (aimMaster != null) ? aimMaster.position : transform.position;
                     float distanceToTarget = Vector3.Distance(distanceOrigin, currentTarget.position);
                     rangefinderText.text = $"{distanceToTarget:F0}m";
@@ -210,5 +210,54 @@ public class FCSLockBox : MonoBehaviour
         {
             reticleUI.gameObject.SetActive(false);
         }
+    }
+
+    // --- GIZMO DRAWING LOGIC ---
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.cyan;
+
+        // Calculate the origin point to match the detection logic
+        Vector3 origin = transform.position;
+        if (Application.isPlaying && isPlayer && mainCamera != null)
+        {
+            origin = mainCamera.transform.position;
+        }
+        else if (!Application.isPlaying && isPlayer && mainCamera != null)
+        {
+            origin = mainCamera.transform.position;
+        }
+
+        float halfWidth = fcsWidth / 2f;
+        float halfHeight = fcsHeight / 2f;
+
+        // Calculate the local direction of the 4 corners of the frustum
+        Vector3 topLeftLocal = Quaternion.Euler(-halfHeight, -halfWidth, 0) * Vector3.forward * fcsRange;
+        Vector3 topRightLocal = Quaternion.Euler(-halfHeight, halfWidth, 0) * Vector3.forward * fcsRange;
+        Vector3 bottomLeftLocal = Quaternion.Euler(halfHeight, -halfWidth, 0) * Vector3.forward * fcsRange;
+        Vector3 bottomRightLocal = Quaternion.Euler(halfHeight, halfWidth, 0) * Vector3.forward * fcsRange;
+
+        // Convert the local corners to world space based on the FCS rotation
+        Vector3 topLeftWorld = origin + transform.rotation * topLeftLocal;
+        Vector3 topRightWorld = origin + transform.rotation * topRightLocal;
+        Vector3 bottomLeftWorld = origin + transform.rotation * bottomLeftLocal;
+        Vector3 bottomRightWorld = origin + transform.rotation * bottomRightLocal;
+
+        // Draw the frustum lines extending from the origin
+        Gizmos.DrawLine(origin, topLeftWorld);
+        Gizmos.DrawLine(origin, topRightWorld);
+        Gizmos.DrawLine(origin, bottomLeftWorld);
+        Gizmos.DrawLine(origin, bottomRightWorld);
+
+        // Draw the far plane rectangle (the end of the locking box)
+        Gizmos.DrawLine(topLeftWorld, topRightWorld);
+        Gizmos.DrawLine(topRightWorld, bottomRightWorld);
+        Gizmos.DrawLine(bottomRightWorld, bottomLeftWorld);
+        Gizmos.DrawLine(bottomLeftWorld, topLeftWorld);
+
+        // Draw a faint wire sphere to represent the strict distance cutoff
+        Gizmos.color = new Color(0f, 1f, 1f, 0.2f); // Faint cyan
+        Vector3 distanceOrigin = (aimMaster != null) ? aimMaster.position : transform.position;
+        Gizmos.DrawWireSphere(distanceOrigin, fcsRange);
     }
 }
