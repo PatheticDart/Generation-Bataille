@@ -2537,8 +2537,8 @@ MonoBehaviour:
   speedometerObject: {fileID: 1792741866}
   altimeterObject: {fileID: 63503218}
   reticleAmmoCountersParent: {fileID: 473412248}
-  currentGeneralColor: {r: 0, g: 1, b: 0.7846174, a: 1}
-  currentEnergyColor: {r: 0, g: 1, b: 0, a: 1}
+  currentGeneralColor: {r: 0.040880322, g: 1, b: 0.9715859, a: 1}
+  currentEnergyColor: {r: 0, g: 1, b: 0.9466553, a: 1}
   currentReticleColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!114 &434652259
 MonoBehaviour:
@@ -6384,8 +6384,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3263417468db79408bba64a59926a7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FCSLockBox
-  fcsWidth: 40
-  fcsHeight: 40
+  fcsWidth: 45
+  fcsHeight: 30
   fcsRange: 300
   lockSpeed: 1
   fcsTurnRate: 3
