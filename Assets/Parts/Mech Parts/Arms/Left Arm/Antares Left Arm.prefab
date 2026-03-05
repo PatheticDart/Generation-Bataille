@@ -41,7 +41,7 @@ GameObject:
   m_Component:
   - component: {fileID: 930619949892033787}
   m_Layer: 0
-  m_Name: Bone.005
+  m_Name: Lower Arm Bone Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

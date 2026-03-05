@@ -1274,6 +1274,22 @@ MonoBehaviour:
   fcsParts: []
   generatorParts: []
   legsNode: {fileID: 1398268080}
+  animMasterBone: {fileID: 1923755202}
+  animTorsoMainBone: {fileID: 1398451334}
+  animHeadBone: {fileID: 1222840911}
+  animLeftArmBone: {fileID: 1269659764}
+  animLowerArmBoneLeft: {fileID: 634213453}
+  animRightArmBone: {fileID: 1203483528}
+  animLowerArmBoneRight: {fileID: 1125260148}
+  animLegMainBoneLeft: {fileID: 1853963020}
+  animLowerLegBoneLeft: {fileID: 212901793}
+  animFootBoneLeft: {fileID: 1453819813}
+  animLegMainBoneRight: {fileID: 1110941748}
+  animLowerLegBoneRight: {fileID: 584536930}
+  animFootBoneRight: {fileID: 1160669627}
+  animBoosterBones:
+  - {fileID: 2036946477}
+  - {fileID: 222764381}
   loadOnStart: 1
   legIndex: 0
   torsoIndex: 0
@@ -1284,8 +1300,6 @@ MonoBehaviour:
   rArmWepIndex: 0
   lBackWepIndex: 1
   rBackWepIndex: 0
-  fcsIndex: 0
-  generatorIndex: 0
   fcsTargetLayer: 8
 --- !u!114 &90186459
 MonoBehaviour:
@@ -1299,9 +1313,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f194793ffd63c614cacd2cb2e3ac90a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  mechController: {fileID: 0}
-  characterController: {fileID: 0}
-  animator: {fileID: 0}
+  mechController: {fileID: 90186452}
+  characterController: {fileID: 90186455}
+  animator: {fileID: 1361383454}
 --- !u!1 &104846662
 GameObject:
   m_ObjectHideFlags: 0
@@ -8896,6 +8910,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1023119231}
   m_Mesh: {fileID: -4533117821008241835, guid: 9f4e2d50e09b2f44689912fc3f848604, type: 3}
+--- !u!1 &1095350455
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1095350456}
+  m_Layer: 0
+  m_Name: Right Leg Target
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1095350456
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1095350455}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.7071069, y: 0.00000017656488, z: 0.000000070709284, w: 0.70710677}
+  m_LocalPosition: {x: 0.8432654, y: 1.5634617, z: -0.7889765}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1841251737}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1110941747
 GameObject:
   m_ObjectHideFlags: 0
@@ -9104,7 +9149,9 @@ Transform:
   m_LocalPosition: {x: -0.000000012322285, y: 0, z: -0.002965842}
   m_LocalScale: {x: 0.0047076787, y: 0.0047076787, z: 0.0047076787}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1808840218}
+  - {fileID: 1841251737}
   m_Father: {fileID: 1361383452}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1150521352
@@ -14223,6 +14270,94 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1805725259}
   m_Mesh: {fileID: -8923089872973626999, guid: 9f4e2d50e09b2f44689912fc3f848604, type: 3}
+--- !u!1 &1806503965
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1806503966}
+  m_Layer: 0
+  m_Name: Left Leg Target
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1806503966
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1806503965}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.70710695, y: 0.00000014870403, z: 0.000000042848352, w: 0.7071067}
+  m_LocalPosition: {x: -0.8432657, y: 1.563464, z: -0.78897667}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1808840218}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1808840217
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1808840218}
+  - component: {fileID: 1808840219}
+  m_Layer: 0
+  m_Name: Left Leg
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1808840218
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808840217}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1806503966}
+  m_Father: {fileID: 1150521351}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1808840219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808840217}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aeda7bfbf984f2a4da5ab4b8967b115d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.TwoBoneIKConstraint
+  m_Weight: 1
+  m_Data:
+    m_Root: {fileID: 1853963020}
+    m_Mid: {fileID: 212901793}
+    m_Tip: {fileID: 1453819813}
+    m_Target: {fileID: 1806503966}
+    m_Hint: {fileID: 0}
+    m_TargetPositionWeight: 1
+    m_TargetRotationWeight: 1
+    m_HintWeight: 1
+    m_MaintainTargetPositionOffset: 0
+    m_MaintainTargetRotationOffset: 0
 --- !u!1 &1809968494
 GameObject:
   m_ObjectHideFlags: 0
@@ -14956,6 +15091,63 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1841251736
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1841251737}
+  - component: {fileID: 1841251738}
+  m_Layer: 0
+  m_Name: Right Leg
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1841251737
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1841251736}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1095350456}
+  m_Father: {fileID: 1150521351}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1841251738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1841251736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aeda7bfbf984f2a4da5ab4b8967b115d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.TwoBoneIKConstraint
+  m_Weight: 1
+  m_Data:
+    m_Root: {fileID: 1110941748}
+    m_Mid: {fileID: 584536930}
+    m_Tip: {fileID: 1160669627}
+    m_Target: {fileID: 1095350456}
+    m_Hint: {fileID: 0}
+    m_TargetPositionWeight: 1
+    m_TargetRotationWeight: 1
+    m_HintWeight: 1
+    m_MaintainTargetPositionOffset: 0
+    m_MaintainTargetRotationOffset: 0
 --- !u!1 &1853963019
 GameObject:
   m_ObjectHideFlags: 0
