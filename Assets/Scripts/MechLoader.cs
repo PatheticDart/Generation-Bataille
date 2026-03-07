@@ -54,7 +54,7 @@ public class MechLoader : MonoBehaviour
     public int legIndex = 0;
     public int torsoIndex = 0;
     public int headIndex = 0;
-    public int armIndex = 0;
+    public int armIndex = 0; // Controls both Left and Right arms
     public int boosterIndex = 0;
     public int lArmWepIndex = 0;
     public int rArmWepIndex = 0;
@@ -86,8 +86,10 @@ public class MechLoader : MonoBehaviour
         currentLegs = InstantiatePart(legParts, legIndex, legsNode);
         if (currentLegs != null)
         {
-            SyncPartToBone(currentLegs, animMasterBone);
+            // NEW: Pass 'true' to force the visual root to follow the skeleton's position!
+            SyncPartToBone(currentLegs, animMasterBone, true);
 
+            // Sub-bones only copy rotation
             SyncChildBone(currentLegs, "Leg Main Bone Left", animLegMainBoneLeft);
             SyncChildBone(currentLegs, "Lower Leg Bone Left", animLowerLegBoneLeft);
             SyncChildBone(currentLegs, "Foot Bone Left", animFootBoneLeft);
@@ -139,7 +141,7 @@ public class MechLoader : MonoBehaviour
             SyncChildBone(currentRightArm, "Lower Arm Bone Right", animLowerArmBoneRight);
         }
 
-        // 4. BOOSTERS (Now with sequential list syncing)
+        // 4. BOOSTERS 
         List<Transform> boosterNodes = new List<Transform>();
         FindAllDeepChildren(currentTorso.transform, "BoosterNode", boosterNodes);
 
@@ -151,7 +153,6 @@ public class MechLoader : MonoBehaviour
             {
                 currentBoosters.Add(booster);
 
-                // Sync this booster to the next available bone in the array
                 if (animBoosterBones != null && currentBoosterCount < animBoosterBones.Count)
                 {
                     SyncPartToBone(booster, animBoosterBones[currentBoosterCount]);
@@ -182,23 +183,25 @@ public class MechLoader : MonoBehaviour
         }
     }
 
-    private void SyncChildBone(GameObject parentPart, string childName, Transform targetAnimBone)
+    // --- HELPER FUNCTIONS ---
+    private void SyncChildBone(GameObject parentPart, string childName, Transform targetAnimBone, bool syncPos = false)
     {
         if (parentPart == null || targetAnimBone == null) return;
 
         Transform foundChild = FindDeepChild(parentPart.transform, childName);
         if (foundChild != null)
         {
-            SyncPartToBone(foundChild.gameObject, targetAnimBone);
+            SyncPartToBone(foundChild.gameObject, targetAnimBone, syncPos);
         }
     }
 
-    private void SyncPartToBone(GameObject spawnedPart, Transform targetAnimBone)
+    private void SyncPartToBone(GameObject spawnedPart, Transform targetAnimBone, bool syncPos = false)
     {
         if (spawnedPart == null || targetAnimBone == null) return;
 
         PartSync sync = spawnedPart.AddComponent<PartSync>();
         sync.targetBone = targetAnimBone;
+        sync.syncPosition = syncPos;
     }
 
     private GameObject InstantiatePart(List<GameObject> list, int index, Transform parent)
