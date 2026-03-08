@@ -16,6 +16,8 @@ public class MechStats : MonoBehaviour
     public float boostVerticalSpeed = 25f;
     public float boostEnergyDrain = 200f;
     public float jumpForce = 12f;
+    [Tooltip("How long to wait after pressing jump before the mech actually leaves the ground.")]
+    public float jumpDelay = 0.25f; // MOVED HERE
     [Tooltip("How long after landing before the mech can jump again.")]
     public float jumpCooldown = 0.8f;
     public float totalWeight = 30000f;
@@ -26,13 +28,13 @@ public class MechStats : MonoBehaviour
     public float walkDeceleration = 30f;
     public float boostAcceleration = 10f;
     public float boostDeceleration = 15f;
-    
+
     // --- MOVEMENT REFINEMENTS ---
     [Tooltip("Penalty applied to walk speed when moving backwards (0.3 = 30% slower).")]
     [Range(0f, 1f)]
     public float backwardSpeedPenalty = 0.3f;
     [Tooltip("Friction multiplier during a hard landing slide. E.g., 2f for a long slide, 10f for a short stop.")]
-    public float hardLandingSlideDeceleration = 5f; 
+    public float hardLandingSlideDeceleration = 5f;
 
     [Header("Air Kinematics")]
     public float airAcceleration = 5f;

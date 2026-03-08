@@ -54,7 +54,7 @@ public class MechLoader : MonoBehaviour
     public int legIndex = 0;
     public int torsoIndex = 0;
     public int headIndex = 0;
-    public int armIndex = 0; // Controls both Left and Right arms
+    public int armIndex = 0;
     public int boosterIndex = 0;
     public int lArmWepIndex = 0;
     public int rArmWepIndex = 0;
@@ -72,6 +72,7 @@ public class MechLoader : MonoBehaviour
     private GameObject currentLeftArm;
     private GameObject currentRightArm;
     private List<GameObject> currentBoosters = new List<GameObject>();
+    private List<GameObject> thrusterEffects = new List<GameObject>(); // NEW: Caches the particle systems
 
     void Start()
     {
@@ -86,10 +87,8 @@ public class MechLoader : MonoBehaviour
         currentLegs = InstantiatePart(legParts, legIndex, legsNode);
         if (currentLegs != null)
         {
-            // NEW: Pass 'true' to force the visual root to follow the skeleton's position!
             SyncPartToBone(currentLegs, animMasterBone, true);
 
-            // Sub-bones only copy rotation
             SyncChildBone(currentLegs, "Leg Main Bone Left", animLegMainBoneLeft);
             SyncChildBone(currentLegs, "Lower Leg Bone Left", animLowerLegBoneLeft);
             SyncChildBone(currentLegs, "Foot Bone Left", animFootBoneLeft);
@@ -141,7 +140,7 @@ public class MechLoader : MonoBehaviour
             SyncChildBone(currentRightArm, "Lower Arm Bone Right", animLowerArmBoneRight);
         }
 
-        // 4. BOOSTERS 
+        // 4. BOOSTERS & THRUSTERS
         List<Transform> boosterNodes = new List<Transform>();
         FindAllDeepChildren(currentTorso.transform, "BoosterNode", boosterNodes);
 
@@ -152,6 +151,14 @@ public class MechLoader : MonoBehaviour
             if (booster != null)
             {
                 currentBoosters.Add(booster);
+
+                // NEW: Find and cache the "Thruster" child object
+                Transform thrusterNode = FindDeepChild(booster.transform, "Thruster");
+                if (thrusterNode != null)
+                {
+                    thrusterNode.gameObject.SetActive(false); // Start turned off
+                    thrusterEffects.Add(thrusterNode.gameObject);
+                }
 
                 if (animBoosterBones != null && currentBoosterCount < animBoosterBones.Count)
                 {
@@ -180,6 +187,18 @@ public class MechLoader : MonoBehaviour
         {
             Transform rArmWepNode = FindDeepChild(currentRightArm.transform, "RightArmWeaponNode");
             if (rArmWepNode != null) InstantiatePart(rightArmWeapons, rArmWepIndex, rArmWepNode);
+        }
+    }
+
+    // --- NEW METHOD FOR THE CONTROLLER TO CALL ---
+    public void ToggleThrusters(bool isActive)
+    {
+        foreach (GameObject thruster in thrusterEffects)
+        {
+            if (thruster != null && thruster.activeSelf != isActive)
+            {
+                thruster.SetActive(isActive);
+            }
         }
     }
 
@@ -222,6 +241,7 @@ public class MechLoader : MonoBehaviour
         if (currentRightArm) DestroyImmediate(currentRightArm);
         foreach (GameObject booster in currentBoosters) { if (booster) DestroyImmediate(booster); }
         currentBoosters.Clear();
+        thrusterEffects.Clear(); // Clear cached thrusters
         if (currentTorso) DestroyImmediate(currentTorso);
         if (currentLegs) DestroyImmediate(currentLegs);
     }

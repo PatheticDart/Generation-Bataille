@@ -1,14 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // NEW: Required for the text displays
+using TMPro; 
+using System.Collections.Generic;
 
 public class MechUI : MonoBehaviour
 {
     [Header("Component References")]
-    [Tooltip("Drag the Player/Mech object here to read its stats.")]
     public MechStats mechStats;
-    [Tooltip("Drag the CharacterController of the mech here to read its speed.")]
     public CharacterController mechController;
+    public MechWeaponManager weaponManager;
 
     [Header("Energy Bar UI")]
     public Slider energySlider;
@@ -19,22 +19,29 @@ public class MechUI : MonoBehaviour
     public float minAlpha = 0.2f;
 
     [Header("Telemetry UI (Speed & Altitude)")]
-    [Tooltip("Drag your Speed TMPro Text object here.")]
     public TextMeshProUGUI speedText;
-    [Tooltip("Drag your Altitude TMPro Text object here.")]
-    public TextMeshProUGUI altitudeText;
-    [Tooltip("What layers should the altimeter consider as the 'ground'?")]
+    public List<TextMeshProUGUI> altitudeTexts = new List<TextMeshProUGUI>(); 
     public LayerMask groundLayer;
-    [Tooltip("If true, speed shows as KM/H. If false, shows as M/S.")]
     public bool displayAsKMH = true;
+
+    [Header("Static Canvas Weapon UI")]
+    [Tooltip("Drag the Ammo Texts from your NORMAL Canvas here (NOT the Reticle ones).")]
+    public List<TextMeshProUGUI> leftArmAmmoTexts = new List<TextMeshProUGUI>();
+    public List<TextMeshProUGUI> rightArmAmmoTexts = new List<TextMeshProUGUI>();
+    public List<TextMeshProUGUI> leftBackAmmoTexts = new List<TextMeshProUGUI>();
+    public List<TextMeshProUGUI> rightBackAmmoTexts = new List<TextMeshProUGUI>();
+    
+    [Tooltip("Opacity level (0 to 1) for the weapon currently selected.")]
+    public float activeWeaponAlpha = 1.0f;
+    [Tooltip("Opacity level (0 to 1) for the weapon currently stowed/deactivated.")]
+    public float inactiveWeaponAlpha = 0.5f;
 
     void Start()
     {
-        // Auto-grab components if they are on the same object
         if (mechStats == null) mechStats = GetComponent<MechStats>();
         if (mechController == null) mechController = GetComponent<CharacterController>();
+        if (weaponManager == null) weaponManager = GetComponent<MechWeaponManager>();
 
-        // Set the slider's max limit to match the mech's max energy right at the start
         if (energySlider != null && mechStats != null)
         {
             energySlider.maxValue = mechStats.maxEnergy;
@@ -45,6 +52,7 @@ public class MechUI : MonoBehaviour
     {
         UpdateEnergyUI();
         UpdateTelemetryUI();
+        UpdateStaticWeaponUI(); 
     }
 
     private void UpdateEnergyUI()
@@ -74,15 +82,12 @@ public class MechUI : MonoBehaviour
     {
         if (mechController == null) return;
 
-        // --- 1. CALCULATE SPEED ---
+        // Speed
         if (speedText != null)
         {
-            // Get the true velocity magnitude from the physics engine
             float currentSpeed = mechController.velocity.magnitude;
-
             if (displayAsKMH)
             {
-                // Convert Unity Units per Second (m/s) to Kilometers per Hour
                 currentSpeed *= 3.6f;
                 speedText.text = $"{currentSpeed:F0} KM/H";
             }
@@ -92,24 +97,51 @@ public class MechUI : MonoBehaviour
             }
         }
 
-        // --- 2. CALCULATE RADAR ALTITUDE ---
-        if (altitudeText != null)
+        // Altitude
+        if (altitudeTexts != null && altitudeTexts.Count > 0)
         {
             float altitude = 0f;
-
-            // Fire a raycast straight down from the mech's center
             if (Physics.Raycast(mechController.transform.position, Vector3.down, out RaycastHit hit, 1000f, groundLayer))
             {
-                // Distance to the ground
                 altitude = hit.distance;
             }
             else
             {
-                // Fallback: If no ground is found (falling in the void), just use absolute Y position
                 altitude = mechController.transform.position.y;
             }
 
-            altitudeText.text = $"ALT: {altitude:F0} M";
+            string altString = $"{altitude:F0} M";
+            foreach (TextMeshProUGUI altText in altitudeTexts)
+            {
+                if (altText != null) altText.text = altString;
+            }
+        }
+    }
+
+    // --- STATIC WEAPON UI LOGIC ---
+    private void UpdateStaticWeaponUI()
+    {
+        if (weaponManager == null) return;
+
+        SetTextAlpha(leftArmAmmoTexts, weaponManager.leftArmActive ? activeWeaponAlpha : inactiveWeaponAlpha);
+        SetTextAlpha(leftBackAmmoTexts, !weaponManager.leftArmActive ? activeWeaponAlpha : inactiveWeaponAlpha);
+
+        SetTextAlpha(rightArmAmmoTexts, weaponManager.rightArmActive ? activeWeaponAlpha : inactiveWeaponAlpha);
+        SetTextAlpha(rightBackAmmoTexts, !weaponManager.rightArmActive ? activeWeaponAlpha : inactiveWeaponAlpha);
+    }
+
+    private void SetTextAlpha(List<TextMeshProUGUI> textElements, float targetAlpha)
+    {
+        if (textElements == null || textElements.Count == 0) return;
+
+        foreach (TextMeshProUGUI textElement in textElements)
+        {
+            if (textElement != null)
+            {
+                Color c = textElement.color;
+                c.a = targetAlpha;
+                textElement.color = c;
+            }
         }
     }
 }

@@ -3,37 +3,36 @@ using UnityEngine;
 public class PartSync : MonoBehaviour
 {
     public Transform targetBone;
-    
-    [Tooltip("If true, this part will copy the skeleton's positional animations (the delta) without snapping to its exact location.")]
     public bool syncPosition = false;
 
-    private Vector3 initialTargetLocalPos;
-    private Vector3 initialMyLocalPos;
+    // Lets us override the animation temporarily for manual aiming
+    public bool overrideRotation = false;
+
+    [Tooltip("How smoothly the part returns to the animation pose when deactivated.")]
+    public float returnSmoothSpeed = 20f;
+
+    private Vector3 positionOffset;
     private bool isInitialized = false;
 
     void LateUpdate()
     {
         if (targetBone == null) return;
 
-        // On the very first frame, capture the resting positions of both the bone and the spawned mesh
         if (!isInitialized)
         {
-            initialTargetLocalPos = targetBone.localPosition;
-            initialMyLocalPos = transform.localPosition;
+            positionOffset = targetBone.InverseTransformPoint(transform.position);
             isInitialized = true;
         }
 
-        // 1. Always copy absolute world rotation
-        transform.rotation = targetBone.rotation;
+        if (!overrideRotation)
+        {
+            // Smoothly glide back to the animation's current frame
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetBone.rotation, Time.deltaTime * returnSmoothSpeed);
+        }
 
-        // 2. Apply relative position delta (The Difference)
         if (syncPosition)
         {
-            // Calculate how far the animation bone has moved from its starting position
-            Vector3 localDelta = targetBone.localPosition - initialTargetLocalPos;
-            
-            // Add that exact difference to the 3D mesh's starting position
-            transform.localPosition = initialMyLocalPos + localDelta;
+            transform.position = targetBone.TransformPoint(positionOffset);
         }
     }
 }

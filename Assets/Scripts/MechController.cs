@@ -5,6 +5,7 @@ public class MechController : MonoBehaviour
 {
     private CharacterController controller;
     private MechStats stats;
+    private MechLoader mechLoader; // NEW: Hook into the loader
 
     [Header("Visuals")]
     public Transform mechBody;
@@ -17,6 +18,10 @@ public class MechController : MonoBehaviour
 
     [Header("Camera & Effects")]
     public CameraEffects cameraEffects;
+
+    [Header("Jump & Landing States")]
+    public bool isPreparingToJump { get; private set; }
+    private float currentJumpDelayTimer = 0f;
 
     private float verticalVelocity;
     private Vector3 currentHorizontalVelocity;
@@ -33,6 +38,7 @@ public class MechController : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         stats = GetComponent<MechStats>();
+        mechLoader = GetComponent<MechLoader>(); // Grab the loader
     }
 
     void Update()
@@ -59,19 +65,16 @@ public class MechController : MonoBehaviour
         // --- 1. OPPOSITE DIRECTION SWITCH (INSTANT MOMENTUM RESET) ---
         if (!isRecoveringFromLanding && currentMoveInput.magnitude > 0.1f)
         {
-            // Only apply the instant momentum kill if we are GROUNDED and NOT boosting
             if (controller.isGrounded && !currentIsBoosting)
             {
                 if (lastActiveMoveInput.magnitude > 0.1f)
                 {
-                    // Dot product < -0.5f means the new input is generally opposite the old input
                     if (Vector3.Dot(currentMoveInput.normalized, lastActiveMoveInput.normalized) < -0.5f)
                     {
                         currentHorizontalVelocity = Vector3.zero;
                     }
                 }
             }
-            // Always track the last input so the script knows what we were doing before landing
             lastActiveMoveInput = currentMoveInput;
         }
 
@@ -85,7 +88,6 @@ public class MechController : MonoBehaviour
             }
             else
             {
-                // Lock player input, but preserve momentum for the slide
                 currentMoveInput = Vector3.zero;
                 currentIsJumping = false;
                 currentIsBoosting = false;
@@ -96,7 +98,8 @@ public class MechController : MonoBehaviour
         bool canHorizontalBoost = currentIsBoosting && !stats.energyIsDepleted && (currentMoveInput.magnitude > 0 || !controller.isGrounded);
 
         float currentWalkSpeed = stats.walkSpeed;
-        if (currentMoveInput.z < -0.1f)
+
+        if (controller.isGrounded && currentMoveInput.z < -0.1f)
         {
             currentWalkSpeed *= (1f - stats.backwardSpeedPenalty);
         }
@@ -112,12 +115,10 @@ public class MechController : MonoBehaviour
         // --- 4. ACCELERATION & SLIDE LOGIC ---
         if (isRecoveringFromLanding && controller.isGrounded)
         {
-            // PURE FRICTION SLIDE: This perfectly preserves your exact entry velocity and smoothly decays it to zero.
             currentHorizontalVelocity = Vector3.Lerp(currentHorizontalVelocity, Vector3.zero, stats.hardLandingSlideDeceleration * Time.deltaTime);
         }
         else
         {
-            // Standard Movement Logic
             float accelRate;
             if (!controller.isGrounded)
             {
@@ -146,14 +147,27 @@ public class MechController : MonoBehaviour
 
             if (jumpCooldownTimer > 0f) jumpCooldownTimer -= Time.deltaTime;
 
-            if (currentIsJumping && jumpCooldownTimer <= 0f)
+            if (currentIsJumping && jumpCooldownTimer <= 0f && !isPreparingToJump)
             {
-                verticalVelocity = stats.jumpForce;
-                jumpCooldownTimer = stats.jumpCooldown;
+                isPreparingToJump = true;
+                currentJumpDelayTimer = stats.jumpDelay;
+            }
+
+            if (isPreparingToJump)
+            {
+                currentJumpDelayTimer -= Time.deltaTime;
+                if (currentJumpDelayTimer <= 0f)
+                {
+                    verticalVelocity = stats.jumpForce;
+                    jumpCooldownTimer = stats.jumpCooldown;
+                    isPreparingToJump = false;
+                }
             }
         }
         else
         {
+            isPreparingToJump = false;
+
             if (currentIsJumping && !stats.energyIsDepleted)
             {
                 verticalVelocity += (stats.boostVerticalSpeed * 2f) * Time.deltaTime;
@@ -163,7 +177,7 @@ public class MechController : MonoBehaviour
             else
             {
                 float weightFactor = stats.totalWeight / stats.baselineWeight;
-                verticalVelocity -= 9.81f * weightFactor * 11f * Time.deltaTime;
+                verticalVelocity -= 9.81f * weightFactor * 15f * Time.deltaTime;
             }
         }
 
@@ -194,9 +208,14 @@ public class MechController : MonoBehaviour
                     float shakeSeverity = Mathf.Lerp(1.0f, 3.0f, speedFactor) * weightFactor;
                     cameraEffects.TriggerImpactShake(shakeSeverity);
                 }
-
-                Debug.Log($"HARD LANDING! Speed: {verticalVelocity:F1} | Stagger Time: {recoveryTimer:F2}s");
             }
+        }
+
+        // --- 7. VFX LOGIC ---
+        // Fire thrusters if burning energy, OR if actively charging up a ground jump!
+        if (mechLoader != null)
+        {
+            mechLoader.ToggleThrusters(energyUsedThisFrame);
         }
     }
 }
