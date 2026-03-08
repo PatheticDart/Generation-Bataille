@@ -3,11 +3,11 @@ using UnityEngine;
 public class PlayerBrain : MonoBehaviour
 {
     private MechController controller;
-    
+
     [Header("Camera Configuration")]
-    public Transform cameraPivot; 
+    public Transform cameraPivot;
     public float mouseSensitivity = 2.0f;
-    
+
     private Vector2 cameraRotation;
     private Vector2 lookDelta;
 
@@ -26,8 +26,11 @@ public class PlayerBrain : MonoBehaviour
 
     void Update()
     {
+        // NEW: Do not process player input if the game is paused
+        if (Time.timeScale == 0f) return;
+
         HandleCameraRotation();
-        
+
         // 1. Movement Input
         controller.moveInput = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
 
@@ -41,7 +44,7 @@ public class PlayerBrain : MonoBehaviour
         // 3. Actions
         controller.isBoosting = Input.GetKey(KeyCode.LeftShift);
         controller.isJumping = Input.GetKey(KeyCode.Space);
-    } 
+    }
 
     private void HandleCameraRotation()
     {
@@ -54,8 +57,6 @@ public class PlayerBrain : MonoBehaviour
         cameraRotation.x -= lookDelta.y;
         cameraRotation.x = Mathf.Clamp(cameraRotation.x, -60f, 60f);
 
-        // Apply rotation to the pivot. 
-        // Local rotation is fine now since the parent root never spins!
         cameraPivot.localRotation = Quaternion.Euler(cameraRotation.x, cameraRotation.y, 0f);
     }
 }

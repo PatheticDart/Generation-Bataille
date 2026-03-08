@@ -16,17 +16,33 @@ public class MechStats : MonoBehaviour
     public float boostVerticalSpeed = 25f;
     public float boostEnergyDrain = 200f;
     public float jumpForce = 12f;
-    public float totalWeight = 5000f;
+    [Tooltip("How long after landing before the mech can jump again.")]
+    public float jumpCooldown = 0.8f;
+    public float totalWeight = 30000f;
+    public float baselineWeight = 30000f;
 
     [Header("Kinematics (Momentum)")]
-    [Tooltip("How fast it reaches walk speed. High = responsive.")]
     public float walkAcceleration = 25f;
-    [Tooltip("How fast it stops walking.")]
     public float walkDeceleration = 30f;
-    [Tooltip("LOWER acceleration makes the boost drift and slide when turning!")]
     public float boostAcceleration = 10f;
-    [Tooltip("How fast you slide to a halt after letting go of boost.")]
     public float boostDeceleration = 15f;
+    
+    // --- MOVEMENT REFINEMENTS ---
+    [Tooltip("Penalty applied to walk speed when moving backwards (0.3 = 30% slower).")]
+    [Range(0f, 1f)]
+    public float backwardSpeedPenalty = 0.3f;
+    [Tooltip("Friction multiplier during a hard landing slide. E.g., 2f for a long slide, 10f for a short stop.")]
+    public float hardLandingSlideDeceleration = 5f; 
+
+    [Header("Air Kinematics")]
+    public float airAcceleration = 5f;
+    public float airDeceleration = 1.5f;
+
+    [Header("Landing & Impact")]
+    public float minHardLandingThreshold = -25f;
+    public float maxHardLandingThreshold = -80f;
+    public float baseHardLandingTime = 0.5f;
+    public float maxHardLandingTime = 2.5f;
 
     private void Start()
     {
@@ -35,20 +51,17 @@ public class MechStats : MonoBehaviour
 
     private void Update()
     {
-        // If we are at or below 0, lock the mech into Depleted state
         if (currentEnergy <= 0.01f)
         {
             currentEnergy = 0;
             energyIsDepleted = true;
         }
 
-        // Unlock Depleted state only at 100% charge
         if (energyIsDepleted && currentEnergy >= maxEnergy)
         {
             energyIsDepleted = false;
         }
 
-        // Apply Regen
         float regen = energyIsDepleted ? depletedRegenRate : energyRegenRate;
         if (currentEnergy < maxEnergy)
         {
