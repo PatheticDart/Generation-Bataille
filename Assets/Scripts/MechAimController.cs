@@ -20,20 +20,16 @@ public class MechAimController : MonoBehaviour
     public MultiAimConstraint torsoAimConstraint;
     public float aimSmoothSpeed = 15f;
 
-    // We use a proxy target to avoid rebuilding the rig every time you lock on
     private Transform torsoIKProxyTarget;
 
-    // Cached references for Upper Arms
     private Transform leftArmNode;
     private PartSync leftArmSync;
     private Transform rightArmNode;
     private PartSync rightArmSync;
 
-    // Cached references for Lower Arms
     private PartSync leftLowerArmSync;
     private PartSync rightLowerArmSync;
 
-    // Cached references for Back Weapons
     private Transform leftBackNode;
     private Animator leftBackWeaponAnim;
 
@@ -52,17 +48,17 @@ public class MechAimController : MonoBehaviour
     {
         if (torsoAimConstraint != null)
         {
-            // Create a dedicated invisible target for the IK to permanently track
             torsoIKProxyTarget = new GameObject("TorsoIK_ProxyTarget").transform;
-            torsoIKProxyTarget.position = lockboxCenter.position;
 
-            // Assign it to the Multi-Aim Constraint
+            // THE FIX: Safe fallback if this mech doesn't have a UI Canvas!
+            if (lockboxCenter != null) torsoIKProxyTarget.position = lockboxCenter.position;
+            else torsoIKProxyTarget.position = transform.position + transform.forward * 100f;
+
             var sources = torsoAimConstraint.data.sourceObjects;
             sources.Clear();
             sources.Add(new WeightedTransform(torsoIKProxyTarget, 1f));
             torsoAimConstraint.data.sourceObjects = sources;
 
-            // Rebuild the rig once on startup to lock it in
             RigBuilder rig = torsoAimConstraint.GetComponentInParent<RigBuilder>();
             if (rig != null) rig.Build();
         }
@@ -109,16 +105,17 @@ public class MechAimController : MonoBehaviour
         if (leftArmNode == null) CacheSpawnedNodes();
         if (leftArmNode == null) return;
 
-        // Determine final focus point
-        Vector3 targetPos = (lockedTarget != null) ? lockedTarget.position : lockboxCenter.position;
+        // THE FIX: Secure fallback for aim determination
+        Vector3 targetPos;
+        if (lockedTarget != null) targetPos = lockedTarget.position;
+        else if (lockboxCenter != null) targetPos = lockboxCenter.position;
+        else targetPos = transform.position + transform.forward * 100f;
 
-        // Smoothly move the IK Proxy Target to the focus point
         if (torsoIKProxyTarget != null)
         {
             torsoIKProxyTarget.position = Vector3.Lerp(torsoIKProxyTarget.position, targetPos, Time.deltaTime * aimSmoothSpeed);
         }
 
-        // --- LEFT ARM LOGIC ---
         if (leftArmSync != null)
         {
             leftArmSync.overrideRotation = weaponManager.leftArmActive;
@@ -127,7 +124,6 @@ public class MechAimController : MonoBehaviour
             if (weaponManager.leftArmActive) AimArmAt(leftArmSync.transform, leftLowerArmSync != null ? leftLowerArmSync.transform : null, targetPos);
         }
 
-        // --- RIGHT ARM LOGIC ---
         if (rightArmSync != null)
         {
             rightArmSync.overrideRotation = weaponManager.rightArmActive;
@@ -136,24 +132,20 @@ public class MechAimController : MonoBehaviour
             if (weaponManager.rightArmActive) AimArmAt(rightArmSync.transform, rightLowerArmSync != null ? rightLowerArmSync.transform : null, targetPos);
         }
 
-        // --- STATE SEPARATION LOGIC ---
-        // 1. Is the weapon currently selected by the player?
         bool leftBackActive = !weaponManager.leftArmActive;
         bool rightBackActive = !weaponManager.rightArmActive;
 
-        // 2. Is it selected AND capable of aiming?
         bool leftBackAiming = leftBackActive && weaponManager.hasAimableLeftBackWeapon;
         bool rightBackAiming = rightBackActive && weaponManager.hasAimableRightBackWeapon;
 
-        // --- TORSO WEIGHT PRIORITY LOGIC ---
         float targetTorsoWeight = 0f;
         if (leftBackAiming || rightBackAiming)
         {
-            targetTorsoWeight = 1f; // Aimable back weapons demand full torso twist
+            targetTorsoWeight = 1f;
         }
         else if (weaponManager.leftArmActive || weaponManager.rightArmActive)
         {
-            targetTorsoWeight = 0.5f; // Arms use half twist for natural posture
+            targetTorsoWeight = 0.5f;
         }
 
         if (torsoAimConstraint != null)
@@ -161,8 +153,6 @@ public class MechAimController : MonoBehaviour
             torsoAimConstraint.weight = Mathf.Lerp(torsoAimConstraint.weight, targetTorsoWeight, Time.deltaTime * aimSmoothSpeed);
         }
 
-        // --- BACK WEAPON ANIMATION & PITCHING ---
-        // Animations now trigger simply if the weapon is active, regardless of aimability
         if (leftBackWeaponAnim != null) leftBackWeaponAnim.SetBool("IsDeployed", leftBackActive);
 
         if (leftBackNode != null)
@@ -194,7 +184,6 @@ public class MechAimController : MonoBehaviour
             if (direction != Vector3.zero)
             {
                 Quaternion lookRot = Quaternion.LookRotation(direction);
-                // Note: using the -70 offset as requested/established in your setup
                 Quaternion offset = Quaternion.Euler(-70f, 0f, 0f);
                 Quaternion finalRot = lookRot * offset;
                 upperArm.rotation = Quaternion.Slerp(upperArm.rotation, finalRot, Time.deltaTime * aimSmoothSpeed);
@@ -209,11 +198,9 @@ public class MechAimController : MonoBehaviour
 
         float targetX = -angle;
 
-        // MATHEMATICAL FIX: Force the angle into a standard -180 to 180 range before clamping
         if (targetX > 180f) targetX -= 360f;
         if (targetX < -180f) targetX += 360f;
 
-        // Apply strict clamp: -30 (up) to 45 (down)
         targetX = Mathf.Clamp(targetX, -30f, 45f);
 
         Quaternion targetLocalRot = Quaternion.Euler(targetX, 0f, 0f);
