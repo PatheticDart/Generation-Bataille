@@ -67,22 +67,19 @@ public class MechAnimator : MonoBehaviour
         animator.SetFloat(moveXHash, currentAnimX);
         animator.SetFloat(moveZHash, currentAnimZ);
 
-        // 2. IS MOVING LOGIC (Are keys pressed?)
-        // (Used as a condition in the animator transitions to avoid jittery idles)
-        bool playerWantsToMove = mechController.moveInput.magnitude > 0.1f;
+        // 2. IS MOVING LOGIC 
+        // We now pull from the buffered input so the run/boost animations don't instantly snap off if the player stutters
+        bool playerWantsToMove = mechController.HasRecentMovementInput;
 
         // IsMoving parameter should be instant so transitions are snappy
         animator.SetBool(isMovingHash, playerWantsToMove && !mechController.isRecoveringFromLanding);
 
-        // 3. BOOST LOGIC (The Fix!)
+        // 3. BOOST LOGIC 
         bool hasEnergy = stats != null && !stats.energyIsDepleted;
 
-        // NEW RULE: You only animate boosting if holding shift AND pressing WASD AND grounded AND have energy.
-        // If they are grounded but not moving, this flips to false, returning them to Idle or Walk.
+        // You only animate boosting if holding shift AND pressing WASD (or within the buffer) AND grounded AND have energy.
         bool canBoostOnGround = mechController.isBoosting && playerWantsToMove && characterController.isGrounded && hasEnergy;
 
-        // (Air-boosting is handled purely by the vertical physics and doesn't need this restrictive boolean,
-        // so we'll only send the restrictive boolean while grounded, otherwise send the general shift state for airborne animation.)
         bool finalIsBoostingState = characterController.isGrounded ? canBoostOnGround : (mechController.isBoosting && hasEnergy);
 
         animator.SetBool(isBoostingHash, finalIsBoostingState);

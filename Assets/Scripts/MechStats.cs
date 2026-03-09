@@ -17,9 +17,7 @@ public class MechStats : MonoBehaviour
     public float boostEnergyDrain = 200f;
     public float jumpForce = 12f;
     [Tooltip("How long to wait after pressing jump before the mech actually leaves the ground.")]
-    public float jumpDelay = 0.25f; // MOVED HERE
-    [Tooltip("How long after landing before the mech can jump again.")]
-    public float jumpCooldown = 0.8f;
+    public float jumpDelay = 0.25f;
     public float totalWeight = 30000f;
     public float baselineWeight = 30000f;
 

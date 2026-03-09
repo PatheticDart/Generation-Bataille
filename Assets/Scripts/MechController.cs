@@ -5,7 +5,7 @@ public class MechController : MonoBehaviour
 {
     private CharacterController controller;
     private MechStats stats;
-    private MechLoader mechLoader; // NEW: Hook into the loader
+    private MechLoader mechLoader;
 
     [Header("Visuals")]
     public Transform mechBody;
@@ -29,16 +29,27 @@ public class MechController : MonoBehaviour
     // --- State Variables ---
     public bool isRecoveringFromLanding { get; private set; }
     private float recoveryTimer = 0f;
-    private float jumpCooldownTimer = 0f;
 
     // --- Direction Tracking Variables ---
     private Vector3 lastActiveMoveInput;
+
+    [Header("Buffers")]
+    [Tooltip("How long movement/thrusters persist after letting go of WASD.")]
+    public float thrusterBufferTime = 0.1f;
+    private float lastMoveInputTime = -10f;
+
+    [Tooltip("Amount of time the player has to execute a jump without animation or delay (Bunny Hop window).")]
+    public float jumpBuffer = 0.5f;
+    private float lastJumpOrLandTime = -10f; // Tracks when the window started
+
+    // Public property for other scripts (like Animator) to read the buffered state
+    public bool HasRecentMovementInput => Time.time <= lastMoveInputTime + thrusterBufferTime;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
         stats = GetComponent<MechStats>();
-        mechLoader = GetComponent<MechLoader>(); // Grab the loader
+        mechLoader = GetComponent<MechLoader>();
     }
 
     void Update()
@@ -61,6 +72,12 @@ public class MechController : MonoBehaviour
         Vector3 currentMoveInput = moveInput;
         bool currentIsJumping = isJumping;
         bool currentIsBoosting = isBoosting;
+
+        // --- UPDATE MOVEMENT BUFFER ---
+        if (currentMoveInput.magnitude > 0.1f)
+        {
+            lastMoveInputTime = Time.time;
+        }
 
         // --- 1. OPPOSITE DIRECTION SWITCH (INSTANT MOMENTUM RESET) ---
         if (!isRecoveringFromLanding && currentMoveInput.magnitude > 0.1f)
@@ -91,6 +108,9 @@ public class MechController : MonoBehaviour
                 currentMoveInput = Vector3.zero;
                 currentIsJumping = false;
                 currentIsBoosting = false;
+
+                // FIX: Stop any queued jump wind-up dead in its tracks if we are recovering!
+                isPreparingToJump = false;
             }
         }
 
@@ -140,26 +160,37 @@ public class MechController : MonoBehaviour
 
         bool energyUsedThisFrame = false;
 
-        // --- 5. VERTICAL LOGIC ---
+        // --- 5. VERTICAL LOGIC (WITH JUMP BUFFER & DELAY) ---
         if (controller.isGrounded)
         {
             verticalVelocity = -2f;
 
-            if (jumpCooldownTimer > 0f) jumpCooldownTimer -= Time.deltaTime;
-
-            if (currentIsJumping && jumpCooldownTimer <= 0f && !isPreparingToJump)
+            if (currentIsJumping && !isPreparingToJump)
             {
-                isPreparingToJump = true;
-                currentJumpDelayTimer = stats.jumpDelay;
+                // Check if we are inside the Jump Buffer window
+                if (Time.time <= lastJumpOrLandTime + jumpBuffer)
+                {
+                    // INSTANT JUMP (Bypass animation and delay)
+                    verticalVelocity = stats.jumpForce;
+                    lastJumpOrLandTime = Time.time; // Reset the window for continuous bunny-hopping
+                    isPreparingToJump = false;
+                }
+                else
+                {
+                    // DELAYED JUMP (Trigger animation and start wind-up timer)
+                    isPreparingToJump = true;
+                    currentJumpDelayTimer = stats.jumpDelay;
+                }
             }
 
+            // Only process the delay if we are actively doing a full animated jump
             if (isPreparingToJump)
             {
                 currentJumpDelayTimer -= Time.deltaTime;
                 if (currentJumpDelayTimer <= 0f)
                 {
                     verticalVelocity = stats.jumpForce;
-                    jumpCooldownTimer = stats.jumpCooldown;
+                    lastJumpOrLandTime = Time.time; // Start the buffer window exactly when we leave the ground!
                     isPreparingToJump = false;
                 }
             }
@@ -191,11 +222,16 @@ public class MechController : MonoBehaviour
         // --- 6. IMPACT DETECTION ---
         if (!wasGroundedBeforeMove && controller.isGrounded)
         {
-            jumpCooldownTimer = stats.jumpCooldown;
+            // The exact millisecond we hit the ground, open the jump buffer window!
+            lastJumpOrLandTime = Time.time;
 
             if (verticalVelocity <= stats.minHardLandingThreshold)
             {
                 isRecoveringFromLanding = true;
+
+                // FIX: Instantly cancel any jump queued on the exact landing frame
+                isPreparingToJump = false;
+
                 float weightFactor = stats.totalWeight / stats.baselineWeight;
                 float speedFactor = Mathf.InverseLerp(stats.minHardLandingThreshold, stats.maxHardLandingThreshold, verticalVelocity);
 
@@ -211,11 +247,11 @@ public class MechController : MonoBehaviour
             }
         }
 
-        // --- 7. VFX LOGIC ---
-        // Fire thrusters if burning energy, OR if actively charging up a ground jump!
+        // --- 7. VFX LOGIC (WITH THRUSTER BUFFER) ---
         if (mechLoader != null)
         {
-            mechLoader.ToggleThrusters(energyUsedThisFrame);
+            bool shouldFireThrusters = energyUsedThisFrame || (currentIsBoosting && HasRecentMovementInput && !stats.energyIsDepleted);
+            mechLoader.ToggleThrusters(shouldFireThrusters);
         }
     }
 }

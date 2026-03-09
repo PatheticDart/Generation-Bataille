@@ -1245,6 +1245,8 @@ MonoBehaviour:
   isBoosting: 0
   isJumping: 0
   cameraEffects: {fileID: 820559484}
+  thrusterBufferTime: 0.1
+  jumpBuffer: 0.1
 --- !u!114 &90186453
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1269,7 +1271,6 @@ MonoBehaviour:
   boostEnergyDrain: 800
   jumpForce: 60
   jumpDelay: 0.25
-  jumpCooldown: 0.5
   totalWeight: 30000
   baselineWeight: 30000
   walkAcceleration: 100
