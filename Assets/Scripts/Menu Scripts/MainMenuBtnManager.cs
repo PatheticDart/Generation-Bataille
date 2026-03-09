@@ -5,6 +5,8 @@ public class MainMenuBtnManager : MonoBehaviour
 {
 
     public int mainSceneIndex = 1; //main game index 
+    public GameObject mainMenuPanel, settingsPanel;
+
     void Start()
     {
         
@@ -19,6 +21,12 @@ public class MainMenuBtnManager : MonoBehaviour
     public void StartGame()
     {
         SceneManager.LoadScene(mainSceneIndex);
+    }
+
+    public void OpenSettings()
+    {
+        mainMenuPanel.SetActive(false);
+        settingsPanel.SetActive(true);
     }
 
     public void QuitGame()
