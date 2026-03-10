@@ -9054,7 +9054,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 573266491}
+  m_Mesh: {fileID: 1279614298}
 --- !u!33 &381846817
 MeshFilter:
   m_ObjectHideFlags: 10
@@ -14638,7 +14638,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 1089623172}
+  m_Mesh: {fileID: 1412433582}
 --- !u!33 &617451550
 MeshFilter:
   m_ObjectHideFlags: 10
@@ -21395,7 +21395,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 937766731}
+  m_Mesh: {fileID: 56821578}
 --- !u!33 &1049991319
 MeshFilter:
   m_ObjectHideFlags: 10
@@ -38624,7 +38624,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 1430991777}
+  m_Mesh: {fileID: 742773972}
 --- !u!33 &2023012385
 MeshFilter:
   m_ObjectHideFlags: 10
@@ -41299,9 +41299,9 @@ MonoBehaviour:
   isJumping: 0
   cameraEffects: {fileID: 238367879}
   thrusterBufferTime: 0.1
-  bunnyHopWindow: 0.2
+  bunnyHopWindow: 0.1
   boostToJumpDelay: 0.25
-  walkToJumpDelay: 0.15
+  walkToJumpDelay: 0.3
   jumpInputBufferTime: 0.2
 --- !u!114 &2136971441
 MonoBehaviour:
