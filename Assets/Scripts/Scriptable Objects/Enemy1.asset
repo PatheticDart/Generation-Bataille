@@ -16,4 +16,4 @@ MonoBehaviour:
   health: 0
   damage: 0
   description: Hello
-  enemyPrefab: {fileID: 919132149155446097, guid: 9f4e2d50e09b2f44689912fc3f848604, type: 3}
+  enemyPrefab: {fileID: 7474755267847157253, guid: 432d594bd82e913448cd8cad186411f6, type: 3}
