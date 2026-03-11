@@ -4756,6 +4756,41 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1541581223}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &218458757 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5951335286877087644, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+  m_PrefabInstance: {fileID: 8080452104805173705}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &218458763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 218458757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca7de3aefa901374ba29464584a3109a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineDecollider
+  CameraRadius: 0.4
+  Decollision:
+    Enabled: 1
+    ObstacleLayers:
+      serializedVersion: 2
+      m_Bits: 8192
+    UseFollowTarget:
+      Enabled: 0
+      YOffset: 0
+    Damping: 0.5
+    SmoothingTime: 0
+  TerrainResolution:
+    Enabled: 0
+    TerrainLayers:
+      serializedVersion: 2
+      m_Bits: 8193
+    MaximumRaycast: 10
+    Damping: 0.5
 --- !u!1 &235714987
 GameObject:
   m_ObjectHideFlags: 0
@@ -36252,7 +36287,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8663662789748078319, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1592805646}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5951335286877087644, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 218458763}
   m_SourcePrefab: {fileID: 100100000, guid: 80496d6bc88cde24babae56a69323157, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
