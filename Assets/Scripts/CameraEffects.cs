@@ -5,7 +5,9 @@ using Unity.Cinemachine;
 public class CameraEffects : MonoBehaviour
 {
     [Header("References")]
+    [Tooltip("The root of your Mech/Player to track velocity.")]
     public Transform playerRoot;
+    [Tooltip("The Main Camera in the scene.")]
     public Camera mainCamera;
     [Tooltip("Drag the MechController here so the camera knows when you are boosting.")]
     public MechController mechController;
@@ -39,28 +41,33 @@ public class CameraEffects : MonoBehaviour
 
         if (noise == null)
         {
-            Debug.LogWarning("No Cinemachine Noise component found. Camera shake will not work.");
+            Debug.LogWarning("No CinemachineBasicMultiChannelPerlin component found on this camera. Shake will not work.");
         }
 
         if (playerRoot != null)
         {
             lastPosition = playerRoot.position;
         }
+
+        if (mainCamera == null)
+        {
+            mainCamera = Camera.main;
+        }
     }
 
+    // Reverted to LateUpdate so position deltas are calculated AFTER the player moves
     void LateUpdate()
     {
         if (mainCamera == null || playerRoot == null) return;
 
-        // --- NEW: SAFETY CHECK FOR PAUSE MENU ---
-        // If the game is paused, or Time.deltaTime is effectively zero, skip calculating the tilt
-        // to prevent DivideByZeroException / NaN corruption.
+        // --- SAFETY CHECK FOR PAUSE MENU ---
         if (Time.deltaTime > 0f)
         {
             // --- 1. TILT LOGIC ---
             Vector3 velocity = (playerRoot.position - lastPosition) / Time.deltaTime;
             lastPosition = playerRoot.position;
 
+            // Calculate how fast we are moving sideways relative to the camera's current view
             float sideSpeed = Vector3.Dot(velocity, mainCamera.transform.right);
             float speedFactor = Mathf.Clamp(sideSpeed / maxSpeedForTilt, -1f, 1f);
             float targetTilt = -speedFactor * maxTiltAngle;
@@ -74,7 +81,6 @@ public class CameraEffects : MonoBehaviour
         }
 
         // --- 2. SHAKE LOGIC ---
-        // (This remains untouched since you mentioned it still works perfectly!)
         if (noise != null && mechController != null)
         {
             float finalAmplitude = 0f;
@@ -97,6 +103,7 @@ public class CameraEffects : MonoBehaviour
                 currentImpactAmplitude = Mathf.Lerp(currentImpactAmplitude, 0f, shakeDecayRate * Time.deltaTime);
             }
 
+            // Apply to Cinemachine Noise Profile
             noise.AmplitudeGain = finalAmplitude;
             noise.FrequencyGain = finalFrequency;
         }
