@@ -7,7 +7,12 @@ public class EnemyButton : MonoBehaviour
     public TextMeshProUGUI buttonLabel, enemyNameText, enemyHealthText, enemyDamageText, enemyDescriptionText;
     public EnemyDataSO enemyData;
     public GameObject rotateObject;
+    public GameObject buttonManager;
     public RotateObject rotateScript;
+    public bool isSelected = false;
+
+    [Header("Confirm Map Stuff")]
+    public GameObject confirmationPanel;
 
     public void Awake()
     {
@@ -24,5 +29,14 @@ public class EnemyButton : MonoBehaviour
         enemyDescriptionText.text = enemyData.description;
         rotateObject = enemyData.enemyPrefab;
         rotateScript.objectToRotate = rotateObject;
+        
+        if (buttonManager.GetComponent<SelectOpponent>().selectedEnemyData == enemyData)
+        {
+            confirmationPanel.SetActive(true);
+        }
+        else
+        {
+            buttonManager.GetComponent<SelectOpponent>().selectedEnemyData = enemyData;
+        }
     }
 }

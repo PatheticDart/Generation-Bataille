@@ -2,23 +2,33 @@ using UnityEngine;
 
 public class SelectOpponent : MonoBehaviour
 {
-    
-    void Start()
-    {
-        
-    }
+    public GameObject opponentSelectPanel;
+    public GameObject rotationPanel;
 
-    // Update is called once per frame
+    public EnemyDataSO selectedEnemyData;
+
+    public GameObject confirmationPanel;
+
     void Update()
     {
-        
+        if (opponentSelectPanel.activeSelf)
+        {
+            rotationPanel.SetActive(true);
+        }
+        else
+        {
+            rotationPanel.SetActive(false);
+        }
     }
 
-    public void SelectOpponent1()
+
+    public void CONFIRM()
     {
-        PlayerPrefs.SetInt("SelectedOpponent", 1);
-        Debug.Log(PlayerPrefs.GetInt("SelectedOpponent"));
+        Debug.Log("ENEMY CONFIRM");
     }
 
-
+    public void ABORT()
+    {
+        confirmationPanel.SetActive(false);
+    }
 }
