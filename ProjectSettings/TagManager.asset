@@ -15,6 +15,10 @@ TagManager:
   - Team 2
   - Projectile
   - Ground
+  - Player
+  - Enemy
+  - Interactable
+  - Environment
   - 
   - 
   - 
@@ -31,12 +35,8 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - WorldCamera
+  - UICamera
   m_SortingLayers:
   - name: Default
     uniqueID: 0
