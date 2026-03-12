@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FunctionalWeapon : PartFunctionality
+public class FunctionalWeapon : PartTemplate
 {
     public virtual void OnFireHeld() {}
     public virtual void OnFirePressed() {}

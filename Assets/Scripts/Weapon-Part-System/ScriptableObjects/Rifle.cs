@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "RiflePart", menuName = "Parts/RiflePart")]
-public class Rifle : ChargedPart
+public class Rifle : WeaponPart
 {
     [Header("Unique Stats")]
     public AmmoType ammoType;

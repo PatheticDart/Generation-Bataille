@@ -14,6 +14,7 @@ public class MechWeaponManager : MonoBehaviour
     [Header("Player Control")]
     public bool isPlayerControlled = true;
 
+
     void Update()
     {
         // Only listen to keyboard if this is the player

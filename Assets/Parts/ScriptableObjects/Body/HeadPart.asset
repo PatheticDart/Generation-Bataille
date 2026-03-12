@@ -9,17 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 78f00d33dd50c5b418b863960a55c259, type: 3}
   m_Name: HeadPart
   m_EditorClassIdentifier: Assembly-CSharp::HeadPart
   prefab: {fileID: 0}
   partName: 
   partDescription: 
+  price: 0
   weight: 0
+  energyDrain: 0
   armorPoints: 0
   shellDef: 0
   energyDef: 0
-  energyDrain: 0
-  lockOnMultiplier: 0.9
+  lockOnTimeMultiplier: 0.9
   radarPollRate: 0.5
   radarScale: 1
