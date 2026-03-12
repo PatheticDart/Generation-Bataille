@@ -1,6 +1,8 @@
 using UnityEngine;
 
-public class IHasInput
+public interface IHasInput
 {
-    
+    virtual void OnFire() {}
+    virtual void OnFirePress() {}
+    virtual void OnFireRelease() {}
 }

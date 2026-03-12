@@ -3,7 +3,7 @@ using UnityEngine;
 
 public abstract class Part : ScriptableObject
 {
-    public PartFunctionality prefab;
+    public PartTemplate prefab;
 
     [Header("Garage Metadata")]
     public string partName;
