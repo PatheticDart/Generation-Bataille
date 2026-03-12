@@ -9313,7 +9313,6 @@ GameObject:
   - component: {fileID: 7257275564682587169}
   - component: {fileID: 3566548890806725}
   - component: {fileID: 7960159375031588431}
-  - component: {fileID: 1908675222949660866}
   - component: {fileID: 7763655292459902877}
   m_Layer: 0
   m_Name: CinemachineCamera
@@ -9420,24 +9419,6 @@ MonoBehaviour:
   landingShakeBaseAmplitude: 6
   landingShakeFrequency: 1
   shakeDecayRate: 5
---- !u!114 &1908675222949660866
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5951335286877087644}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2588cc5dedbb75e49a44aada63f7b939, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineThirdPersonAim
-  AimCollisionFilter:
-    serializedVersion: 2
-    m_Bits: 8192
-  IgnoreTag: 
-  AimDistance: 200
-  NoiseCancellation: 1
 --- !u!114 &7763655292459902877
 MonoBehaviour:
   m_ObjectHideFlags: 0
