@@ -93,7 +93,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 112000000, guid: eec8bf905d9c96541ab88b7784735735, type: 2}
+  m_LightingDataAsset: {fileID: 0}
   m_LightingSettings: {fileID: 4890085278179872738, guid: 9ecce1e877a6e184da0fc1af08dd29ec, type: 2}
 --- !u!196 &4
 NavMeshSettings:
@@ -2408,7 +2408,7 @@ Transform:
   m_GameObject: {fileID: 88999919}
   serializedVersion: 2
   m_LocalRotation: {x: 1.1102232e-17, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -26.31308, y: 2.6655939, z: 26.444408}
+  m_LocalPosition: {x: -50, y: 2.6655939, z: 142.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9256,7 +9256,7 @@ Transform:
   m_GameObject: {fileID: 491145943}
   serializedVersion: 2
   m_LocalRotation: {x: 1.1102232e-17, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 20.196198, y: 5.6207175, z: 28.82774}
+  m_LocalPosition: {x: 24.2, y: 5.6207175, z: 160.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -22911,7 +22911,7 @@ Transform:
   m_GameObject: {fileID: 1223235945}
   serializedVersion: 2
   m_LocalRotation: {x: 1.1102231e-17, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -18.374275, y: 3.4352689, z: -19.513813}
+  m_LocalPosition: {x: -7.8, y: 3.4352689, z: -95.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -24614,7 +24614,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a83d2f7ae04ab6f4f99b0d85377be998, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.ProbeVolumePerSceneData
-  serializedBakingSet: {fileID: 11400000, guid: a2ff757a62f0d1843ab83438cf5c8d66, type: 2}
+  serializedBakingSet: {fileID: 0}
   sceneGUID: 99c9720ab356a0642a771bea13969a05
   obsoleteAsset: {fileID: 0}
   obsoleteCellSharedDataAsset: {fileID: 0}
@@ -31008,7 +31008,7 @@ MonoBehaviour:
   lowestSubdivLevelOverride: 0
   highestSubdivLevelOverride: 5
   overridesSubdivLevels: 1
-  mightNeedRebaking: 0
+  mightNeedRebaking: 1
   cachedTransform:
     e00: 1
     e01: 0
@@ -31606,7 +31606,7 @@ Transform:
   m_GameObject: {fileID: 1770627619}
   serializedVersion: 2
   m_LocalRotation: {x: 1.110223e-17, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -29.765461, y: 4.0082736, z: 13.056423}
+  m_LocalPosition: {x: -82.1, y: 4.0082736, z: -51.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -36713,7 +36713,7 @@ Transform:
   m_GameObject: {fileID: 2088099710}
   serializedVersion: 2
   m_LocalRotation: {x: 1.11022296e-17, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.0858233, y: 3.1886659, z: 43.955612}
+  m_LocalPosition: {x: -107.7, y: 3.1886659, z: 26.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -37677,19 +37677,51 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   cameraPivot: {fileID: 1150575358}
   aimTrackingSpeed: 15
+  eyeHeight: 2
   targetLayer:
     serializedVersion: 2
     m_Bits: 64
   detectionRadius: 500
   currentTarget: {fileID: 0}
-  preferredDistance: 150
-  distanceMargin: 30
-  minDirectionSwapInterval: 1
-  maxDirectionSwapInterval: 5
-  decisionInterval: 1
+  approachRange: 300
+  approachType: 0
+  approachCriticalENRate: 30
+  approachRequiredENRate: 70
   boostChance: 70
-  jumpChance: 50
-  flightChance: 15.8
+  movementOrderList:
+  - actionType: 0
+    duration: 5
+    targetRange: 200
+    distanceUncertainty: 0
+    relativeElevation: 0
+    targetAngle: 0
+    angleUncertainty: 0
+  - actionType: 1
+    duration: 5
+    targetRange: 150
+    distanceUncertainty: 0
+    relativeElevation: 20
+    targetAngle: -40
+    angleUncertainty: 0
+  - actionType: 1
+    duration: 5
+    targetRange: 300
+    distanceUncertainty: 0
+    relativeElevation: -40
+    targetAngle: 40
+    angleUncertainty: 0
+  - actionType: 1
+    duration: 6
+    targetRange: 50
+    distanceUncertainty: 0
+    relativeElevation: 50
+    targetAngle: 180
+    angleUncertainty: 0
+  environmentLayer:
+    serializedVersion: 2
+    m_Bits: 8192
+  maxObstacleJumpHeight: 12
+  standardJumpHeight: 3
   energyEfficiency: 80
 --- !u!114 &2136971436
 MonoBehaviour:
@@ -37866,7 +37898,7 @@ MonoBehaviour:
   airDeceleration: 15
   minHardLandingThreshold: -80
   maxHardLandingThreshold: -180
-  baseHardLandingTime: 1
+  baseHardLandingTime: 0.5
   maxHardLandingTime: 2.5
 --- !u!143 &2136971442
 CharacterController:
@@ -38655,6 +38687,10 @@ PrefabInstance:
       propertyPath: baseHardLandingTime
       value: 0.25
       objectReference: {fileID: 0}
+    - target: {fileID: 3910983969995663316, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -13
+      objectReference: {fileID: 0}
     - target: {fileID: 4451311989916969681, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -38731,10 +38767,18 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 573266491}
+    - target: {fileID: 7763655292459902877, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: CameraDistance
+      value: 13
+      objectReference: {fileID: 0}
     - target: {fileID: 8401447822277350259, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 781505270}
+    - target: {fileID: 8663662789748078319, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -13
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
