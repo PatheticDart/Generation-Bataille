@@ -11,13 +11,15 @@ public class FCSLockBox : MonoBehaviour
     public float fcsHeight = 30f;
     public float fcsRange = 300f;
     public float lockSpeed = 1.5f;
-    public float fcsTurnRate = 10f;
+    [Tooltip("Maximum tracking speed in degrees per second. Try 180 to 300 for a snappy feel.")]
+    public float fcsTurnRate = 180f;
 
     [Header("Colors")]
     public Color softLockColor = Color.green;
     public Color hardLockColor = Color.red;
 
     [Header("Mechanics")]
+    [Tooltip("If the FCS is within this many degrees of the center, it snaps instantly (prevents micro-jitter).")]
     public float stickyThreshold = 2f;
     public LayerMask targetLayer;
     public bool isPlayer = true;
@@ -65,7 +67,6 @@ public class FCSLockBox : MonoBehaviour
         if (isPlayer && reticleUI != null)
         {
             reticleChildImages = reticleUI.GetComponentsInChildren<Image>(true);
-            // Grab all texts normally again
             reticleChildTexts = reticleUI.GetComponentsInChildren<TextMeshProUGUI>(true);
         }
     }
@@ -85,15 +86,18 @@ public class FCSLockBox : MonoBehaviour
     {
         if (aimMaster == null) return;
 
+        // Calculate the angular distance between the FCS and the Camera
         float angleDifference = Quaternion.Angle(transform.rotation, aimMaster.rotation);
 
         if (angleDifference <= stickyThreshold)
         {
+            // Inside the buffer: Snap instantly to prevent floating-point jitter
             transform.rotation = aimMaster.rotation;
         }
         else
         {
-            transform.rotation = Quaternion.Slerp(transform.rotation, aimMaster.rotation, fcsTurnRate * Time.deltaTime);
+            // Outside the buffer: Trail behind using the fixed turn rate
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, aimMaster.rotation, fcsTurnRate * Time.deltaTime);
         }
     }
 
@@ -188,7 +192,6 @@ public class FCSLockBox : MonoBehaviour
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, enemyScreenPos, mainCamera, out Vector2 reticleLocalPos);
                 reticleUI.localPosition = reticleLocalPos;
 
-                // 1. Apply the base color (Green or Red) to EVERYTHING inside the reticle
                 Color targetColor = isHardLocked ? hardLockColor : softLockColor;
 
                 foreach (Image img in reticleChildImages)
@@ -201,7 +204,6 @@ public class FCSLockBox : MonoBehaviour
                     if (txt != null) txt.color = targetColor;
                 }
 
-                // 2. NEW: Specifically override the Alpha for the Ammo texts based on Weapon Manager state
                 if (weaponManager != null)
                 {
                     ApplyAmmoAlpha(leftArmAmmoTexts, targetColor, weaponManager.leftArmActive ? activeWeaponAlpha : inactiveWeaponAlpha);
@@ -229,7 +231,6 @@ public class FCSLockBox : MonoBehaviour
         }
     }
 
-    // NEW: Helper method to apply the correct alpha over the base target color
     private void ApplyAmmoAlpha(List<TextMeshProUGUI> textList, Color baseColor, float targetAlpha)
     {
         foreach (TextMeshProUGUI txt in textList)
