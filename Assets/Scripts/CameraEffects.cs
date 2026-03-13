@@ -20,11 +20,20 @@ public class CameraEffects : MonoBehaviour
     [Header("Camera Shake Settings")]
     public float boostShakeAmplitude = 0.8f;
     public float boostShakeFrequency = 10f;
+
+    [Header("Impact Shake (Landings)")]
     [Tooltip("Base shake multiplier for hard landings.")]
     public float landingShakeBaseAmplitude = 4f;
     public float landingShakeFrequency = 15f;
     [Tooltip("How fast the landing shake fades away.")]
     public float shakeDecayRate = 5f;
+
+    [Header("Footstep Shake (Walking)")]
+    [Tooltip("Base shake amplitude for footsteps.")]
+    public float footstepShakeBaseAmplitude = 1.0f;
+    public float footstepShakeFrequency = 12f;
+    [Tooltip("How fast the footstep shake fades away (usually faster than landings).")]
+    public float footstepDecayRate = 12f;
 
     private CinemachineCamera vcam;
     private CinemachineBasicMultiChannelPerlin noise;
@@ -33,6 +42,8 @@ public class CameraEffects : MonoBehaviour
 
     // Tracks the current strength of a hard landing impact
     private float currentImpactAmplitude = 0f;
+    // Tracks the current strength of footstep impacts
+    private float currentFootstepAmplitude = 0f;
 
     void Start()
     {
@@ -55,7 +66,6 @@ public class CameraEffects : MonoBehaviour
         }
     }
 
-    // Reverted to LateUpdate so position deltas are calculated AFTER the player moves
     void LateUpdate()
     {
         if (mainCamera == null || playerRoot == null) return;
@@ -67,14 +77,12 @@ public class CameraEffects : MonoBehaviour
             Vector3 velocity = (playerRoot.position - lastPosition) / Time.deltaTime;
             lastPosition = playerRoot.position;
 
-            // Calculate how fast we are moving sideways relative to the camera's current view
             float sideSpeed = Vector3.Dot(velocity, mainCamera.transform.right);
             float speedFactor = Mathf.Clamp(sideSpeed / maxSpeedForTilt, -1f, 1f);
             float targetTilt = -speedFactor * maxTiltAngle;
 
             currentTilt = Mathf.Lerp(currentTilt, targetTilt, tiltSmoothing * Time.deltaTime);
 
-            // Apply to Cinemachine Lens
             var lens = vcam.Lens;
             lens.Dutch = currentTilt;
             vcam.Lens = lens;
@@ -99,8 +107,16 @@ public class CameraEffects : MonoBehaviour
                 finalAmplitude += currentImpactAmplitude;
                 finalFrequency = Mathf.Max(finalFrequency, landingShakeFrequency);
 
-                // Rapidly fade the impact out over time
                 currentImpactAmplitude = Mathf.Lerp(currentImpactAmplitude, 0f, shakeDecayRate * Time.deltaTime);
+            }
+
+            // C. Footstep Shake 
+            if (currentFootstepAmplitude > 0.1f)
+            {
+                finalAmplitude += currentFootstepAmplitude;
+                finalFrequency = Mathf.Max(finalFrequency, footstepShakeFrequency);
+
+                currentFootstepAmplitude = Mathf.Lerp(currentFootstepAmplitude, 0f, footstepDecayRate * Time.deltaTime);
             }
 
             // Apply to Cinemachine Noise Profile
@@ -112,5 +128,11 @@ public class CameraEffects : MonoBehaviour
     public void TriggerImpactShake(float severityMultiplier)
     {
         currentImpactAmplitude = landingShakeBaseAmplitude * severityMultiplier;
+    }
+
+    // --- NEW: Event function for the animation timeline ---
+    public void TriggerFootstepShake(float intensity)
+    {
+        currentFootstepAmplitude = footstepShakeBaseAmplitude * intensity;
     }
 }

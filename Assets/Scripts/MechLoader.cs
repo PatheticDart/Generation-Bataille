@@ -8,8 +8,7 @@ public class MechLoader : MonoBehaviour
     public List<GameObject> legParts;
     public List<GameObject> torsoParts;
     public List<GameObject> headParts;
-    public List<GameObject> leftArmParts;
-    public List<GameObject> rightArmParts;
+    public List<GameObject> armParts; // NEW: Single list for the combined Arms prefab
     public List<GameObject> boosterParts;
 
     [Header("Weapon Prefabs")]
@@ -72,7 +71,7 @@ public class MechLoader : MonoBehaviour
     private GameObject currentLeftArm;
     private GameObject currentRightArm;
     private List<GameObject> currentBoosters = new List<GameObject>();
-    private List<GameObject> thrusterEffects = new List<GameObject>(); // NEW: Caches the particle systems
+    private List<GameObject> thrusterEffects = new List<GameObject>();
 
     void Start()
     {
@@ -116,7 +115,7 @@ public class MechLoader : MonoBehaviour
 
         if (currentTorso == null) return;
 
-        // 3. HEAD & ARMS
+        // 3. HEAD 
         Transform headNode = FindDeepChild(currentTorso.transform, "HeadNode");
         if (headNode != null)
         {
@@ -124,23 +123,68 @@ public class MechLoader : MonoBehaviour
             SyncPartToBone(currentHead, animHeadBone);
         }
 
+        // 4. ARMS (Wrapper Extraction Logic)
         Transform leftArmNode = FindDeepChild(currentTorso.transform, "LeftArmNode");
-        if (leftArmNode != null)
-        {
-            currentLeftArm = InstantiatePart(leftArmParts, armIndex, leftArmNode);
-            SyncPartToBone(currentLeftArm, animLeftArmBone);
-            SyncChildBone(currentLeftArm, "Lower Arm Bone Left", animLowerArmBoneLeft);
-        }
-
         Transform rightArmNode = FindDeepChild(currentTorso.transform, "RightArmNode");
-        if (rightArmNode != null)
+
+        if (leftArmNode != null || rightArmNode != null)
         {
-            currentRightArm = InstantiatePart(rightArmParts, armIndex, rightArmNode);
-            SyncPartToBone(currentRightArm, animRightArmBone);
-            SyncChildBone(currentRightArm, "Lower Arm Bone Right", animLowerArmBoneRight);
+            // Spawn the combined arms wrapper parent temporarily on the torso
+            GameObject armsWrapper = InstantiatePart(armParts, armIndex, currentTorso.transform);
+
+            if (armsWrapper != null)
+            {
+                Transform extractedLeftArm = null;
+                Transform extractedRightArm = null;
+
+                // Identify which child is the left arm and which is the right arm by checking the name
+                foreach (Transform child in armsWrapper.transform)
+                {
+                    string lowerName = child.name.ToLower();
+                    if (lowerName.Contains("left") || lowerName.Contains("_l") || lowerName.Contains("l_"))
+                    {
+                        extractedLeftArm = child;
+                    }
+                    else if (lowerName.Contains("right") || lowerName.Contains("_r") || lowerName.Contains("r_"))
+                    {
+                        extractedRightArm = child;
+                    }
+                }
+
+                // Fallback: If names don't match, just grab the first and second children
+                if (extractedLeftArm == null && armsWrapper.transform.childCount > 0) extractedLeftArm = armsWrapper.transform.GetChild(0);
+                if (extractedRightArm == null && armsWrapper.transform.childCount > 1) extractedRightArm = armsWrapper.transform.GetChild(1);
+
+                // Slot and sync the Left Arm
+                if (extractedLeftArm != null && leftArmNode != null)
+                {
+                    extractedLeftArm.SetParent(leftArmNode, false);
+                    extractedLeftArm.localPosition = Vector3.zero;
+                    extractedLeftArm.localRotation = Quaternion.identity;
+
+                    currentLeftArm = extractedLeftArm.gameObject;
+                    SyncPartToBone(currentLeftArm, animLeftArmBone);
+                    SyncChildBone(currentLeftArm, "Lower Arm Bone Left", animLowerArmBoneLeft);
+                }
+
+                // Slot and sync the Right Arm
+                if (extractedRightArm != null && rightArmNode != null)
+                {
+                    extractedRightArm.SetParent(rightArmNode, false);
+                    extractedRightArm.localPosition = Vector3.zero;
+                    extractedRightArm.localRotation = Quaternion.identity;
+
+                    currentRightArm = extractedRightArm.gameObject;
+                    SyncPartToBone(currentRightArm, animRightArmBone);
+                    SyncChildBone(currentRightArm, "Lower Arm Bone Right", animLowerArmBoneRight);
+                }
+
+                // Destroy the empty wrapper parent now that the arms have been extracted
+                DestroyImmediate(armsWrapper);
+            }
         }
 
-        // 4. BOOSTERS & THRUSTERS
+        // 5. BOOSTERS & THRUSTERS
         List<Transform> boosterNodes = new List<Transform>();
         FindAllDeepChildren(currentTorso.transform, "BoosterNode", boosterNodes);
 
@@ -152,11 +196,10 @@ public class MechLoader : MonoBehaviour
             {
                 currentBoosters.Add(booster);
 
-                // NEW: Find and cache the "Thruster" child object
                 Transform thrusterNode = FindDeepChild(booster.transform, "Thruster");
                 if (thrusterNode != null)
                 {
-                    thrusterNode.gameObject.SetActive(false); // Start turned off
+                    thrusterNode.gameObject.SetActive(false);
                     thrusterEffects.Add(thrusterNode.gameObject);
                 }
 
@@ -169,14 +212,13 @@ public class MechLoader : MonoBehaviour
             }
         }
 
-        // Back Weapons
+        // 6. WEAPONS
         Transform leftBackWepNode = FindDeepChild(currentTorso.transform, "LeftBackWeaponNode");
         if (leftBackWepNode != null) InstantiatePart(leftBackWeapons, lBackWepIndex, leftBackWepNode);
 
         Transform rightBackWepNode = FindDeepChild(currentTorso.transform, "RightBackWeaponNode");
         if (rightBackWepNode != null) InstantiatePart(rightBackWeapons, rBackWepIndex, rightBackWepNode);
 
-        // Arm Weapons
         if (currentLeftArm != null)
         {
             Transform lArmWepNode = FindDeepChild(currentLeftArm.transform, "LeftArmWeaponNode");
@@ -190,7 +232,6 @@ public class MechLoader : MonoBehaviour
         }
     }
 
-    // --- NEW METHOD FOR THE CONTROLLER TO CALL ---
     public void ToggleThrusters(bool isActive)
     {
         foreach (GameObject thruster in thrusterEffects)
@@ -241,7 +282,7 @@ public class MechLoader : MonoBehaviour
         if (currentRightArm) DestroyImmediate(currentRightArm);
         foreach (GameObject booster in currentBoosters) { if (booster) DestroyImmediate(booster); }
         currentBoosters.Clear();
-        thrusterEffects.Clear(); // Clear cached thrusters
+        thrusterEffects.Clear();
         if (currentTorso) DestroyImmediate(currentTorso);
         if (currentLegs) DestroyImmediate(currentLegs);
     }
