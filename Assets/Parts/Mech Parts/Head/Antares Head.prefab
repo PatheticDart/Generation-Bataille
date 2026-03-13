@@ -134,6 +134,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1086406677701424839}
+  - component: {fileID: -5347162943619616129}
   m_Layer: 0
   m_Name: Antares Head
   m_TagString: Untagged
@@ -157,6 +158,24 @@ Transform:
   - {fileID: 1744311056853103397}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-5347162943619616129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7348662245296258834}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c26018842936334481184a4a0f51dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StandardMechPart
+  OnPartSpawned:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPartDestroyed:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &7351859509037558501
 GameObject:
   m_ObjectHideFlags: 0

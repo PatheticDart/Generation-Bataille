@@ -76,6 +76,7 @@ GameObject:
   - component: {fileID: 4110983454976657698}
   - component: {fileID: 9097667639639091456}
   - component: {fileID: 1851399453385235123}
+  - component: {fileID: 13414881908189499}
   m_Layer: 0
   m_Name: Antares Right Arm
   m_TagString: Untagged
@@ -138,6 +139,24 @@ MonoBehaviour:
   - m_Rig: {fileID: 0}
     m_Active: 1
   m_Effectors: []
+--- !u!114 &13414881908189499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4139686519054979381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c26018842936334481184a4a0f51dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StandardMechPart
+  OnPartSpawned:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPartDestroyed:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &5589938766157670595
 GameObject:
   m_ObjectHideFlags: 0
