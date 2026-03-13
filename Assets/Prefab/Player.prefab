@@ -2016,7 +2016,7 @@ MonoBehaviour:
   airDeceleration: 15
   minHardLandingThreshold: -80
   maxHardLandingThreshold: -180
-  baseHardLandingTime: 1
+  baseHardLandingTime: 0.25
   maxHardLandingTime: 2.5
 --- !u!114 &1607095534319946367
 MonoBehaviour:
@@ -2038,8 +2038,8 @@ MonoBehaviour:
   cameraEffects: {fileID: 7960159375031588431}
   thrusterBufferTime: 0.1
   bunnyHopWindow: 0.1
-  boostToJumpDelay: 0.25
-  walkToJumpDelay: 0.3
+  boostToJumpDelay: 0.2
+  walkToJumpDelay: 0.1
   jumpInputBufferTime: 0.2
 --- !u!114 &8756377758456706338
 MonoBehaviour:
@@ -5704,7 +5704,7 @@ Transform:
   m_GameObject: {fileID: 3892685215485691324}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 5.3999996, z: -15}
+  m_LocalPosition: {x: 0.5, y: 5.3999996, z: -13}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -8509,9 +8509,9 @@ MonoBehaviour:
   speedometerObject: {fileID: 4614385202205494050}
   altimeterObject: {fileID: 3113586559857943407}
   reticleAmmoCountersParent: {fileID: 4232158314179158386}
-  currentGeneralColor: {r: 1, g: 0.22711661, b: 0, a: 1}
-  currentEnergyColor: {r: 1, g: 0.08614121, b: 0, a: 1}
-  currentReticleColor: {r: 0.041301727, g: 0, b: 1, a: 1}
+  currentGeneralColor: {r: 0, g: 1, b: 0.95686275, a: 1}
+  currentEnergyColor: {r: 0, g: 1, b: 0.9583688, a: 1}
+  currentReticleColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &6193230343832864044
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9330,7 +9330,7 @@ Transform:
   m_GameObject: {fileID: 5951335286877087644}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 5.3999996, z: -15}
+  m_LocalPosition: {x: 0.5, y: 5.3999996, z: -13}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9435,7 +9435,7 @@ MonoBehaviour:
   ShoulderOffset: {x: 0.5, y: 5, z: 0}
   VerticalArmLength: 0.4
   CameraSide: 1
-  CameraDistance: 15
+  CameraDistance: 13
   AvoidObstacles:
     Enabled: 1
     CollisionFilter:
