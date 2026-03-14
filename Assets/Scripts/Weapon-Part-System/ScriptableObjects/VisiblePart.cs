@@ -4,5 +4,5 @@ using UnityEngine;
 public abstract class VisiblePart : Part
 {
     [Header("Visuals")]
-    public PartTemplate prefab;
+    public GameObject prefab;
 }

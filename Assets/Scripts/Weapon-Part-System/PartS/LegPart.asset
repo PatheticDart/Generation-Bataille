@@ -16,7 +16,7 @@ MonoBehaviour:
   partDescription: 
   price: 0
   weight: 0
-  prefab: {fileID: -7579059378243783486, guid: 58a2558b39ee698419dee504ac9040e9, type: 3}
+  prefab: {fileID: 3037054784377261881, guid: 58a2558b39ee698419dee504ac9040e9, type: 3}
   energyDrain: 0
   armorPoints: 0
   shellDef: 0

@@ -7651,6 +7651,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 366132226}
   m_CullTransparentMesh: 1
+--- !u!114 &366526915 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3414217044222115974, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+  m_PrefabInstance: {fileID: 1493234208601943067}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc58aee47826de74c88edebeb2a2f8a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponManager
 --- !u!1 &369702650
 GameObject:
   m_ObjectHideFlags: 0
@@ -43300,6 +43311,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 467cffe475e187f4d9e4728308a2086c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  weaponManager: {fileID: 0}
   leftArmActive: 1
   rightArmActive: 1
   hasAimableLeftBackWeapon: 1
@@ -45030,6 +45042,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: leftBackWeapon
+      value: 
+      objectReference: {fileID: 11400000, guid: 33f1a6b93fc29394581fee3296432a0c, type: 2}
+    - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: rightBackWeapon
+      value: 
+      objectReference: {fileID: 11400000, guid: 33f1a6b93fc29394581fee3296432a0c, type: 2}
     - target: {fileID: 3121160424626493905, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -45054,6 +45074,14 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 154710583}
+    - target: {fileID: 7114393932837201338, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: weaponManager
+      value: 
+      objectReference: {fileID: 366526915}
+    - target: {fileID: 7114393932837201338, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: isPlayerControlled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7360410584240970596, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -46253,6 +46281,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 467cffe475e187f4d9e4728308a2086c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  weaponManager: {fileID: 0}
   leftArmActive: 1
   rightArmActive: 1
   hasAimableLeftBackWeapon: 1

@@ -205,14 +205,14 @@ public class PartSystem : MonoBehaviour
         Transform leftBackWepNode = FindDeepChild(currentTorso.transform, "LeftBackWeaponNode");
         if (leftBackWepNode != null && equippedParts.TryGetValue(PartType.BackL, out Part lBackPart))
         {
-            GameObject wepObj = InstantiatePartData(lBackPart, leftBackWepNode);
+            GameObject wepObj = InstantiateWeaponData(lBackPart, leftBackWepNode, true); // true = Look for Left variant
             RegisterIfWeapon(PartType.BackL, wepObj);
         }
 
         Transform rightBackWepNode = FindDeepChild(currentTorso.transform, "RightBackWeaponNode");
         if (rightBackWepNode != null && equippedParts.TryGetValue(PartType.BackR, out Part rBackPart))
         {
-            GameObject wepObj = InstantiatePartData(rBackPart, rightBackWepNode);
+            GameObject wepObj = InstantiateWeaponData(rBackPart, rightBackWepNode, false); // false = Look for Right variant
             RegisterIfWeapon(PartType.BackR, wepObj);
         }
 
@@ -221,7 +221,7 @@ public class PartSystem : MonoBehaviour
             Transform lArmWepNode = FindDeepChild(currentLeftArm.transform, "LeftArmWeaponNode");
             if (lArmWepNode != null)
             {
-                GameObject wepObj = InstantiatePartData(lArmWepPart, lArmWepNode);
+                GameObject wepObj = InstantiateWeaponData(lArmWepPart, lArmWepNode, true);
                 RegisterIfWeapon(PartType.ArmL, wepObj); 
             }
         }
@@ -231,37 +231,87 @@ public class PartSystem : MonoBehaviour
             Transform rArmWepNode = FindDeepChild(currentRightArm.transform, "RightArmWeaponNode");
             if (rArmWepNode != null)
             {
-                GameObject wepObj = InstantiatePartData(rArmWepPart, rArmWepNode);
+                GameObject wepObj = InstantiateWeaponData(rArmWepPart, rArmWepNode, false);
                 RegisterIfWeapon(PartType.ArmR, wepObj);
             }
         }
     }
 
-    // --- INSTANTIATION HELPER ---
+    // --- STANDARD INSTANTIATION HELPER ---
     private GameObject InstantiatePartData(Part partData, Transform parent)
     {
         if (partData == null) return null;
 
-        // Try to cast the generic Part to a VisiblePart
         if (partData is VisiblePart visiblePart && visiblePart.prefab != null)
         {
-            // Spawn the prefab stored in the ScriptableObject
-            PartTemplate spawnedTemplate = Instantiate(visiblePart.prefab, parent);
-            GameObject obj = spawnedTemplate.gameObject;
+            // Spawn the generic GameObject
+            GameObject obj = Instantiate(visiblePart.prefab, parent);
 
             obj.transform.localPosition = Vector3.zero;
             obj.transform.localRotation = Quaternion.identity;
 
-            // Trigger the initialized event on the template
-            spawnedTemplate.SpawnPart();
-
+            // Trigger the initialized event if a template exists
+            if (obj.TryGetComponent<PartTemplate>(out PartTemplate temp)) temp.SpawnPart();
+            
             return obj;
         }
 
-        // If it's an internal part like an FCS or Generator, it returns null
         return null;
     }
 
+    // --- WEAPON INSTANTIATION HELPER (With Wrapper Extraction) ---
+    private GameObject InstantiateWeaponData(Part partData, Transform parent, bool isLeftVariant)
+    {
+        if (partData == null) return null;
+
+        if (partData is VisiblePart visiblePart && visiblePart.prefab != null)
+        {
+            GameObject wrapper = Instantiate(visiblePart.prefab, parent);
+            Transform extractedWeapon = null;
+
+            // Search children for explicit Left or Right variants
+            foreach (Transform child in wrapper.transform)
+            {
+                string lowerName = child.name.ToLower();
+                if (isLeftVariant && (lowerName.Contains("left") || lowerName.Contains("_l") || lowerName.Contains("l_")))
+                {
+                    extractedWeapon = child;
+                    break;
+                }
+                else if (!isLeftVariant && (lowerName.Contains("right") || lowerName.Contains("_r") || lowerName.Contains("r_")))
+                {
+                    extractedWeapon = child;
+                    break;
+                }
+            }
+
+            // If a specific variant was found, pull it out and destroy the empty wrapper
+            if (extractedWeapon != null)
+            {
+                extractedWeapon.SetParent(parent, false);
+                extractedWeapon.localPosition = Vector3.zero;
+                extractedWeapon.localRotation = Quaternion.identity;
+                
+                DestroyImmediate(wrapper);
+
+                GameObject finalObj = extractedWeapon.gameObject;
+                
+                // Now we trigger the spawn event on the extracted child
+                if (finalObj.TryGetComponent<PartTemplate>(out PartTemplate temp)) temp.SpawnPart();
+                return finalObj;
+            }
+            else
+            {
+                // Fallback: The prefab didn't have explicitly named L/R children.
+                wrapper.transform.localPosition = Vector3.zero;
+                wrapper.transform.localRotation = Quaternion.identity;
+                
+                if (wrapper.TryGetComponent<PartTemplate>(out PartTemplate temp)) temp.SpawnPart();
+                return wrapper;
+            }
+        }
+        return null;
+    }
     // --- WEAPON REGISTRATION ---
     private void RegisterIfWeapon(PartType slot, GameObject spawnedObj)
     {

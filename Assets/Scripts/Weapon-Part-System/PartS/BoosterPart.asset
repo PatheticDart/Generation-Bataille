@@ -16,6 +16,6 @@ MonoBehaviour:
   partDescription: 
   price: 0
   weight: 0
-  prefab: {fileID: 9028636108418161317, guid: 4dad9fef9088e7246afc739bed3cb276, type: 3}
+  prefab: {fileID: 7579171410865374785, guid: 4dad9fef9088e7246afc739bed3cb276, type: 3}
   boostPower: 0
   chargeDrain: 0

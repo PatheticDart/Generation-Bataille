@@ -44,7 +44,7 @@ public class BasicProjectileWeapon : FunctionalWeapon
         // Try to apply physics if the projectile has a Rigidbody
         if (proj.TryGetComponent<Rigidbody>(out Rigidbody rb))
         {
-            rb.linearVelocity = -muzzlePoint.up * projectileSpeed;
+            rb.linearVelocity = muzzlePoint.forward * projectileSpeed;
         }
         else
         {
