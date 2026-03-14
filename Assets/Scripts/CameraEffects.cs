@@ -5,7 +5,9 @@ using Unity.Cinemachine;
 public class CameraEffects : MonoBehaviour
 {
     [Header("References")]
+    [Tooltip("The root of your Mech/Player to track velocity.")]
     public Transform playerRoot;
+    [Tooltip("The Main Camera in the scene.")]
     public Camera mainCamera;
     [Tooltip("Drag the MechController here so the camera knows when you are boosting.")]
     public MechController mechController;
@@ -18,11 +20,20 @@ public class CameraEffects : MonoBehaviour
     [Header("Camera Shake Settings")]
     public float boostShakeAmplitude = 0.8f;
     public float boostShakeFrequency = 10f;
+
+    [Header("Impact Shake (Landings)")]
     [Tooltip("Base shake multiplier for hard landings.")]
     public float landingShakeBaseAmplitude = 4f;
     public float landingShakeFrequency = 15f;
     [Tooltip("How fast the landing shake fades away.")]
     public float shakeDecayRate = 5f;
+
+    [Header("Footstep Shake (Walking)")]
+    [Tooltip("Base shake amplitude for footsteps.")]
+    public float footstepShakeBaseAmplitude = 1.0f;
+    public float footstepShakeFrequency = 12f;
+    [Tooltip("How fast the footstep shake fades away (usually faster than landings).")]
+    public float footstepDecayRate = 12f;
 
     private CinemachineCamera vcam;
     private CinemachineBasicMultiChannelPerlin noise;
@@ -31,6 +42,8 @@ public class CameraEffects : MonoBehaviour
 
     // Tracks the current strength of a hard landing impact
     private float currentImpactAmplitude = 0f;
+    // Tracks the current strength of footstep impacts
+    private float currentFootstepAmplitude = 0f;
 
     void Start()
     {
@@ -39,12 +52,17 @@ public class CameraEffects : MonoBehaviour
 
         if (noise == null)
         {
-            Debug.LogWarning("No Cinemachine Noise component found. Camera shake will not work.");
+            Debug.LogWarning("No CinemachineBasicMultiChannelPerlin component found on this camera. Shake will not work.");
         }
 
         if (playerRoot != null)
         {
             lastPosition = playerRoot.position;
+        }
+
+        if (mainCamera == null)
+        {
+            mainCamera = Camera.main;
         }
     }
 
@@ -52,9 +70,7 @@ public class CameraEffects : MonoBehaviour
     {
         if (mainCamera == null || playerRoot == null) return;
 
-        // --- NEW: SAFETY CHECK FOR PAUSE MENU ---
-        // If the game is paused, or Time.deltaTime is effectively zero, skip calculating the tilt
-        // to prevent DivideByZeroException / NaN corruption.
+        // --- SAFETY CHECK FOR PAUSE MENU ---
         if (Time.deltaTime > 0f)
         {
             // --- 1. TILT LOGIC ---
@@ -67,14 +83,12 @@ public class CameraEffects : MonoBehaviour
 
             currentTilt = Mathf.Lerp(currentTilt, targetTilt, tiltSmoothing * Time.deltaTime);
 
-            // Apply to Cinemachine Lens
             var lens = vcam.Lens;
             lens.Dutch = currentTilt;
             vcam.Lens = lens;
         }
 
         // --- 2. SHAKE LOGIC ---
-        // (This remains untouched since you mentioned it still works perfectly!)
         if (noise != null && mechController != null)
         {
             float finalAmplitude = 0f;
@@ -93,10 +107,19 @@ public class CameraEffects : MonoBehaviour
                 finalAmplitude += currentImpactAmplitude;
                 finalFrequency = Mathf.Max(finalFrequency, landingShakeFrequency);
 
-                // Rapidly fade the impact out over time
                 currentImpactAmplitude = Mathf.Lerp(currentImpactAmplitude, 0f, shakeDecayRate * Time.deltaTime);
             }
 
+            // C. Footstep Shake 
+            if (currentFootstepAmplitude > 0.1f)
+            {
+                finalAmplitude += currentFootstepAmplitude;
+                finalFrequency = Mathf.Max(finalFrequency, footstepShakeFrequency);
+
+                currentFootstepAmplitude = Mathf.Lerp(currentFootstepAmplitude, 0f, footstepDecayRate * Time.deltaTime);
+            }
+
+            // Apply to Cinemachine Noise Profile
             noise.AmplitudeGain = finalAmplitude;
             noise.FrequencyGain = finalFrequency;
         }
@@ -105,5 +128,11 @@ public class CameraEffects : MonoBehaviour
     public void TriggerImpactShake(float severityMultiplier)
     {
         currentImpactAmplitude = landingShakeBaseAmplitude * severityMultiplier;
+    }
+
+    // --- NEW: Event function for the animation timeline ---
+    public void TriggerFootstepShake(float intensity)
+    {
+        currentFootstepAmplitude = footstepShakeBaseAmplitude * intensity;
     }
 }

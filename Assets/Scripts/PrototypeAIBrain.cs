@@ -1,4 +1,29 @@
+using System.Collections.Generic;
 using UnityEngine;
+
+// --- ENUMS & CLASSES FOR THE CHIP SYSTEM ---
+public enum MovementActionType { Range, MoveForward }
+public enum ApproachActionType { Boosting, Flying }
+
+[System.Serializable]
+public class MovementChip
+{
+    public MovementActionType actionType;
+    [Tooltip("How long the AI executes this specific move action (in seconds).")]
+    public float duration = 5.0f;
+    [Tooltip("Target distance from the enemy (in meters).")]
+    public float targetRange = 200f;
+    [Tooltip("Leeway given to Target Range. Randomly added/subtracted upon chip start.")]
+    public float distanceUncertainty = 15f;
+    [Tooltip("Elevation relative to the target. Higher = AI tries to get above target.")]
+    public float relativeElevation = 0f;
+
+    [Header("Move Forward Settings (Ignored if action is 'Range')")]
+    [Tooltip("Angle relative to the FRONT of the target. (-90 = Right, 90 = Left, 180 = Behind)")]
+    public float targetAngle = -30f;
+    [Tooltip("Random leeway added/subtracted to the Target Angle.")]
+    public float angleUncertainty = 5f;
+}
 
 [RequireComponent(typeof(MechController))]
 public class PrototypeAIBrain : MonoBehaviour
@@ -10,37 +35,58 @@ public class PrototypeAIBrain : MonoBehaviour
     [Header("Aiming & Vision")]
     public Transform cameraPivot;
     public float aimTrackingSpeed = 15f;
+    public float eyeHeight = 2f;
 
     [Header("Targeting")]
     public LayerMask targetLayer;
     public float detectionRadius = 400f;
     public Transform currentTarget;
 
-    [Header("Behavior & Positioning")]
-    public float preferredDistance = 200f;
-    public float distanceMargin = 20f;
+    [Header("Movement Rule Set")]
+    public float approachRange = 300f;
+    public ApproachActionType approachType = ApproachActionType.Boosting;
+    [Tooltip("Approach action will not execute if EN% is <= this value.")]
+    [Range(0f, 100f)] public float approachCriticalENRate = 30f;
+    [Tooltip("If Critical EN is hit, AI must wait until EN% reaches this value before approaching again.")]
+    [Range(0f, 100f)] public float approachRequiredENRate = 70f;
 
-    [Tooltip("Minimum time before the AI changes its circling direction.")]
-    public float minDirectionSwapInterval = 2f;
-    [Tooltip("Maximum time before the AI changes its circling direction.")]
-    public float maxDirectionSwapInterval = 6f;
-
-    [Header("Action Probabilities")]
-    public float decisionInterval = 1f;
+    [Header("Default Action Probabilities")]
+    [Tooltip("Chance to randomly perform an evasive ground boost.")]
     [Range(0f, 100f)] public float boostChance = 40f;
-    [Range(0f, 100f)] public float jumpChance = 15f;
-    [Range(0f, 100f)] public float flightChance = 25f;
+
+    [Header("Movement Order (Chip System)")]
+    public List<MovementChip> movementOrderList = new List<MovementChip>();
+
+    [Header("Tactical Environment Maneuvering (TEM)")]
+    public LayerMask environmentLayer;
+    [Tooltip("Max height of an obstacle the AI will attempt to automatically jump over.")]
+    public float maxObstacleJumpHeight = 6f;
+    [Tooltip("How high the mech can naturally jump without needing to activate flight boosters.")]
+    public float standardJumpHeight = 3f;
 
     [Header("Energy Management")]
-    [Tooltip("0 = Brainless (burns energy until depleted). 100 = Tactical (always maintains a safe reserve).")]
     [Range(0f, 100f)] public float energyEfficiency = 80f;
 
-    // --- Internal Timers ---
-    private float swapTimer;
-    private float decisionTimer;
-    private float strafeDirection = 1f;
+    // --- STATE MACHINE & TIMERS ---
+    private bool isApproachingState = false;
+    private float outOfRangeBufferTimer = 0f;
 
-    // --- Action Execution Timers ---
+    // Energy Locks
+    private bool approachEnRecoveryLock = false;
+    private bool isConservingEnergy = false;
+
+    // Chip Execution State
+    private int currentChipIndex = 0;
+    private float currentChipTimer = 0f;
+    private float activeTargetRange = 0f;
+    private float activeTargetAngle = 0f;
+
+    // TEM & Actions State
+    private bool hasLineOfSight = true;
+    private float strafeDirection = 1f;
+    private float randomActionTickTimer = 1f;
+
+    // Active Action Overrides
     private float activeBoostTimer = 0f;
     private float activeJumpTimer = 0f;
     private float activeFlightTimer = 0f;
@@ -51,9 +97,7 @@ public class PrototypeAIBrain : MonoBehaviour
         charController = GetComponent<CharacterController>();
         stats = GetComponent<MechStats>();
 
-        // Start with a randomized swap timer
-        swapTimer = Random.Range(minDirectionSwapInterval, maxDirectionSwapInterval);
-        decisionTimer = decisionInterval;
+        LoadNextChip(0);
     }
 
     void Update()
@@ -70,9 +114,16 @@ public class PrototypeAIBrain : MonoBehaviour
             return;
         }
 
-        HandleAimingAndMovement();
-        HandleDecisionMaking();
-        ApplyActions();
+        HandleAiming();
+        HandleTEMContinuous();
+        ManageEnergyHysteresis();
+        ManageMovementRulesAndState();
+
+        if (isApproachingState) ExecuteApproachBehavior();
+        else ExecuteChipBehavior();
+
+        HandleRandomActions();
+        ApplyFinalActions();
     }
 
     private void FindTargetContinuously()
@@ -92,105 +143,297 @@ public class PrototypeAIBrain : MonoBehaviour
                 bestTarget = hit.transform;
             }
         }
-
         currentTarget = bestTarget;
     }
 
-    private void HandleAimingAndMovement()
+    private void HandleAiming()
     {
         Vector3 dirToTarget3D = currentTarget.position - transform.position;
 
-        // 1. HORIZONTAL BODY ROTATION
         Vector3 dirToTargetFlat = dirToTarget3D;
         dirToTargetFlat.y = 0f;
-
         if (dirToTargetFlat.sqrMagnitude > 0.1f)
         {
             controller.lookTargetForward = dirToTargetFlat.normalized;
         }
 
-        // 2. TRUE 3D AIMING
         if (cameraPivot != null && dirToTarget3D.sqrMagnitude > 0.1f)
         {
             Quaternion targetPivotRot = Quaternion.LookRotation(dirToTarget3D.normalized);
             cameraPivot.rotation = Quaternion.Slerp(cameraPivot.rotation, targetPivotRot, Time.deltaTime * aimTrackingSpeed);
         }
-
-        // 3. DISTANCE & STRAFING
-        float currentDistance = Vector3.Distance(transform.position, currentTarget.position);
-        float zInput = 0f;
-
-        // Approach if too far, back off if too close
-        if (currentDistance > preferredDistance + distanceMargin) zInput = 1f;
-        else if (currentDistance < preferredDistance - distanceMargin) zInput = -1f;
-
-        swapTimer -= Time.deltaTime;
-        if (swapTimer <= 0f)
-        {
-            strafeDirection *= -1f;
-            // NEW: Randomize the next direction swap time!
-            swapTimer = Random.Range(minDirectionSwapInterval, maxDirectionSwapInterval);
-        }
-
-        float xInput = strafeDirection;
-
-        controller.moveInput = new Vector3(xInput, 0f, zInput).normalized;
     }
 
-    private void HandleDecisionMaking()
+    private void HandleTEMContinuous()
     {
-        decisionTimer -= Time.deltaTime;
-        if (decisionTimer <= 0f)
+        Vector3 aiEye = transform.position + Vector3.up * eyeHeight;
+        Vector3 targetEye = currentTarget.position + Vector3.up * eyeHeight;
+
+        hasLineOfSight = !Physics.Linecast(aiEye, targetEye, environmentLayer);
+
+        if (!hasLineOfSight)
         {
-            decisionTimer = decisionInterval;
+            Vector3 rightWhisker = transform.right * 5f;
+            bool leftClear = !Physics.Linecast(aiEye - rightWhisker, targetEye, environmentLayer);
+            bool rightClear = !Physics.Linecast(aiEye + rightWhisker, targetEye, environmentLayer);
 
-            float reserveThreshold = stats.maxEnergy * Mathf.Lerp(0f, 0.5f, energyEfficiency / 100f);
-            bool hasSufficientEnergy = stats.currentEnergy > reserveThreshold && !stats.energyIsDepleted;
+            if (leftClear && !rightClear) strafeDirection = -1f;
+            else if (rightClear && !leftClear) strafeDirection = 1f;
+        }
+    }
 
-            if (hasSufficientEnergy && Random.Range(0f, 100f) <= boostChance)
+    private void CheckObstaclesAndJump(Vector3 worldMoveDirection)
+    {
+        if (worldMoveDirection.sqrMagnitude < 0.1f) return;
+
+        float checkDist = (charController != null ? charController.radius : 2f) + 2.5f;
+
+        Vector3 shinHeight = transform.position + Vector3.up * 0.5f;
+        Vector3 waistHeight = transform.position + Vector3.up * 1.5f;
+        Vector3 clearanceHeight = transform.position + Vector3.up * maxObstacleJumpHeight;
+
+        bool isBlockedLow = Physics.Raycast(shinHeight, worldMoveDirection, checkDist, environmentLayer);
+        bool isBlockedMid = Physics.Raycast(waistHeight, worldMoveDirection, checkDist, environmentLayer);
+
+        if (isBlockedLow || isBlockedMid)
+        {
+            if (!Physics.Raycast(clearanceHeight, worldMoveDirection, checkDist + 1f, environmentLayer))
             {
-                activeBoostTimer = Random.Range(1f, 3f);
-            }
+                Vector3 scanDownPos = transform.position + (worldMoveDirection.normalized * checkDist) + (Vector3.up * maxObstacleJumpHeight);
+                float obstacleHeight = standardJumpHeight;
 
-            if (charController != null && charController.isGrounded)
-            {
-                if (!stats.energyIsDepleted && Random.Range(0f, 100f) <= jumpChance)
+                if (Physics.Raycast(scanDownPos, Vector3.down, out RaycastHit roofHit, maxObstacleJumpHeight, environmentLayer))
                 {
-                    activeJumpTimer = 0.5f;
+                    obstacleHeight = roofHit.point.y - transform.position.y;
                 }
-            }
-            else if (charController != null && !charController.isGrounded)
-            {
-                if (hasSufficientEnergy && Random.Range(0f, 100f) <= flightChance)
+
+                if (charController != null && charController.isGrounded && activeJumpTimer <= 0f)
                 {
-                    activeFlightTimer = Random.Range(1f, 2.5f);
+                    activeJumpTimer = 0.1f;
+
+                    if (obstacleHeight > standardJumpHeight && !isConservingEnergy)
+                    {
+                        activeFlightTimer = 0.3f + Mathf.Lerp(0.1f, 0.6f, (obstacleHeight - standardJumpHeight) / (maxObstacleJumpHeight - standardJumpHeight));
+                    }
+                }
+                else if (charController != null && !charController.isGrounded && activeFlightTimer <= 0f && !isConservingEnergy)
+                {
+                    activeFlightTimer = 0.2f;
                 }
             }
         }
     }
 
-    private void ApplyActions()
+    private void ManageEnergyHysteresis()
     {
         float reserveThreshold = stats.maxEnergy * Mathf.Lerp(0f, 0.5f, energyEfficiency / 100f);
-        bool hasSufficientEnergy = stats.currentEnergy > reserveThreshold && !stats.energyIsDepleted;
+        float recoveryTarget = Mathf.Min(stats.maxEnergy, reserveThreshold + (stats.maxEnergy * 0.20f));
 
-        // --- BOOST APPLICATION ---
-        if (activeBoostTimer > 0f)
+        if (stats.currentEnergy <= reserveThreshold || stats.energyIsDepleted)
         {
-            activeBoostTimer -= Time.deltaTime;
-            controller.isBoosting = hasSufficientEnergy;
+            isConservingEnergy = true;
+        }
+        else if (stats.currentEnergy >= recoveryTarget)
+        {
+            isConservingEnergy = false;
+        }
 
-            if (!hasSufficientEnergy) activeBoostTimer = 0f;
+        float currentEnPercentage = (stats.currentEnergy / stats.maxEnergy) * 100f;
+        if (currentEnPercentage <= approachCriticalENRate || stats.energyIsDepleted)
+        {
+            approachEnRecoveryLock = true;
+        }
+        else if (currentEnPercentage >= approachRequiredENRate)
+        {
+            approachEnRecoveryLock = false;
+        }
+    }
+
+    private void ManageMovementRulesAndState()
+    {
+        float currentDistance = Vector3.Distance(transform.position, currentTarget.position);
+
+        if (currentDistance > approachRange)
+        {
+            outOfRangeBufferTimer += Time.deltaTime;
+            if (outOfRangeBufferTimer >= 5f)
+            {
+                isApproachingState = true;
+            }
         }
         else
         {
-            // If the AI is falling heavily behind, override probabilities and sprint to catch up
-            float currentDist = Vector3.Distance(transform.position, currentTarget.position);
-            bool needsToCatchUp = currentDist > preferredDistance + 50f;
-            controller.isBoosting = needsToCatchUp && hasSufficientEnergy;
+            isApproachingState = false;
+            outOfRangeBufferTimer = 0f;
+        }
+    }
+
+    private void ExecuteApproachBehavior()
+    {
+        Vector3 dirToTarget = (currentTarget.position - transform.position);
+        dirToTarget.y = 0f;
+        Vector3 desiredWorldMoveDir = dirToTarget.normalized;
+
+        CheckObstaclesAndJump(desiredWorldMoveDir);
+
+        Vector3 forward = controller.lookTargetForward;
+        Vector3 right = Vector3.Cross(Vector3.up, forward);
+
+        float localX = Vector3.Dot(desiredWorldMoveDir, right);
+        float localZ = Vector3.Dot(desiredWorldMoveDir, forward);
+
+        controller.moveInput = new Vector3(localX, 0f, localZ).normalized;
+
+        if (!approachEnRecoveryLock)
+        {
+            if (approachType == ApproachActionType.Boosting)
+            {
+                controller.isBoosting = true;
+            }
+            else if (approachType == ApproachActionType.Flying)
+            {
+                activeFlightTimer = 0.5f;
+                controller.isBoosting = true;
+            }
+        }
+        else
+        {
+            controller.isBoosting = false;
+        }
+    }
+
+    private void ExecuteChipBehavior()
+    {
+        if (movementOrderList.Count == 0) return;
+
+        MovementChip currentChip = movementOrderList[currentChipIndex];
+        currentChipTimer -= Time.deltaTime;
+
+        if (currentChipTimer <= 0f)
+        {
+            LoadNextChip(currentChipIndex + 1);
+            currentChip = movementOrderList[currentChipIndex];
         }
 
-        // --- FLIGHT & JUMP APPLICATION ---
+        Vector3 desiredWorldMoveDir = Vector3.zero;
+        float currentDistance = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z), new Vector3(currentTarget.position.x, 0, currentTarget.position.z));
+
+        float myElevatedY = transform.position.y + eyeHeight;
+        float targetY = currentTarget.root.position.y + currentChip.relativeElevation;
+
+        if (targetY > myElevatedY + 3f && !isConservingEnergy)
+        {
+            if (charController.isGrounded && activeJumpTimer <= 0f)
+            {
+                activeJumpTimer = 0.1f;
+            }
+            else if (!charController.isGrounded)
+            {
+                activeFlightTimer = 0.2f;
+            }
+        }
+
+        if (currentChip.actionType == MovementActionType.Range)
+        {
+            float zInput = 0f;
+
+            if (currentDistance > activeTargetRange + 5f) zInput = 1f;
+            else if (currentDistance < activeTargetRange - 5f) zInput = -1f;
+
+            if (Random.Range(0f, 100f) < 2f) strafeDirection *= -1f;
+
+            Vector3 localIntent = new Vector3(strafeDirection, 0f, zInput).normalized;
+            Vector3 forward = controller.lookTargetForward;
+            Vector3 right = Vector3.Cross(Vector3.up, forward);
+            desiredWorldMoveDir = (forward * localIntent.z + right * localIntent.x).normalized;
+        }
+        else if (currentChip.actionType == MovementActionType.MoveForward)
+        {
+            Vector3 targetForwardFlat = currentTarget.forward;
+            targetForwardFlat.y = 0f;
+            targetForwardFlat.Normalize();
+
+            Vector3 angleOffsetDir = Quaternion.Euler(0, activeTargetAngle, 0) * targetForwardFlat;
+            Vector3 idealWorldPosition = currentTarget.position + (angleOffsetDir * activeTargetRange);
+            idealWorldPosition.y = transform.position.y;
+
+            Vector3 dirToIdealPos = idealWorldPosition - transform.position;
+
+            if (dirToIdealPos.magnitude > 3f)
+            {
+                desiredWorldMoveDir = dirToIdealPos.normalized;
+            }
+        }
+
+        if (!hasLineOfSight && currentChip.actionType == MovementActionType.MoveForward)
+        {
+            Vector3 right = Vector3.Cross(Vector3.up, controller.lookTargetForward);
+            desiredWorldMoveDir += (right * strafeDirection);
+            desiredWorldMoveDir.Normalize();
+        }
+
+        CheckObstaclesAndJump(desiredWorldMoveDir);
+
+        if (desiredWorldMoveDir != Vector3.zero)
+        {
+            Vector3 forward = controller.lookTargetForward;
+            Vector3 right = Vector3.Cross(Vector3.up, forward);
+
+            float localX = Vector3.Dot(desiredWorldMoveDir, right);
+            float localZ = Vector3.Dot(desiredWorldMoveDir, forward);
+
+            controller.moveInput = new Vector3(localX, 0f, localZ).normalized;
+        }
+        else
+        {
+            controller.moveInput = Vector3.zero;
+        }
+    }
+
+    private void LoadNextChip(int nextIndex)
+    {
+        if (movementOrderList.Count == 0) return;
+
+        currentChipIndex = nextIndex;
+        if (currentChipIndex >= movementOrderList.Count)
+        {
+            currentChipIndex = 0;
+        }
+
+        MovementChip chip = movementOrderList[currentChipIndex];
+        currentChipTimer = chip.duration;
+
+        activeTargetRange = chip.targetRange + Random.Range(-chip.distanceUncertainty, chip.distanceUncertainty);
+
+        if (chip.actionType == MovementActionType.MoveForward)
+        {
+            activeTargetAngle = chip.targetAngle + Random.Range(-chip.angleUncertainty, chip.angleUncertainty);
+        }
+
+        Debug.Log($"[AI Brain] Loaded Chip {currentChipIndex}: {chip.actionType} | Duration: {chip.duration}s | Active Target Range: {activeTargetRange:F1}m");
+    }
+
+    private void HandleRandomActions()
+    {
+        randomActionTickTimer -= Time.deltaTime;
+        if (randomActionTickTimer <= 0f)
+        {
+            randomActionTickTimer = 1f;
+
+            if (!isConservingEnergy)
+            {
+                if (Random.Range(0f, 100f) <= boostChance)
+                {
+                    activeBoostTimer = Random.Range(1f, 3f);
+                }
+            }
+        }
+    }
+
+    private void ApplyFinalActions()
+    {
+        bool hasSafeEnergy = !isConservingEnergy;
+
         bool shouldHoldJump = false;
 
         if (activeJumpTimer > 0f)
@@ -202,23 +445,30 @@ public class PrototypeAIBrain : MonoBehaviour
         if (activeFlightTimer > 0f)
         {
             activeFlightTimer -= Time.deltaTime;
-
-            if (hasSufficientEnergy)
-            {
-                shouldHoldJump = true;
-            }
-            else
-            {
-                activeFlightTimer = 0f;
-            }
+            if (hasSafeEnergy) shouldHoldJump = true;
+            else activeFlightTimer = 0f;
         }
 
         controller.isJumping = shouldHoldJump;
-    }
 
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = new Color(1, 0, 0, 0.2f);
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+        if (!isApproachingState)
+        {
+            if (activeBoostTimer > 0f)
+            {
+                activeBoostTimer -= Time.deltaTime;
+            }
+
+            bool intendsToBoost = (activeBoostTimer > 0f) || (shouldHoldJump && !charController.isGrounded);
+
+            if (intendsToBoost && hasSafeEnergy)
+            {
+                controller.isBoosting = true;
+            }
+            else
+            {
+                controller.isBoosting = false;
+                activeBoostTimer = 0f;
+            }
+        }
     }
 }
