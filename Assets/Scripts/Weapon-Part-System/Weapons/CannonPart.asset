@@ -18,7 +18,7 @@ MonoBehaviour:
   weight: 0
   prefab: {fileID: 2622329409459792130, guid: d9bb4a8a6bee8dc4491b457ffaca0851, type: 3}
   energyDrain: 0
-  allowedLocations: -1
+  allowedLocations: 6
   ammoType: 0
   attackPower: 0
   ammo: 0

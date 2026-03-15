@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12c78a3e51356a140be18fef25d00749, type: 3}
   m_Name: MissilePart
   m_EditorClassIdentifier: Assembly-CSharp::Rifle
-  partName: 
-  partDescription: 
-  price: 0
-  weight: 0
+  partName: ANF-MUR
+  partDescription: Small missile launcher with a max lock of 8.
+  price: 42000
+  weight: 340
   prefab: {fileID: 5154452102281366462, guid: dc0bab990e83f614f807be3c88f0271a, type: 3}
-  energyDrain: 0
-  allowedLocations: -1
+  energyDrain: 310
+  allowedLocations: 6
   ammoType: 0
-  attackPower: 0
-  ammo: 0
-  effectiveRange: 0
-  firingInterval: 0
-  ammoPrice: 0
+  attackPower: 800
+  ammo: 40
+  effectiveRange: 400
+  firingInterval: 48
+  ammoPrice: 130

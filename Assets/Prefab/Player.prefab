@@ -374,7 +374,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 8131
+  m_VersionIndex: 8137
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -639,14 +639,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 344549943255463000}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.0032, y: 0.01246, z: -0.01082}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4279923231067852492}
   m_Father: {fileID: 442876552394318548}
-  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &371072417342309398
 GameObject:
   m_ObjectHideFlags: 0
@@ -1384,7 +1384,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 5954
+  m_VersionIndex: 5960
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -2703,16 +2703,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   maxEnergy: 2100
-  currentEnergy: 1987.9486
+  currentEnergy: 2100
   energyRegenRate: 400
   depletedRegenRate: 200
   energyIsDepleted: 0
   turnSpeed: 2
   walkSpeed: 45
   boostHorizontalSpeed: 80
-  boostVerticalSpeed: 50
-  boostEnergyDrain: 800
-  jumpForce: 60
+  boostVerticalSpeed: 40
+  boostEnergyDrain: 900
+  jumpForce: 40
   jumpDelay: 0.25
   totalWeight: 30000
   baselineWeight: 30000
@@ -2725,7 +2725,7 @@ MonoBehaviour:
   airAcceleration: 150
   airDeceleration: 15
   minHardLandingThreshold: -80
-  maxHardLandingThreshold: -180
+  maxHardLandingThreshold: -220
   baseHardLandingTime: 0.25
   maxHardLandingTime: 2.5
 --- !u!114 &1607095534319946367
@@ -2741,10 +2741,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   mechBody: {fileID: 1411259970099680075}
+  fcsLockBox: {fileID: 6556462518341565522}
   moveInput: {x: 0, y: 0, z: 0}
   lookTargetForward: {x: 0, y: 0, z: 0}
   isBoosting: 0
   isJumping: 0
+  restrictTo8Directions: 1
   cameraEffects: {fileID: 7960159375031588431}
   thrusterBufferTime: 0.1
   bunnyHopWindow: 0.1
@@ -2766,58 +2768,14 @@ MonoBehaviour:
   cinemachineFollowTarget: {fileID: 3369438313961492974}
   mouseSensitivity: 0.1
   controllerSensitivity: 150
-  moveAction:
-    m_Name: Move
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: ec38dd3e-fc2b-495d-ac81-1a3ca8d77ae3
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  lookAction:
-    m_Name: Look
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: e160faaf-eb5d-40ce-b35a-4f98a0fa9ac6
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  jumpAction:
-    m_Name: Jump
-    m_Type: 1
-    m_ExpectedControlType: 
-    m_Id: 2e7f47a2-739e-4813-8c32-4c3bea93bec0
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: 9ed9e780-e55e-434f-ba6c-57be48f8a40f
-      m_Path: <Gamepad>/rightTrigger
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Jump
-      m_Flags: 0
-    m_Flags: 0
-  boostAction:
-    m_Name: Boost
-    m_Type: 1
-    m_ExpectedControlType: 
-    m_Id: 04ff7206-e7d2-4c25-ae93-6bbfeec4d9ef
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: e431faf8-c60d-4f98-ba7c-000cab26f7a9
-      m_Path: <Gamepad>/leftTrigger
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Boost
-      m_Flags: 0
-    m_Flags: 0
+  moveAction: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  lookAction: {fileID: -5630151704836100654, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  jumpAction: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  boostAction: {fileID: -7471211009204490832, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  toggleLeftAction: {fileID: -6936454136684788150, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  toggleRightAction: {fileID: 3098463603153915766, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  fireLeftAction: {fileID: 3083508855986935341, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  fireRightAction: {fileID: 8373383759841550538, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!114 &1329756709345038759
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2846,11 +2804,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 467cffe475e187f4d9e4728308a2086c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  weaponManager: {fileID: 3414217044222115974}
   leftArmActive: 1
   rightArmActive: 1
-  hasAimableLeftBackWeapon: 1
+  leftBackActive: 0
+  rightBackActive: 0
+  armTransitionTime: 0.3
+  backWeaponTransitionTime: 0.6
+  hasAimableLeftBackWeapon: 0
   hasAimableRightBackWeapon: 1
-  isPlayerControlled: 1
 --- !u!114 &2685966738517261474
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2867,7 +2829,7 @@ MonoBehaviour:
   fcsLockBox: {fileID: 34840195238911760}
   lockedTarget: {fileID: 0}
   torsoAimConstraint: {fileID: 7885035922368525971}
-  aimSmoothSpeed: 15
+  aimSmoothSpeed: 20
 --- !u!114 &3298013329077157459
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2938,8 +2900,8 @@ MonoBehaviour:
   fcsPart: {fileID: 11400000, guid: e5add7940a91066469b8abd3dcda879d, type: 2}
   leftArmWeapon: {fileID: 11400000, guid: 1e2bad12e4455b44595852a57f867586, type: 2}
   rightArmWeapon: {fileID: 11400000, guid: 1e2bad12e4455b44595852a57f867586, type: 2}
-  leftBackWeapon: {fileID: 11400000, guid: 1e2bad12e4455b44595852a57f867586, type: 2}
-  rightBackWeapon: {fileID: 11400000, guid: 1e2bad12e4455b44595852a57f867586, type: 2}
+  leftBackWeapon: {fileID: 11400000, guid: b538732c6775e914abb5ec7269055c48, type: 2}
+  rightBackWeapon: {fileID: 11400000, guid: e9ad598c56a310f40b997fccc01a3904, type: 2}
   reloadKey: 286
   loadOnStart: 1
 --- !u!1 &1476357850905161724
@@ -6114,7 +6076,7 @@ Transform:
   m_GameObject: {fileID: 3892685215485691324}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 5.3999996, z: -13}
+  m_LocalPosition: {x: 0, y: 5.3999996, z: -13}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -8397,7 +8359,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 5954
+  m_VersionIndex: 5960
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -9454,7 +9416,7 @@ Transform:
   m_GameObject: {fileID: 5951335286877087644}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 5.3999996, z: -13}
+  m_LocalPosition: {x: 0, y: 5.3999996, z: -13}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9543,7 +9505,7 @@ MonoBehaviour:
   landingShakeBaseAmplitude: 6
   landingShakeFrequency: 1
   shakeDecayRate: 5
-  footstepShakeBaseAmplitude: 1
+  footstepShakeBaseAmplitude: 1.5
   footstepShakeFrequency: 12
   footstepDecayRate: 12
 --- !u!114 &7763655292459902877
@@ -9559,7 +9521,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineThirdPersonFollow
   Damping: {x: 0.75, y: 0.75, z: 0.75}
-  ShoulderOffset: {x: 0.5, y: 5, z: 0}
+  ShoulderOffset: {x: 0, y: 5, z: 0}
   VerticalArmLength: 0.4
   CameraSide: 1
   CameraDistance: 13
@@ -12187,7 +12149,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 8131
+  m_VersionIndex: 8137
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []

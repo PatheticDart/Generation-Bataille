@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12c78a3e51356a140be18fef25d00749, type: 3}
   m_Name: RiflePart
   m_EditorClassIdentifier: Assembly-CSharp::Rifle
-  partName: 
-  partDescription: 
-  price: 0
-  weight: 0
+  partName: XLR-012 Taurus
+  partDescription: A medium-range rifle, good all-rounder. Favored by Bataille rookies.
+  price: 16000
+  weight: 500
   prefab: {fileID: 4309120590859779937, guid: 35df14322c2ebc04582f513b90dddfb2, type: 3}
-  energyDrain: 0
-  allowedLocations: -1
+  energyDrain: 10
+  allowedLocations: 24
   ammoType: 0
-  attackPower: 0
-  ammo: 0
-  effectiveRange: 0
-  firingInterval: 0
-  ammoPrice: 0
+  attackPower: 350
+  ammo: 120
+  effectiveRange: 200
+  firingInterval: 75
+  ammoPrice: 45
