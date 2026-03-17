@@ -5,16 +5,24 @@ public class MechController : MonoBehaviour
 {
     private CharacterController controller;
     private MechStats stats;
-    private MechLoader mechLoader;
+    private PartSystem partSystem;
 
     [Header("Visuals")]
     public Transform mechBody;
 
+    [Header("Targeting & Rotation")]
+    [Tooltip("Drag your FCSLockbox here so the mech chassis chases its rotation.")]
+    public Transform fcsLockBox;
+
     [Header("Input (Driven by Player or AI)")]
     public Vector3 moveInput;
-    public Vector3 lookTargetForward;
+    public Vector3 lookTargetForward; // Kept as a fallback
     public bool isBoosting;
     public bool isJumping;
+
+    [Header("Movement Settings")]
+    [Tooltip("Forces analog controller movement into 8 rigid directions to simulate a mechanical chassis.")]
+    public bool restrictTo8Directions = true;
 
     [Header("Camera & Effects")]
     public CameraEffects cameraEffects;
@@ -26,33 +34,27 @@ public class MechController : MonoBehaviour
     private float verticalVelocity;
     private Vector3 currentHorizontalVelocity;
 
-    // --- State Variables ---
     public bool isRecoveringFromLanding { get; private set; }
     private float recoveryTimer = 0f;
 
-    // --- Direction Tracking Variables ---
     private Vector3 lastActiveMoveInput;
 
     [Header("Buffers & Timings")]
     public float thrusterBufferTime = 0.1f;
     private float lastMoveInputTime = -10f;
 
-    [Tooltip("Time after landing where a jump is instant (bypasses animation and delay).")]
     public float bunnyHopWindow = 0.2f;
     private float lastJumpOrLandTime = -10f;
 
-    [Tooltip("Delay before jumping after starting a boost, allowing animations to blend smoothly.")]
     public float boostToJumpDelay = 0.25f;
     private float boostStartTime = -10f;
-    private float boostEndTime = -10f; // NEW: Tracks when boosting stops for deceleration blending
+    private float boostEndTime = -10f;
     private bool wasActuallyBoostingLastFrame = false;
 
-    [Tooltip("Delay before jumping after starting to walk, allowing animations to blend smoothly.")]
     public float walkToJumpDelay = 0.15f;
     private float walkStartTime = -10f;
     private bool wasActuallyWalkingLastFrame = false;
 
-    [Tooltip("How long to remember a jump press if locked out by another animation.")]
     public float jumpInputBufferTime = 0.2f;
     private float lastJumpInputTime = -10f;
 
@@ -62,7 +64,7 @@ public class MechController : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         stats = GetComponent<MechStats>();
-        mechLoader = GetComponent<MechLoader>();
+        partSystem = GetComponent<PartSystem>();
     }
 
     void Update()
@@ -73,9 +75,15 @@ public class MechController : MonoBehaviour
 
     private void HandleBodyRotation()
     {
-        if (lookTargetForward != Vector3.zero && mechBody != null)
+        // 1. Grab the FCS direction if available, otherwise use the old fallback
+        Vector3 targetForward = fcsLockBox != null ? fcsLockBox.forward : lookTargetForward;
+
+        // 2. Flatten the Y-axis so the mech doesn't physically lean backwards or forwards
+        targetForward.y = 0f;
+
+        if (targetForward.sqrMagnitude > 0.01f && mechBody != null)
         {
-            Quaternion targetRot = Quaternion.LookRotation(lookTargetForward);
+            Quaternion targetRot = Quaternion.LookRotation(targetForward.normalized);
             mechBody.rotation = Quaternion.Slerp(mechBody.rotation, targetRot, stats.turnSpeed * Time.deltaTime);
         }
     }
@@ -86,31 +94,26 @@ public class MechController : MonoBehaviour
         bool currentIsJumping = isJumping;
         bool currentIsBoosting = isBoosting;
 
+        // --- 8-WAY MOVEMENT SNAP (ONLY WHEN WALKING) ---
+        bool isWalkingState = controller.isGrounded && !currentIsBoosting;
+
+        if (restrictTo8Directions && isWalkingState && currentMoveInput.magnitude > 0.1f)
+        {
+            float angle = Mathf.Atan2(currentMoveInput.x, currentMoveInput.z) * Mathf.Rad2Deg;
+            angle = Mathf.Round(angle / 45f) * 45f;
+            float mag = currentMoveInput.magnitude;
+            currentMoveInput = new Vector3(Mathf.Sin(angle * Mathf.Deg2Rad) * mag, 0f, Mathf.Cos(angle * Mathf.Deg2Rad) * mag);
+            moveInput = currentMoveInput;
+        }
+
         if (currentMoveInput.magnitude > 0.1f)
         {
             lastMoveInputTime = Time.time;
-        }
-
-        // --- 1. OPPOSITE DIRECTION SWITCH ---
-        if (!isRecoveringFromLanding && currentMoveInput.magnitude > 0.1f)
-        {
-            if (controller.isGrounded && !currentIsBoosting)
-            {
-                if (lastActiveMoveInput.magnitude > 0.1f)
-                {
-                    if (Vector3.Dot(currentMoveInput.normalized, lastActiveMoveInput.normalized) < -0.5f)
-                    {
-                        currentHorizontalVelocity = Vector3.zero;
-                    }
-                }
-            }
             lastActiveMoveInput = currentMoveInput;
         }
 
-        // --- EFFECTIVE MOVEMENT BUFFER ---
         Vector3 effectiveMoveInput = (currentMoveInput.magnitude > 0.1f) ? currentMoveInput : (HasRecentMovementInput ? lastActiveMoveInput : Vector3.zero);
 
-        // --- 2. HARD LANDING RECOVERY STATE ---
         if (isRecoveringFromLanding)
         {
             recoveryTimer -= Time.deltaTime;
@@ -127,10 +130,8 @@ public class MechController : MonoBehaviour
             }
         }
 
-        // --- 3. HORIZONTAL MOMENTUM & TARGET SPEED ---
         bool canHorizontalBoost = currentIsBoosting && !stats.energyIsDepleted && (effectiveMoveInput.magnitude > 0 || !controller.isGrounded);
 
-        // Track Boost Start and End
         bool isActuallyBoostingOnGround = canHorizontalBoost && controller.isGrounded;
         if (isActuallyBoostingOnGround && !wasActuallyBoostingLastFrame)
         {
@@ -138,12 +139,10 @@ public class MechController : MonoBehaviour
         }
         else if (!isActuallyBoostingOnGround && wasActuallyBoostingLastFrame)
         {
-            // NEW: The exact frame the mech stops boosting, start the deceleration timer!
             boostEndTime = Time.time;
         }
         wasActuallyBoostingLastFrame = isActuallyBoostingOnGround;
 
-        // Track Walk Start
         bool isActuallyWalkingOnGround = !canHorizontalBoost && controller.isGrounded && (effectiveMoveInput.magnitude > 0);
         if (isActuallyWalkingOnGround && !wasActuallyWalkingLastFrame)
         {
@@ -160,13 +159,36 @@ public class MechController : MonoBehaviour
 
         float targetSpeed = canHorizontalBoost ? stats.boostHorizontalSpeed : currentWalkSpeed;
 
-        Vector3 forward = lookTargetForward;
-        Vector3 right = Vector3.Cross(Vector3.up, forward);
+        // --- DYNAMIC REFERENCE FRAME FOR MOVEMENT ---
+        Vector3 referenceForward;
+        Vector3 referenceRight;
 
-        Vector3 targetDirection = (forward * effectiveMoveInput.z + right * effectiveMoveInput.x).normalized;
+        if (isWalkingState && mechBody != null)
+        {
+            // Walking: Movement is bound to the physical chassis of the mech
+            referenceForward = mechBody.forward;
+            referenceRight = mechBody.right;
+
+            referenceForward.y = 0f;
+            referenceRight.y = 0f;
+            referenceForward.Normalize();
+            referenceRight.Normalize();
+        }
+        else
+        {
+            // Boosting/Flying: Movement chases the FCS Lockbox (or camera fallback)
+            referenceForward = fcsLockBox != null ? fcsLockBox.forward : lookTargetForward;
+            if (referenceForward == Vector3.zero) referenceForward = transform.forward;
+
+            referenceForward.y = 0f;
+            referenceForward.Normalize();
+            referenceRight = Vector3.Cross(Vector3.up, referenceForward).normalized;
+        }
+
+        Vector3 targetDirection = (referenceForward * effectiveMoveInput.z + referenceRight * effectiveMoveInput.x).normalized;
         Vector3 targetVelocity = targetDirection * targetSpeed;
 
-        // --- 4. ACCELERATION & SLIDE LOGIC ---
+        // --- ACCELERATION & VELOCITY ---
         if (isRecoveringFromLanding && controller.isGrounded)
         {
             currentHorizontalVelocity = Vector3.Lerp(currentHorizontalVelocity, Vector3.zero, stats.hardLandingSlideDeceleration * Time.deltaTime);
@@ -194,7 +216,7 @@ public class MechController : MonoBehaviour
 
         bool energyUsedThisFrame = false;
 
-        // --- 5. VERTICAL LOGIC (WITH BUNNY HOP & INPUT BUFFER) ---
+        // --- JUMP LOGIC ---
         if (controller.isGrounded)
         {
             verticalVelocity = -2f;
@@ -204,10 +226,8 @@ public class MechController : MonoBehaviour
 
             bool canBunnyHop = (Time.time <= lastJumpOrLandTime + bunnyHopWindow);
 
-            // Check all movement lockouts
             bool isBoostJumpLocked = isActuallyBoostingOnGround && (Time.time < boostStartTime + boostToJumpDelay);
             bool isWalkJumpLocked = isActuallyWalkingOnGround && (Time.time < walkStartTime + walkToJumpDelay);
-            // NEW: Applies the walkToJumpDelay window immediately after a boost ends (whether walking or dropping to idle)
             bool isDeceleratingFromBoostLocked = !isActuallyBoostingOnGround && (Time.time < boostEndTime + walkToJumpDelay);
 
             bool isMovementJumpLocked = isBoostJumpLocked || isWalkJumpLocked || isDeceleratingFromBoostLocked;
@@ -216,7 +236,6 @@ public class MechController : MonoBehaviour
             {
                 if (canBunnyHop)
                 {
-                    // INSTANT JUMP (Bypasses movement lockouts and animation delay)
                     lastJumpInputTime = -10f;
                     verticalVelocity = stats.jumpForce;
                     lastJumpOrLandTime = Time.time;
@@ -224,7 +243,6 @@ public class MechController : MonoBehaviour
                 }
                 else if (!isMovementJumpLocked)
                 {
-                    // DELAYED JUMP (Normal jump, plays animation)
                     lastJumpInputTime = -10f;
                     isPreparingToJump = true;
                     currentJumpDelayTimer = stats.jumpDelay;
@@ -266,7 +284,7 @@ public class MechController : MonoBehaviour
         bool wasGroundedBeforeMove = controller.isGrounded;
         controller.Move(finalMove * Time.deltaTime);
 
-        // --- 6. IMPACT DETECTION ---
+        // --- HARD LANDING IMPACT ---
         if (!wasGroundedBeforeMove && controller.isGrounded)
         {
             lastJumpOrLandTime = Time.time;
@@ -293,10 +311,9 @@ public class MechController : MonoBehaviour
             }
         }
 
-        // --- 7. VFX LOGIC ---
-        if (mechLoader != null)
+        if (partSystem != null)
         {
-            mechLoader.ToggleThrusters(energyUsedThisFrame);
+            partSystem.ToggleThrusters(energyUsedThisFrame);
         }
     }
 }

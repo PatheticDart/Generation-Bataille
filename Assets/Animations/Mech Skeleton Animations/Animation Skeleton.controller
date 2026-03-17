@@ -487,48 +487,8 @@ BlendTree:
   m_Name: Walk_BlendTree
   m_Childs:
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: 174231200a91f2141871dd1fbfeafcf4, type: 2}
-    m_Threshold: 0
-    m_Position: {x: 0, y: 0.25}
-    m_TimeScale: 1
-    m_CycleOffset: 0
-    m_DirectBlendParameter: LocalMoveX
-    m_Mirror: 0
-  - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: 8586714d5c4e62d40869850d6bce4034, type: 2}
-    m_Threshold: 0.06993008
-    m_Position: {x: 0.125, y: 0.125}
-    m_TimeScale: 1
-    m_CycleOffset: 0
-    m_DirectBlendParameter: LocalMoveX
-    m_Mirror: 0
-  - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: 8586714d5c4e62d40869850d6bce4034, type: 2}
-    m_Threshold: 0.13986015
-    m_Position: {x: -0.125, y: 0.125}
-    m_TimeScale: 1
-    m_CycleOffset: 0
-    m_DirectBlendParameter: LocalMoveX
-    m_Mirror: 0
-  - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: acbaaf969ac47064daa8c3f78098e641, type: 2}
-    m_Threshold: 0.20979021
-    m_Position: {x: -0.25, y: 0}
-    m_TimeScale: 1
-    m_CycleOffset: 0
-    m_DirectBlendParameter: LocalMoveX
-    m_Mirror: 0
-  - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: db7e7b0dc9111da44a3013239ab28820, type: 2}
-    m_Threshold: 0.2797203
-    m_Position: {x: 0.25, y: 0}
-    m_TimeScale: 1
-    m_CycleOffset: 0
-    m_DirectBlendParameter: LocalMoveX
-    m_Mirror: 0
-  - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: c52595b028268e44898e72fed4176e75, type: 2}
-    m_Threshold: 0.34965035
+    m_Threshold: 0.34965038
     m_Position: {x: 0, y: 1}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -536,7 +496,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: 087438c6aa41bc14c88532cceb5f8897, type: 2}
-    m_Threshold: 0.41958043
+    m_Threshold: 0.41958046
     m_Position: {x: 0, y: -1}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -568,7 +528,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: f264604da6cecfe4bab988d4fbd7a954, type: 2}
-    m_Threshold: 0.6993007
+    m_Threshold: 0.69930077
     m_Position: {x: 0.7, y: 0.7}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -600,7 +560,7 @@ BlendTree:
     m_Mirror: 0
   m_BlendParameter: LocalMoveX
   m_BlendParameterY: LocalMoveZ
-  m_MinThreshold: 0
+  m_MinThreshold: 0.34965038
   m_MaxThreshold: 0.90909094
   m_UseAutomaticThresholds: 1
   m_NormalizedBlendValues: 0

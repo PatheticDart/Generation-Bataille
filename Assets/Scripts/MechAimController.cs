@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
 [RequireComponent(typeof(MechWeaponManager))]
+[DefaultExecutionOrder(200)]
 public class MechAimController : MonoBehaviour
 {
     private MechWeaponManager weaponManager;
@@ -13,22 +14,33 @@ public class MechAimController : MonoBehaviour
 
     [Header("Rigging References")]
     public MultiAimConstraint torsoAimConstraint;
-    public float aimSmoothSpeed = 15f;
+    public float aimSmoothSpeed = 25f; 
 
     private Transform torsoIKProxyTarget;
 
-    // Node References
     private Transform leftArmNode, rightArmNode;
     private PartSync leftArmSync, rightArmSync;
     private PartSync leftLowerArmSync, rightLowerArmSync;
     private Transform leftBackNode, rightBackNode;
     private Animator leftBackWeaponAnim, rightBackWeaponAnim;
 
+    private Transform torsoNode;
+    private PartSync torsoSync;
+
+    private Camera mainCam;
+
+    // --- Smooth Transition Trackers ---
+    private float leftArmAimTransition = 1f;
+    private float rightArmAimTransition = 1f;
+    
+    // NEW: Tracks the Torso's transition between normal walking and rigid aiming
+    private float torsoAimTransition = 0f; 
+
     void Start()
     {
-        // Now getting the unified MechWeaponManager
         weaponManager = GetComponent<MechWeaponManager>();
         if (fcsLockBox == null) fcsLockBox = GetComponent<FCSLockBox>();
+        mainCam = Camera.main;
 
         SetupIKProxyTarget();
     }
@@ -54,22 +66,28 @@ public class MechAimController : MonoBehaviour
 
     public void CacheSpawnedNodes()
     {
-        leftArmNode = MechLoader.FindDeepChild(transform, "LeftArmNode");
-        rightArmNode = MechLoader.FindDeepChild(transform, "RightArmNode");
-        leftBackNode = MechLoader.FindDeepChild(transform, "LeftBackWeaponNode");
-        rightBackNode = MechLoader.FindDeepChild(transform, "RightBackWeaponNode");
+        leftArmNode = PartSystem.FindDeepChild(transform, "LeftArmNode");
+        rightArmNode = PartSystem.FindDeepChild(transform, "RightArmNode");
+        leftBackNode = PartSystem.FindDeepChild(transform, "LeftBackWeaponNode");
+        rightBackNode = PartSystem.FindDeepChild(transform, "RightBackWeaponNode");
+        
+        torsoNode = PartSystem.FindDeepChild(transform, "TorsoNode");
+        if (torsoNode != null && torsoNode.childCount > 0)
+        {
+            torsoSync = torsoNode.GetChild(0).GetComponent<PartSync>();
+        }
 
         if (leftArmNode != null && leftArmNode.childCount > 0)
         {
             leftArmSync = leftArmNode.GetChild(0).GetComponent<PartSync>();
-            Transform lower = MechLoader.FindDeepChild(leftArmNode, "Lower Arm Bone Left");
+            Transform lower = PartSystem.FindDeepChild(leftArmNode, "Lower Arm Bone Left");
             if (lower != null) leftLowerArmSync = lower.GetComponent<PartSync>();
         }
 
         if (rightArmNode != null && rightArmNode.childCount > 0)
         {
             rightArmSync = rightArmNode.GetChild(0).GetComponent<PartSync>();
-            Transform lower = MechLoader.FindDeepChild(rightArmNode, "Lower Arm Bone Right");
+            Transform lower = PartSystem.FindDeepChild(rightArmNode, "Lower Arm Bone Right");
             if (lower != null) rightLowerArmSync = lower.GetComponent<PartSync>();
         }
 
@@ -87,54 +105,172 @@ public class MechAimController : MonoBehaviour
         if (leftArmNode == null) CacheSpawnedNodes();
         if (leftArmNode == null) return;
 
-        // Determine Look-At Position
         Vector3 targetPos;
         if (lockedTarget != null) targetPos = lockedTarget.position;
         else if (lockboxCenter != null) targetPos = lockboxCenter.position;
-        else targetPos = transform.position + transform.forward * 100f;
+        else 
+        {
+            if (mainCam != null) targetPos = mainCam.transform.position + mainCam.transform.forward * 300f;
+            else targetPos = transform.position + transform.forward * 300f;
+        }
 
-        // Update Torso Proxy
         if (torsoIKProxyTarget != null)
             torsoIKProxyTarget.position = Vector3.Lerp(torsoIKProxyTarget.position, targetPos, Time.deltaTime * aimSmoothSpeed);
 
-        // --- LEFT ARM AIM ---
-        if (leftArmSync != null)
-        {
-            leftArmSync.overrideRotation = weaponManager.leftArmActive;
-            if (leftLowerArmSync != null) leftLowerArmSync.overrideRotation = weaponManager.leftArmActive;
+        Vector3 smoothedTargetPos = torsoIKProxyTarget != null ? torsoIKProxyTarget.position : targetPos;
 
-            if (weaponManager.leftArmActive) 
-                AimArmAt(leftArmSync.transform, leftLowerArmSync?.transform, targetPos);
-        }
+        // --- TRANSITION TIMERS ---
+        float armSpeed = 1f / Mathf.Max(weaponManager.armTransitionTime, 0.01f);
+        leftArmAimTransition = Mathf.MoveTowards(leftArmAimTransition, weaponManager.leftArmActive ? 1f : 0f, Time.deltaTime * armSpeed);
+        rightArmAimTransition = Mathf.MoveTowards(rightArmAimTransition, weaponManager.rightArmActive ? 1f : 0f, Time.deltaTime * armSpeed);
 
-        // --- RIGHT ARM AIM ---
-        if (rightArmSync != null)
-        {
-            rightArmSync.overrideRotation = weaponManager.rightArmActive;
-            if (rightLowerArmSync != null) rightLowerArmSync.overrideRotation = weaponManager.rightArmActive;
-
-            if (weaponManager.rightArmActive) 
-                AimArmAt(rightArmSync.transform, rightLowerArmSync?.transform, targetPos);
-        }
-
-        // --- BACK WEAPON LOGIC ---
-        bool leftBackActive = !weaponManager.leftArmActive;
-        bool rightBackActive = !weaponManager.rightArmActive;
-
+        bool leftBackActive = weaponManager.leftBackActive;
+        bool rightBackActive = weaponManager.rightBackActive;
         bool leftBackAiming = leftBackActive && weaponManager.hasAimableLeftBackWeapon;
         bool rightBackAiming = rightBackActive && weaponManager.hasAimableRightBackWeapon;
+        bool torsoNeedsAiming = leftBackAiming || rightBackAiming;
 
-        // Dynamic Torso Weight based on active systems
+        // NEW: Torso Transition Timer. It takes exactly the duration of the back weapon deploy animation to swing the torso into place!
+        float torsoSpeed = 1f / Mathf.Max(weaponManager.backWeaponTransitionTime, 0.01f);
+        torsoAimTransition = Mathf.MoveTowards(torsoAimTransition, torsoNeedsAiming ? 1f : 0f, Time.deltaTime * torsoSpeed);
+
+        // If the torso transition is anywhere above 0, we must override it so the arms know to mathematically stick to it.
+        bool isTorsoOverridden = torsoAimTransition > 0f;
+
+        // --- 1. TORSO LOGIC (Fully Blended) ---
+        if (torsoSync != null && torsoSync.targetBone != null)
+        {
+            torsoSync.overrideRotation = isTorsoOverridden;
+            if (isTorsoOverridden)
+            {
+                Quaternion stowedTorsoRot = torsoSync.targetBone.rotation;
+                Quaternion aimedTorsoRot = stowedTorsoRot;
+
+                Vector3 worldDirection = (smoothedTargetPos - torsoSync.transform.position).normalized;
+                if (worldDirection.sqrMagnitude > 0.01f && torsoSync.transform.parent != null)
+                {
+                    Vector3 localDirection = torsoSync.transform.parent.InverseTransformDirection(worldDirection);
+                    float yawAngle = Mathf.Atan2(localDirection.x, localDirection.y) * Mathf.Rad2Deg;
+                    aimedTorsoRot = torsoSync.transform.parent.rotation * Quaternion.Euler(0f, 0f, -yawAngle);
+                }
+
+                // Smoothly slide the torso from its bouncy skeleton animation to the rigid targeting angle
+                torsoSync.transform.rotation = Quaternion.Slerp(stowedTorsoRot, aimedTorsoRot, torsoAimTransition);
+            }
+        }
+
+        // --- 2. LEFT ARM LOGIC (Fully Blended) ---
+        if (leftArmSync != null && leftArmSync.targetBone != null)
+        {
+            leftArmSync.overrideRotation = true; 
+            if (leftLowerArmSync != null) leftLowerArmSync.overrideRotation = true;
+
+            Quaternion stowedRot;
+            if (isTorsoOverridden && torsoSync != null && torsoSync.targetBone != null)
+            {
+                Quaternion armLocalToTorso = Quaternion.Inverse(torsoSync.targetBone.rotation) * leftArmSync.targetBone.rotation;
+                stowedRot = torsoSync.transform.rotation * armLocalToTorso;
+            }
+            else
+            {
+                stowedRot = leftArmSync.targetBone.rotation;
+            }
+
+            Quaternion aimedRot = stowedRot; 
+            if (leftArmSync.transform.parent != null)
+            {
+                Vector3 worldDirection = (smoothedTargetPos - leftArmSync.transform.position).normalized;
+                if (worldDirection.sqrMagnitude > 0.01f)
+                {
+                    Vector3 localDirection = leftArmSync.transform.parent.InverseTransformDirection(worldDirection);
+                    Quaternion localLookRot = Quaternion.LookRotation(localDirection);
+                    Quaternion offset = Quaternion.Euler(-70f, 0f, 0f);
+                    aimedRot = leftArmSync.transform.parent.rotation * (localLookRot * offset);
+                }
+            }
+
+            leftArmSync.transform.rotation = Quaternion.Slerp(stowedRot, aimedRot, leftArmAimTransition);
+
+            if (leftLowerArmSync != null && leftLowerArmSync.targetBone != null)
+            {
+                Quaternion lowerStowedRot;
+                if (isTorsoOverridden && torsoSync != null && torsoSync.targetBone != null)
+                {
+                    Quaternion lowerLocalToUpper = Quaternion.Inverse(leftArmSync.targetBone.rotation) * leftLowerArmSync.targetBone.rotation;
+                    lowerStowedRot = leftArmSync.transform.rotation * lowerLocalToUpper;
+                }
+                else
+                {
+                    lowerStowedRot = leftLowerArmSync.targetBone.rotation;
+                }
+
+                Quaternion lowerAimedRot = leftArmSync.transform.rotation * Quaternion.Euler(-110f, 0f, 0f);
+                leftLowerArmSync.transform.rotation = Quaternion.Slerp(lowerStowedRot, lowerAimedRot, leftArmAimTransition);
+            }
+        }
+
+        // --- 3. RIGHT ARM LOGIC (Fully Blended) ---
+        if (rightArmSync != null && rightArmSync.targetBone != null)
+        {
+            rightArmSync.overrideRotation = true; 
+            if (rightLowerArmSync != null) rightLowerArmSync.overrideRotation = true;
+
+            Quaternion stowedRot;
+            if (isTorsoOverridden && torsoSync != null && torsoSync.targetBone != null)
+            {
+                Quaternion armLocalToTorso = Quaternion.Inverse(torsoSync.targetBone.rotation) * rightArmSync.targetBone.rotation;
+                stowedRot = torsoSync.transform.rotation * armLocalToTorso;
+            }
+            else
+            {
+                stowedRot = rightArmSync.targetBone.rotation;
+            }
+
+            Quaternion aimedRot = stowedRot; 
+            if (rightArmSync.transform.parent != null)
+            {
+                Vector3 worldDirection = (smoothedTargetPos - rightArmSync.transform.position).normalized;
+                if (worldDirection.sqrMagnitude > 0.01f)
+                {
+                    Vector3 localDirection = rightArmSync.transform.parent.InverseTransformDirection(worldDirection);
+                    Quaternion localLookRot = Quaternion.LookRotation(localDirection);
+                    Quaternion offset = Quaternion.Euler(-70f, 0f, 0f);
+                    aimedRot = rightArmSync.transform.parent.rotation * (localLookRot * offset);
+                }
+            }
+
+            rightArmSync.transform.rotation = Quaternion.Slerp(stowedRot, aimedRot, rightArmAimTransition);
+
+            if (rightLowerArmSync != null && rightLowerArmSync.targetBone != null)
+            {
+                Quaternion lowerStowedRot;
+                if (isTorsoOverridden && torsoSync != null && torsoSync.targetBone != null)
+                {
+                    Quaternion lowerLocalToUpper = Quaternion.Inverse(rightArmSync.targetBone.rotation) * rightLowerArmSync.targetBone.rotation;
+                    lowerStowedRot = rightArmSync.transform.rotation * lowerLocalToUpper;
+                }
+                else
+                {
+                    lowerStowedRot = rightLowerArmSync.targetBone.rotation;
+                }
+
+                Quaternion lowerAimedRot = rightArmSync.transform.rotation * Quaternion.Euler(-110f, 0f, 0f);
+                rightLowerArmSync.transform.rotation = Quaternion.Slerp(lowerStowedRot, lowerAimedRot, rightArmAimTransition);
+            }
+        }
+
+        // --- 4. BACK WEAPONS & RIGGING ---
         float targetTorsoWeight = 0f;
-        if (leftBackAiming || rightBackAiming) targetTorsoWeight = 1f;
-        else if (weaponManager.leftArmActive || weaponManager.rightArmActive) targetTorsoWeight = 0.5f;
+        if (!torsoNeedsAiming && (weaponManager.leftArmActive || weaponManager.rightArmActive))
+        {
+            targetTorsoWeight = 0.5f; 
+        }
 
         if (torsoAimConstraint != null)
             torsoAimConstraint.weight = Mathf.Lerp(torsoAimConstraint.weight, targetTorsoWeight, Time.deltaTime * aimSmoothSpeed);
 
-        // Handle Deployed Animations and Pitching
-        UpdateBackWeapon(leftBackNode, leftBackWeaponAnim, leftBackActive, leftBackAiming, targetPos);
-        UpdateBackWeapon(rightBackNode, rightBackWeaponAnim, rightBackActive, rightBackAiming, targetPos);
+        UpdateBackWeapon(leftBackNode, leftBackWeaponAnim, leftBackActive, leftBackAiming, smoothedTargetPos);
+        UpdateBackWeapon(rightBackNode, rightBackWeaponAnim, rightBackActive, rightBackAiming, smoothedTargetPos);
     }
 
     private void UpdateBackWeapon(Transform node, Animator anim, bool isActive, bool isAiming, Vector3 targetPos)
@@ -146,33 +282,13 @@ public class MechAimController : MonoBehaviour
         else ResetBackWeaponPitch(node);
     }
 
-    private void AimArmAt(Transform upperArm, Transform lowerArm, Vector3 targetPosition)
-    {
-        if (lowerArm != null)
-        {
-            Quaternion targetLowerRot = Quaternion.Euler(-110f, 0f, 0f);
-            lowerArm.localRotation = Quaternion.Slerp(lowerArm.localRotation, targetLowerRot, Time.deltaTime * aimSmoothSpeed);
-        }
-
-        if (upperArm != null)
-        {
-            Vector3 direction = (targetPosition - upperArm.position).normalized;
-            if (direction != Vector3.zero)
-            {
-                Quaternion lookRot = Quaternion.LookRotation(direction);
-                Quaternion offset = Quaternion.Euler(-70f, 0f, 0f);
-                upperArm.rotation = Quaternion.Slerp(upperArm.rotation, lookRot * offset, Time.deltaTime * aimSmoothSpeed);
-            }
-        }
-    }
-
     private void AimBackWeaponPitch(Transform backNode, Vector3 targetPosition)
     {
         Vector3 localTargetDir = backNode.parent.InverseTransformDirection(targetPosition - backNode.position);
         float angle = Mathf.Atan2(localTargetDir.y, localTargetDir.z) * Mathf.Rad2Deg;
         float targetX = Mathf.Clamp(-angle, -30f, 45f);
 
-        backNode.localRotation = Quaternion.Slerp(backNode.localRotation, Quaternion.Euler(targetX, 0f, 0f), Time.deltaTime * aimSmoothSpeed);
+        backNode.localRotation = Quaternion.Euler(targetX, 0f, 0f);
     }
 
     private void ResetBackWeaponPitch(Transform backNode)

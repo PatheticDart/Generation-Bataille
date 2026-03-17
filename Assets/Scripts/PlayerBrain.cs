@@ -1,9 +1,11 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(MechController), typeof(MechWeaponManager))]
 public class PlayerBrain : MonoBehaviour
 {
     private MechController controller;
+    private MechWeaponManager weaponManager;
     private Transform mainCamera;
 
     [Header("Cinemachine Target Configuration")]
@@ -16,70 +18,52 @@ public class PlayerBrain : MonoBehaviour
     [Tooltip("Sensitivity for Gamepad input (Degrees per second). 150 is roughly equal to 0.1 mouse.")]
     public float controllerSensitivity = 150f;
 
-    [Header("Input Actions")]
-    public InputAction moveAction = new InputAction("Move", InputActionType.Value);
-    public InputAction lookAction = new InputAction("Look", InputActionType.Value);
-    public InputAction jumpAction = new InputAction("Jump", InputActionType.Button);
-    public InputAction boostAction = new InputAction("Boost", InputActionType.Button);
+    [Header("Movement Input Action References")]
+    public InputActionReference moveAction;
+    public InputActionReference lookAction;
+    public InputActionReference jumpAction;
+    public InputActionReference boostAction;
+
+    [Header("Weapon Input Action References")]
+    public InputActionReference toggleLeftAction;
+    public InputActionReference toggleRightAction;
+    public InputActionReference fireLeftAction;
+    public InputActionReference fireRightAction;
 
     private Vector2 cameraRotation;
     private Vector2 lookDelta;
 
-    void Awake()
-    {
-        // Auto-setup default bindings so it works immediately for Keyboard/Mouse and Gamepad
-        if (moveAction.bindings.Count == 0)
-        {
-            moveAction.AddCompositeBinding("2DVector")
-                .With("Up", "<Keyboard>/w")
-                .With("Down", "<Keyboard>/s")
-                .With("Left", "<Keyboard>/a")
-                .With("Right", "<Keyboard>/d");
-            moveAction.AddBinding("<Gamepad>/leftStick");
-        }
-
-        if (lookAction.bindings.Count == 0)
-        {
-            lookAction.AddBinding("<Pointer>/delta");
-            lookAction.AddBinding("<Gamepad>/rightStick");
-        }
-
-        if (jumpAction.bindings.Count == 0)
-        {
-            jumpAction.AddBinding("<Keyboard>/space");
-            jumpAction.AddBinding("<Gamepad>/buttonSouth"); // 'A' on Xbox, 'Cross' on PlayStation
-        }
-
-        if (boostAction.bindings.Count == 0)
-        {
-            boostAction.AddBinding("<Keyboard>/leftShift");
-            boostAction.AddBinding("<Gamepad>/buttonEast"); // 'B' on Xbox, 'Circle' on PlayStation
-        }
-    }
-
     void OnEnable()
     {
-        // Actions must be enabled to read input
-        moveAction.Enable();
-        lookAction.Enable();
-        jumpAction.Enable();
-        boostAction.Enable();
+        if (moveAction != null) moveAction.action.Enable();
+        if (lookAction != null) lookAction.action.Enable();
+        if (jumpAction != null) jumpAction.action.Enable();
+        if (boostAction != null) boostAction.action.Enable();
+        
+        if (toggleLeftAction != null) toggleLeftAction.action.Enable();
+        if (toggleRightAction != null) toggleRightAction.action.Enable();
+        if (fireLeftAction != null) fireLeftAction.action.Enable();
+        if (fireRightAction != null) fireRightAction.action.Enable();
     }
 
     void OnDisable()
     {
-        // Clean up when the script is disabled
-        moveAction.Disable();
-        lookAction.Disable();
-        jumpAction.Disable();
-        boostAction.Disable();
+        if (moveAction != null) moveAction.action.Disable();
+        if (lookAction != null) lookAction.action.Disable();
+        if (jumpAction != null) jumpAction.action.Disable();
+        if (boostAction != null) boostAction.action.Disable();
+
+        if (toggleLeftAction != null) toggleLeftAction.action.Disable();
+        if (toggleRightAction != null) toggleRightAction.action.Disable();
+        if (fireLeftAction != null) fireLeftAction.action.Disable();
+        if (fireRightAction != null) fireRightAction.action.Disable();
     }
 
     void Start()
     {
         controller = GetComponent<MechController>();
+        weaponManager = GetComponent<MechWeaponManager>();
 
-        // Cache the main camera to read its current facing direction
         if (Camera.main != null)
         {
             mainCamera = Camera.main.transform;
@@ -99,45 +83,61 @@ public class PlayerBrain : MonoBehaviour
     {
         if (Time.timeScale == 0f) return;
 
+        if (moveAction == null || fireLeftAction == null)
+        {
+            Debug.LogWarning("PlayerBrain: Input Action References are missing! Please assign them in the Inspector.");
+            return;
+        }
+
         HandleTargetRotation();
 
-        // 1. Movement Input (Reads Vector2 from WASD or Left Stick)
-        Vector2 moveValue = moveAction.ReadValue<Vector2>();
+        // --- MOVEMENT & ACTIONS ---
+        Vector2 moveValue = moveAction.action.ReadValue<Vector2>();
         controller.moveInput = new Vector3(moveValue.x, 0, moveValue.y).normalized;
 
-        // 2. Pass the Actual Camera's Yaw to the MechController
         if (mainCamera != null)
         {
-            // Flatten the camera's forward vector on the XZ plane
             Vector3 cameraForward = mainCamera.forward;
             cameraForward.y = 0;
             controller.lookTargetForward = cameraForward.normalized;
         }
 
-        // 3. Actions (Reads true if the button is currently held down)
-        controller.isBoosting = boostAction.IsPressed();
-        controller.isJumping = jumpAction.IsPressed();
+        controller.isBoosting = boostAction.action.IsPressed();
+        controller.isJumping = jumpAction.action.IsPressed();
+
+        // --- WEAPON TOGGLES ---
+        if (toggleLeftAction.action.WasPressedThisFrame()) weaponManager.ToggleLeftWeapon();
+        if (toggleRightAction.action.WasPressedThisFrame()) weaponManager.ToggleRightWeapon();
+
+        // --- WEAPON FIRING ---
+        weaponManager.ProcessLeftFire(
+            fireLeftAction.action.WasPressedThisFrame(),
+            fireLeftAction.action.IsPressed(),
+            fireLeftAction.action.WasReleasedThisFrame()
+        );
+
+        weaponManager.ProcessRightFire(
+            fireRightAction.action.WasPressedThisFrame(),
+            fireRightAction.action.IsPressed(),
+            fireRightAction.action.WasReleasedThisFrame()
+        );
     }
 
     private void HandleTargetRotation()
     {
         if (cinemachineFollowTarget == null) return;
 
-        // Read Vector2 from Mouse Delta or Right Stick
-        Vector2 lookValue = lookAction.ReadValue<Vector2>();
+        Vector2 lookValue = lookAction.action.ReadValue<Vector2>();
 
-        // Dynamically check if the active control device is a Gamepad
-        bool isGamepad = lookAction.activeControl != null && lookAction.activeControl.device is Gamepad;
+        bool isGamepad = lookAction.action.activeControl != null && lookAction.action.activeControl.device is Gamepad;
 
         if (isGamepad)
         {
-            // Gamepads need DeltaTime because the stick outputs a constant value (-1 to 1) while held
             lookDelta.x = lookValue.x * controllerSensitivity * Time.deltaTime;
             lookDelta.y = lookValue.y * controllerSensitivity * Time.deltaTime;
         }
         else
         {
-            // Mice don't need DeltaTime because they output raw physical pixel movement delta per frame
             lookDelta.x = lookValue.x * mouseSensitivity;
             lookDelta.y = lookValue.y * mouseSensitivity;
         }
@@ -145,10 +145,8 @@ public class PlayerBrain : MonoBehaviour
         cameraRotation.y += lookDelta.x;
         cameraRotation.x -= lookDelta.y;
 
-        // Clamp pitch to prevent the camera from flipping over
         cameraRotation.x = Mathf.Clamp(cameraRotation.x, -60f, 60f);
 
-        // We rotate the target, NOT the camera. Cinemachine will follow this target.
         cinemachineFollowTarget.rotation = Quaternion.Euler(cameraRotation.x, cameraRotation.y, 0f);
     }
 }

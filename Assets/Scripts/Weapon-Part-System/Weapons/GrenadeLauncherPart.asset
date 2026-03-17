@@ -10,18 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 12c78a3e51356a140be18fef25d00749, type: 3}
-  m_Name: VerticalMissilePart
+  m_Name: GrenadeLauncherPart
   m_EditorClassIdentifier: Assembly-CSharp::Rifle
-  partName: ANF-MUR
-  partDescription: Small missile launcher with a max lock of 8.
-  price: 42000
-  weight: 340
-  prefab: {fileID: 4420251380161534136, guid: f2a888c0196c8f7479e2b2429688c7c1, type: 3}
-  energyDrain: 310
+  partName: HND-108 Drago
+  partDescription: A devastating grenade launcher developed by Vermillion Armory.
+    Suitable for long-range combat.
+  price: 64000
+  weight: 1200
+  prefab: {fileID: 2622329409459792130, guid: 50c4032b41c61be49b7cb1e852e014b5, type: 3}
+  energyDrain: 8
   allowedLocations: 6
   ammoType: 0
-  attackPower: 800
-  ammo: 40
-  effectiveRange: 400
-  firingInterval: 48
-  ammoPrice: 130
+  attackPower: 4200
+  ammo: 10
+  effectiveRange: 1000
+  firingInterval: 112
+  ammoPrice: 1000

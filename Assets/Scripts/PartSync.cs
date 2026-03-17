@@ -14,6 +14,9 @@ public class PartSync : MonoBehaviour
     private Vector3 positionOffset;
     private bool isInitialized = false;
 
+    // Tracks if we need to smooth the return
+    private bool isRecovering = false;
+
     void LateUpdate()
     {
         if (targetBone == null) return;
@@ -24,10 +27,28 @@ public class PartSync : MonoBehaviour
             isInitialized = true;
         }
 
-        if (!overrideRotation)
+        if (overrideRotation)
         {
-            // Smoothly glide back to the animation's current frame
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetBone.rotation, Time.deltaTime * returnSmoothSpeed);
+            isRecovering = true;
+        }
+        else
+        {
+            if (isRecovering)
+            {
+                // Smoothly glide back to the animation's current frame when you stop shooting
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetBone.rotation, Time.deltaTime * returnSmoothSpeed);
+
+                // Once we are practically identical to the bone, stop recovering and lock on
+                if (Quaternion.Angle(transform.rotation, targetBone.rotation) < 1f)
+                {
+                    isRecovering = false;
+                }
+            }
+            else
+            {
+                // INSTANT SNAP: Prevents double-smoothing lag which causes high-speed jitter!
+                transform.rotation = targetBone.rotation;
+            }
         }
 
         if (syncPosition)
