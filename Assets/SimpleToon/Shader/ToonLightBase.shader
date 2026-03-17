@@ -6,13 +6,27 @@ Shader "Lpk/LightModel/ToonLightBase"
         _BaseColor          ("Color", Color)                      = (0.5,0.5,0.5,1)
         
         [Space]
-        _ShadowStep         ("ShadowStep", Range(0, 1))           = 0.5
-        _ShadowStepSmooth   ("ShadowStepSmooth", Range(0, 1))     = 0.04
+        _BumpMap            ("Normal Map", 2D)                    = "bump" {}
+        _BumpScale          ("Normal Scale", Float)               = 1.0
+        
+        [Space]
+        _HeightMap          ("Displacement Map", 2D)              = "black" {}
+        _HeightAmplitude    ("Displacement Amplitude", Float)     = 0.02
+        
+        [Space]
+        _ShadowBands        ("Shadow Bands", Range(1, 10))        = 3.0
+        _ShadowStep         ("Shadow Step", Range(0, 1))          = 0.5
+        _ShadowStepSmooth   ("Shadow Step Smooth", Range(0, 1))   = 0.04
         
         [Space] 
+        _SpecularMap        ("Specular/Gloss Map (RGB)", 2D)      = "white" {}
         _SpecularStep       ("SpecularStep", Range(0, 1))         = 0.6
         _SpecularStepSmooth ("SpecularStepSmooth", Range(0, 1))   = 0.05
         [HDR]_SpecularColor ("SpecularColor", Color)              = (1,1,1,1)
+        
+        [Space]
+        _Smoothness         ("Reflection Smoothness", Range(0, 1))= 0.5
+        _ReflectionStrength ("Reflection Strength", Range(0, 1))  = 0.5
         
         [Space]
         _RimStep            ("RimStep", Range(0, 1))              = 0.65
@@ -42,7 +56,7 @@ Shader "Lpk/LightModel/ToonLightBase"
             #pragma fragment frag
             #pragma multi_compile _ _SHADOWS_SOFT
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
-			#pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
             #pragma multi_compile_fog
             #pragma multi_compile_instancing
              
@@ -51,18 +65,26 @@ Shader "Lpk/LightModel/ToonLightBase"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 
             TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+            TEXTURE2D(_BumpMap); SAMPLER(sampler_BumpMap);
+            TEXTURE2D(_HeightMap); SAMPLER(sampler_HeightMap);
+            TEXTURE2D(_SpecularMap); SAMPLER(sampler_SpecularMap);
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseColor;
+                float _BumpScale;
+                float _HeightAmplitude;
+                float _ShadowBands;
                 float _ShadowStep;
                 float _ShadowStepSmooth;
                 float _SpecularStep;
                 float _SpecularStepSmooth;
                 float4 _SpecularColor;
+                float _Smoothness;
+                float _ReflectionStrength;
                 float _RimStepSmooth;
                 float _RimStep;
                 float4 _RimColor;
-                float4 _BaseMap_ST;   // <-- tiling/offset support
+                float4 _BaseMap_ST;   
             CBUFFER_END
 
             struct Attributes
@@ -81,9 +103,9 @@ Shader "Lpk/LightModel/ToonLightBase"
                 float4 tangentWS     : TEXCOORD2;
                 float4 bitangentWS   : TEXCOORD3;
                 float3 viewDirWS     : TEXCOORD4;
-				float4 shadowCoord	 : TEXCOORD5;
-				float4 fogCoord	     : TEXCOORD6;
-				float3 positionWS	 : TEXCOORD7;
+                float4 shadowCoord   : TEXCOORD5;
+                float4 fogCoord      : TEXCOORD6;
+                float3 positionWS    : TEXCOORD7;
                 float4 positionCS    : SV_POSITION;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
@@ -95,13 +117,17 @@ Shader "Lpk/LightModel/ToonLightBase"
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_TRANSFER_INSTANCE_ID(input, output);
 
+                // Vertex Displacement
+                float height = SAMPLE_TEXTURE2D_LOD(_HeightMap, sampler_HeightMap, input.uv, 0).r;
+                input.positionOS.xyz += input.normalOS * height * _HeightAmplitude;
+
                 VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
                 VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
                 float3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
 
                 output.positionCS = vertexInput.positionCS;
                 output.positionWS = vertexInput.positionWS;
-                output.uv = TRANSFORM_TEX(input.uv, _BaseMap); // <-- apply tiling/offset
+                output.uv = TRANSFORM_TEX(input.uv, _BaseMap); 
                 output.normalWS = float4(normalInput.normalWS, viewDirWS.x);
                 output.tangentWS = float4(normalInput.tangentWS, viewDirWS.y);
                 output.bitangentWS = float4(normalInput.bitangentWS, viewDirWS.z);
@@ -120,11 +146,19 @@ Shader "Lpk/LightModel/ToonLightBase"
                 UNITY_SETUP_INSTANCE_ID(input);
 
                 float2 uv = input.uv;
+                
+                // Base Vectors
                 float3 N = normalize(input.normalWS.xyz);
                 float3 T = normalize(input.tangentWS.xyz);
                 float3 B = normalize(input.bitangentWS.xyz);
                 float3 V = normalize(input.viewDirWS.xyz);
                 float3 L = normalize(_MainLightPosition.xyz);
+                
+                // Normal Mapping
+                half4 normalSample = SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv);
+                float3 normalTS = UnpackNormalScale(normalSample, _BumpScale);
+                N = normalize(normalTS.x * T + normalTS.y * B + normalTS.z * N); // Transform Tangent to World
+                
                 float3 H = normalize(V+L);
                 
                 float NV = dot(N,V);
@@ -133,26 +167,41 @@ Shader "Lpk/LightModel/ToonLightBase"
                 
                 NL = NL * 0.5 + 0.5;
 
+                // Texture Samples
                 float4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uv);
+                float4 specularMap = SAMPLE_TEXTURE2D(_SpecularMap, sampler_SpecularMap, uv);
 
                 float specularNH = smoothstep((1-_SpecularStep * 0.05)  - _SpecularStepSmooth * 0.05, (1-_SpecularStep* 0.05)  + _SpecularStepSmooth * 0.05, NH) ;
-                float shadowNL = smoothstep(_ShadowStep - _ShadowStepSmooth, _ShadowStep + _ShadowStepSmooth, NL);
-
-				input.shadowCoord = TransformWorldToShadowCoord(input.positionWS);
                 
+                // Multi-stepped Shadow Math
+                float bandIndex = floor(NL * _ShadowBands);
+                float localNL = frac(NL * _ShadowBands);
+                float smoothBand = smoothstep(_ShadowStep - _ShadowStepSmooth, _ShadowStep + _ShadowStepSmooth, localNL);
+                float shadowNL = (bandIndex + smoothBand) / _ShadowBands;
+
+                input.shadowCoord = TransformWorldToShadowCoord(input.positionWS);
                 float shadow = MainLightRealtimeShadow(input.shadowCoord);
                 
                 float rim = smoothstep((1-_RimStep) - _RimStepSmooth * 0.5, (1-_RimStep) + _RimStepSmooth * 0.5, 0.5 - NV);
                 
-                float3 diffuse = _MainLightColor.rgb * baseMap * _BaseColor * shadowNL * shadow;
+                // Environment Reflections (Reflection Probe / Skybox)
+                float3 reflectVector = reflect(-V, N);
+                float perceptualRoughness = 1.0 - _Smoothness;
+                // Sample URP environment lighting (vector, position, roughness, occlusion)
+                float3 envReflection = GlossyEnvironmentReflection(reflectVector, input.positionWS, perceptualRoughness, 1.0);
+                // Mask the reflection intensity by the specular map and custom strength property
+                float3 reflection = envReflection * specularMap.rgb * _ReflectionStrength;
                 
-                float3 specular = _SpecularColor * shadow * shadowNL *  specularNH;
-                
-                float3 ambient =  rim * _RimColor + SampleSH(N) * _BaseColor * baseMap;
+                // Lighting Composition
+                float3 diffuse = _MainLightColor.rgb * baseMap.rgb * _BaseColor.rgb * shadowNL * shadow;
+                float3 specular = _SpecularColor.rgb * specularMap.rgb * shadow * shadowNL * specularNH;
+                float3 ambient =  rim * _RimColor.rgb + SampleSH(N) * _BaseColor.rgb * baseMap.rgb;
             
-                float3 finalColor = diffuse + ambient + specular;
+                // Add reflection to final output
+                float3 finalColor = diffuse + ambient + specular + reflection;
                 finalColor = MixFog(finalColor, input.fogCoord);
-                return float4(finalColor , 1.0);
+                
+                return float4(finalColor, 1.0);
             }
             ENDHLSL
         }
@@ -172,26 +221,35 @@ Shader "Lpk/LightModel/ToonLightBase"
             #pragma multi_compile_fog
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             
+            TEXTURE2D(_HeightMap); SAMPLER(sampler_HeightMap);
+            
             struct appdata
             {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
                 float4 tangent : TANGENT;
+                float2 uv     : TEXCOORD0; 
             };
 
             struct v2f
             {
                 float4 pos      : SV_POSITION;
-                float4 fogCoord	: TEXCOORD0;
+                float4 fogCoord : TEXCOORD0;
             };
             
             float _OutlineWidth;
             float4 _OutlineColor;
+            float _HeightAmplitude;
             
             v2f vert(appdata v)
             {
                 v2f o;
+                
+                float height = SAMPLE_TEXTURE2D_LOD(_HeightMap, sampler_HeightMap, v.uv, 0).r;
+                v.vertex.xyz += v.normal * height * _HeightAmplitude;
+                
                 VertexPositionInputs vertexInput = GetVertexPositionInputs(v.vertex.xyz);
+                
                 o.pos = TransformObjectToHClip(float4(v.vertex.xyz + v.normal * _OutlineWidth * 0.1 ,1));
                 o.fogCoord = ComputeFogFactor(vertexInput.positionCS.z);
 
@@ -200,8 +258,8 @@ Shader "Lpk/LightModel/ToonLightBase"
 
             float4 frag(v2f i) : SV_Target
             {
-                float3 finalColor = MixFog(_OutlineColor, i.fogCoord);
-                return float4(finalColor,1.0);
+                float3 finalColor = MixFog(_OutlineColor.rgb, i.fogCoord);
+                return float4(finalColor, 1.0);
             }
             
             ENDHLSL
