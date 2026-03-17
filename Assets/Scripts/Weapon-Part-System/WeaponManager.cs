@@ -2,49 +2,33 @@ using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
 {
+    [Header("Weapon Slots")]
     public FunctionalWeapon[] lWeapons = new FunctionalWeapon[2];
     public FunctionalWeapon[] rWeapons = new FunctionalWeapon[2];
 
-    #region State
-
-    int _activeL = 0;
-    int _activeR = 0;
-
-    bool lPressed, lHeld, lReleased;
-    bool rPressed, rHeld, rReleased;
-
-    #endregion
-
-    #region Events
-
-
-    #endregion
-
-
-    public void ToggleLeftWeapon()
+    public void RegisterWeapon(bool isLeft, int slotIndex, FunctionalWeapon weapon)
     {
-        _activeL = (_activeL + 1) % lWeapons.Length;
+        if (slotIndex < 0 || slotIndex >= 2) return;
+        if (isLeft) lWeapons[slotIndex] = weapon;
+        else rWeapons[slotIndex] = weapon;
     }
 
-    public void ToggleRightWeapon()
+    // This is called by the Integration script
+    public void FireWeapon(bool isLeft, int slotIndex, bool pressed, bool held, bool released)
     {
-        _activeR = (_activeR + 1) % lWeapons.Length;
+        FunctionalWeapon[] bank = isLeft ? lWeapons : rWeapons;
+        FunctionalWeapon weapon = bank[slotIndex];
+
+        if (weapon == null) return;
+
+        if (pressed) weapon.OnFirePressed();
+        if (held) weapon.OnFireHeld();
+        if (released) weapon.OnFireReleased();
     }
-
-    void Update()
+    
+    public void ForceRelease(bool isLeft, int slotIndex)
     {
-        GetInputs();
-    }
-
-    void GetInputs()
-    {
-        lPressed = Input.GetKeyDown(KeyCode.Mouse0);
-        rPressed = Input.GetKeyDown(KeyCode.Mouse1);
-
-        lHeld = Input.GetKey(KeyCode.Mouse0);
-        rHeld = Input.GetKey(KeyCode.Mouse1);
-
-        lReleased = Input.GetKeyUp(KeyCode.Mouse0);
-        rReleased = Input.GetKeyUp(KeyCode.Mouse1);
+        FunctionalWeapon[] bank = isLeft ? lWeapons : rWeapons;
+        if (bank[slotIndex] != null) bank[slotIndex].OnFireReleased();
     }
 }
