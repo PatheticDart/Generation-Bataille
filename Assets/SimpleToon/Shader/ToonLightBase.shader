@@ -1,9 +1,9 @@
-Shader "Lpk/LightModel/ToonLightBase"
+Shader "Lpk/LightModel/ToonLightSafe"
 {
     Properties
     {
         _BaseMap            ("Texture", 2D)                       = "white" {}
-        _BaseColor          ("Color", Color)                      = (0.5,0.5,0.5,1)
+        _BaseColor          ("Color", Color)                      = (0.5, 0.5, 0.5, 1)
         
         [Space]
         _BumpMap            ("Normal Map", 2D)                    = "bump" {}
@@ -16,27 +16,48 @@ Shader "Lpk/LightModel/ToonLightBase"
         [Space]
         _ShadowBands        ("Shadow Bands", Range(1, 10))        = 3.0
         _ShadowStep         ("Shadow Step", Range(0, 1))          = 0.5
-        _ShadowStepSmooth   ("Shadow Step Smooth", Range(0, 1))   = 0.04
+        _ShadowStepSmooth   ("Shadow Step Smooth", Range(0.001, 1)) = 0.04
         
         [Space] 
         _SpecularMap        ("Specular/Gloss Map (RGB)", 2D)      = "white" {}
         _SpecularStep       ("SpecularStep", Range(0, 1))         = 0.6
-        _SpecularStepSmooth ("SpecularStepSmooth", Range(0, 1))   = 0.05
-        [HDR]_SpecularColor ("SpecularColor", Color)              = (1,1,1,1)
-        
-        [Space]
-        _Smoothness         ("Reflection Smoothness", Range(0, 1))= 0.5
-        _ReflectionStrength ("Reflection Strength", Range(0, 1))  = 0.5
+        _SpecularStepSmooth ("SpecularStepSmooth", Range(0.001, 1)) = 0.05
+        [HDR]_SpecularColor ("SpecularColor", Color)              = (1, 1, 1, 1)
         
         [Space]
         _RimStep            ("RimStep", Range(0, 1))              = 0.65
-        _RimStepSmooth      ("RimStepSmooth",Range(0,1))          = 0.4
-        _RimColor           ("RimColor", Color)                   = (1,1,1,1)
+        _RimStepSmooth      ("RimStepSmooth", Range(0.001, 1))    = 0.4
+        _RimColor           ("RimColor", Color)                   = (1, 1, 1, 1)
         
         [Space]   
-        _OutlineWidth      ("OutlineWidth", Range(0.0, 1.0))      = 0.15
-        _OutlineColor      ("OutlineColor", Color)                = (0.0, 0.0, 0.0, 1)
+        _OutlineWidth       ("OutlineWidth", Range(0.0, 1.0))     = 0.15
+        _OutlineColor       ("OutlineColor", Color)               = (0.0, 0.0, 0.0, 1)
     }
+
+    // HLSLINCLUDE ensures both the Forward and Outline pass share the exact same CBUFFER.
+    // This makes the shader SRP Batcher compatible, which is a massive performance boost.
+    HLSLINCLUDE
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+    
+    CBUFFER_START(UnityPerMaterial)
+        float4 _BaseColor;
+        float _BumpScale;
+        float _HeightAmplitude;
+        float _ShadowBands;
+        float _ShadowStep;
+        float _ShadowStepSmooth;
+        float _SpecularStep;
+        float _SpecularStepSmooth;
+        float4 _SpecularColor;
+        float _RimStepSmooth;
+        float _RimStep;
+        float4 _RimColor;
+        float _OutlineWidth;
+        float4 _OutlineColor;
+        float4 _BaseMap_ST;   
+    CBUFFER_END
+    ENDHLSL
+
     SubShader
     {
         Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" }
@@ -44,48 +65,24 @@ Shader "Lpk/LightModel/ToonLightBase"
         Pass
         {
             Name "UniversalForward"
-            Tags
-            {
-                "LightMode" = "UniversalForward"
-            }
+            Tags { "LightMode" = "UniversalForward" }
+            
             HLSLPROGRAM
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
-
             #pragma vertex vert
             #pragma fragment frag
+            
+            // Fixed URP shadow pragmas so shadows don't break across cascades
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _SHADOWS_SOFT
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
             #pragma multi_compile_fog
             #pragma multi_compile_instancing
              
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 
             TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
             TEXTURE2D(_BumpMap); SAMPLER(sampler_BumpMap);
             TEXTURE2D(_HeightMap); SAMPLER(sampler_HeightMap);
             TEXTURE2D(_SpecularMap); SAMPLER(sampler_SpecularMap);
-
-            CBUFFER_START(UnityPerMaterial)
-                float4 _BaseColor;
-                float _BumpScale;
-                float _HeightAmplitude;
-                float _ShadowBands;
-                float _ShadowStep;
-                float _ShadowStepSmooth;
-                float _SpecularStep;
-                float _SpecularStepSmooth;
-                float4 _SpecularColor;
-                float _Smoothness;
-                float _ReflectionStrength;
-                float _RimStepSmooth;
-                float _RimStep;
-                float4 _RimColor;
-                float4 _BaseMap_ST;   
-            CBUFFER_END
 
             struct Attributes
             {     
@@ -113,11 +110,9 @@ Shader "Lpk/LightModel/ToonLightBase"
             Varyings vert(Attributes input)
             {
                 Varyings output = (Varyings)0;
-                    
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_TRANSFER_INSTANCE_ID(input, output);
 
-                // Vertex Displacement
                 float height = SAMPLE_TEXTURE2D_LOD(_HeightMap, sampler_HeightMap, input.uv, 0).r;
                 input.positionOS.xyz += input.normalOS * height * _HeightAmplitude;
 
@@ -128,17 +123,15 @@ Shader "Lpk/LightModel/ToonLightBase"
                 output.positionCS = vertexInput.positionCS;
                 output.positionWS = vertexInput.positionWS;
                 output.uv = TRANSFORM_TEX(input.uv, _BaseMap); 
+                
                 output.normalWS = float4(normalInput.normalWS, viewDirWS.x);
                 output.tangentWS = float4(normalInput.tangentWS, viewDirWS.y);
                 output.bitangentWS = float4(normalInput.bitangentWS, viewDirWS.z);
                 output.viewDirWS = viewDirWS;
+                
                 output.fogCoord = ComputeFogFactor(output.positionCS.z);
+                
                 return output;
-            }
-            
-            half remap(half x, half t1, half t2, half s1, half s2)
-            {
-                return (x - t1) / (t2 - t1) * (s2 - s1) + s1;
             }
             
             float4 frag(Varyings input) : SV_Target
@@ -147,58 +140,54 @@ Shader "Lpk/LightModel/ToonLightBase"
 
                 float2 uv = input.uv;
                 
-                // Base Vectors
                 float3 N = normalize(input.normalWS.xyz);
                 float3 T = normalize(input.tangentWS.xyz);
                 float3 B = normalize(input.bitangentWS.xyz);
                 float3 V = normalize(input.viewDirWS.xyz);
-                float3 L = normalize(_MainLightPosition.xyz);
                 
-                // Normal Mapping
+                // Proper URP light extraction
+                float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
+                Light mainLight = GetMainLight(shadowCoord);
+                float3 L = normalize(mainLight.direction);
+                float shadow = mainLight.shadowAttenuation;
+                
                 half4 normalSample = SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv);
                 float3 normalTS = UnpackNormalScale(normalSample, _BumpScale);
-                N = normalize(normalTS.x * T + normalTS.y * B + normalTS.z * N); // Transform Tangent to World
+                N = normalize(normalTS.x * T + normalTS.y * B + normalTS.z * N); 
                 
-                float3 H = normalize(V+L);
+                float3 H = normalize(V + L);
                 
-                float NV = dot(N,V);
-                float NH = dot(N,H);
-                float NL = dot(N,L);
-                
-                NL = NL * 0.5 + 0.5;
+                // SAFE MATH: saturate() prevents negative numbers from causing NaN explosions
+                float NV = saturate(dot(N, V));
+                float NH = saturate(dot(N, H));
+                float halfLambert = dot(N, L) * 0.5 + 0.5;
 
-                // Texture Samples
                 float4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uv);
                 float4 specularMap = SAMPLE_TEXTURE2D(_SpecularMap, sampler_SpecularMap, uv);
 
-                float specularNH = smoothstep((1-_SpecularStep * 0.05)  - _SpecularStepSmooth * 0.05, (1-_SpecularStep* 0.05)  + _SpecularStepSmooth * 0.05, NH) ;
+                // SAFE MATH: max() prevents dividing by exactly zero if a slider is pushed all the way down
+                float safeSpecSmooth = max(0.001, _SpecularStepSmooth * 0.05);
+                float specEdge = 1.0 - (_SpecularStep * 0.05);
+                float specularNH = smoothstep(specEdge - safeSpecSmooth, specEdge + safeSpecSmooth, NH);
                 
-                // Multi-stepped Shadow Math
-                float bandIndex = floor(NL * _ShadowBands);
-                float localNL = frac(NL * _ShadowBands);
-                float smoothBand = smoothstep(_ShadowStep - _ShadowStepSmooth, _ShadowStep + _ShadowStepSmooth, localNL);
-                float shadowNL = (bandIndex + smoothBand) / _ShadowBands;
+                float safeBands = max(1.0, _ShadowBands);
+                float bandIndex = floor(halfLambert * safeBands);
+                float localNL = frac(halfLambert * safeBands);
+                
+                float safeShadowSmooth = max(0.001, _ShadowStepSmooth);
+                float smoothBand = smoothstep(_ShadowStep - safeShadowSmooth, _ShadowStep + safeShadowSmooth, localNL);
+                float shadowNL = (bandIndex + smoothBand) / safeBands;
 
-                input.shadowCoord = TransformWorldToShadowCoord(input.positionWS);
-                float shadow = MainLightRealtimeShadow(input.shadowCoord);
+                float safeRimSmooth = max(0.001, _RimStepSmooth * 0.5);
+                float rimEdge = 1.0 - _RimStep;
+                float rim = smoothstep(rimEdge - safeRimSmooth, rimEdge + safeRimSmooth, 0.5 - NV);
                 
-                float rim = smoothstep((1-_RimStep) - _RimStepSmooth * 0.5, (1-_RimStep) + _RimStepSmooth * 0.5, 0.5 - NV);
-                
-                // Environment Reflections (Reflection Probe / Skybox)
-                float3 reflectVector = reflect(-V, N);
-                float perceptualRoughness = 1.0 - _Smoothness;
-                // Sample URP environment lighting (vector, position, roughness, occlusion)
-                float3 envReflection = GlossyEnvironmentReflection(reflectVector, input.positionWS, perceptualRoughness, 1.0);
-                // Mask the reflection intensity by the specular map and custom strength property
-                float3 reflection = envReflection * specularMap.rgb * _ReflectionStrength;
-                
-                // Lighting Composition
-                float3 diffuse = _MainLightColor.rgb * baseMap.rgb * _BaseColor.rgb * shadowNL * shadow;
-                float3 specular = _SpecularColor.rgb * specularMap.rgb * shadow * shadowNL * specularNH;
-                float3 ambient =  rim * _RimColor.rgb + SampleSH(N) * _BaseColor.rgb * baseMap.rgb;
+                float3 diffuse = mainLight.color * baseMap.rgb * _BaseColor.rgb * shadowNL * shadow;
+                // SAFE MATH: saturate the specular output so it can never exceed HDR limits and trigger Bloom supernovas
+                float3 specular = saturate(_SpecularColor.rgb * specularMap.rgb * shadow * shadowNL * specularNH);
+                float3 ambient = rim * _RimColor.rgb + SampleSH(N) * _BaseColor.rgb * baseMap.rgb;
             
-                // Add reflection to final output
-                float3 finalColor = diffuse + ambient + specular + reflection;
+                float3 finalColor = diffuse + ambient + specular;
                 finalColor = MixFog(finalColor, input.fogCoord);
                 
                 return float4(finalColor, 1.0);
@@ -206,20 +195,16 @@ Shader "Lpk/LightModel/ToonLightBase"
             ENDHLSL
         }
         
-        //Outline
         Pass
         {
             Name "Outline"
             Cull Front
-            Tags
-            {
-                "LightMode" = "SRPDefaultUnlit"
-            }
+            Tags { "LightMode" = "SRPDefaultUnlit" }
+            
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_fog
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             
             TEXTURE2D(_HeightMap); SAMPLER(sampler_HeightMap);
             
@@ -227,7 +212,6 @@ Shader "Lpk/LightModel/ToonLightBase"
             {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
-                float4 tangent : TANGENT;
                 float2 uv     : TEXCOORD0; 
             };
 
@@ -237,20 +221,16 @@ Shader "Lpk/LightModel/ToonLightBase"
                 float4 fogCoord : TEXCOORD0;
             };
             
-            float _OutlineWidth;
-            float4 _OutlineColor;
-            float _HeightAmplitude;
-            
             v2f vert(appdata v)
             {
                 v2f o;
                 
                 float height = SAMPLE_TEXTURE2D_LOD(_HeightMap, sampler_HeightMap, v.uv, 0).r;
                 v.vertex.xyz += v.normal * height * _HeightAmplitude;
+                v.vertex.xyz += v.normal * _OutlineWidth * 0.1;
                 
                 VertexPositionInputs vertexInput = GetVertexPositionInputs(v.vertex.xyz);
-                
-                o.pos = TransformObjectToHClip(float4(v.vertex.xyz + v.normal * _OutlineWidth * 0.1 ,1));
+                o.pos = vertexInput.positionCS;
                 o.fogCoord = ComputeFogFactor(vertexInput.positionCS.z);
 
                 return o;
@@ -261,9 +241,11 @@ Shader "Lpk/LightModel/ToonLightBase"
                 float3 finalColor = MixFog(_OutlineColor.rgb, i.fogCoord);
                 return float4(finalColor, 1.0);
             }
-            
             ENDHLSL
         }
+        
         UsePass "Universal Render Pipeline/Lit/ShadowCaster"
+        UsePass "Universal Render Pipeline/Lit/DepthOnly"
+        UsePass "Universal Render Pipeline/Lit/DepthNormals"
     }
 }
