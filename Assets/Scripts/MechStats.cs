@@ -21,13 +21,18 @@ public class MechStats : MonoBehaviour
     public float totalWeight = 30000f;
     public float baselineWeight = 30000f;
 
+    [Header("Quick Boost (QB) Stats")]
+    public float qbThrust = 80f;
+    public float qbEnergyDrain = 150f;
+    public float qbDuration = 0.35f;
+    public float qbReloadTime = 0.8f;
+
     [Header("Kinematics (Momentum)")]
     public float walkAcceleration = 25f;
     public float walkDeceleration = 30f;
     public float boostAcceleration = 10f;
     public float boostDeceleration = 15f;
 
-    // --- MOVEMENT REFINEMENTS ---
     [Tooltip("Penalty applied to walk speed when moving backwards (0.3 = 30% slower).")]
     [Range(0f, 1f)]
     public float backwardSpeedPenalty = 0.3f;

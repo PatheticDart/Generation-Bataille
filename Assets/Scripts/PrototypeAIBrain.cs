@@ -53,6 +53,11 @@ public class PrototypeAIBrain : MonoBehaviour
     [Header("Default Action Probabilities")]
     [Tooltip("Chance to randomly perform an evasive ground boost.")]
     [Range(0f, 100f)] public float boostChance = 40f;
+    // --- NEW QUICK BOOST VARS ---
+    [Tooltip("Chance AI will attempt a Quick Boost during combat.")]
+    [Range(0f, 100f)] public float quickBoostChance = 25f;
+    [Tooltip("If the AI Quick Boosts, this is the chance it will execute a Perfect QB.")]
+    [Range(0f, 100f)] public float perfectQuickBoostChance = 15f;
 
     [Header("Movement Order (Chip System)")]
     public List<MovementChip> movementOrderList = new List<MovementChip>();
@@ -119,8 +124,14 @@ public class PrototypeAIBrain : MonoBehaviour
         ManageEnergyHysteresis();
         ManageMovementRulesAndState();
 
-        if (isApproachingState) ExecuteApproachBehavior();
-        else ExecuteChipBehavior();
+        if (isApproachingState)
+        {
+            ExecuteApproachBehavior();
+        }
+        else
+        {
+            ExecuteChipBehavior();
+        }
 
         HandleRandomActions();
         ApplyFinalActions();
@@ -134,6 +145,7 @@ public class PrototypeAIBrain : MonoBehaviour
 
         foreach (Collider hit in hits)
         {
+            // Ignore self or children (like our own weapons)
             if (hit.transform.IsChildOf(transform)) continue;
 
             float dist = Vector3.Distance(transform.position, hit.transform.position);
@@ -150,6 +162,7 @@ public class PrototypeAIBrain : MonoBehaviour
     {
         Vector3 dirToTarget3D = currentTarget.position - transform.position;
 
+        // Flatten for body orientation
         Vector3 dirToTargetFlat = dirToTarget3D;
         dirToTargetFlat.y = 0f;
         if (dirToTargetFlat.sqrMagnitude > 0.1f)
@@ -157,6 +170,7 @@ public class PrototypeAIBrain : MonoBehaviour
             controller.lookTargetForward = dirToTargetFlat.normalized;
         }
 
+        // Handle physical camera/head pivot for actual visual tracking
         if (cameraPivot != null && dirToTarget3D.sqrMagnitude > 0.1f)
         {
             Quaternion targetPivotRot = Quaternion.LookRotation(dirToTarget3D.normalized);
@@ -177,8 +191,14 @@ public class PrototypeAIBrain : MonoBehaviour
             bool leftClear = !Physics.Linecast(aiEye - rightWhisker, targetEye, environmentLayer);
             bool rightClear = !Physics.Linecast(aiEye + rightWhisker, targetEye, environmentLayer);
 
-            if (leftClear && !rightClear) strafeDirection = -1f;
-            else if (rightClear && !leftClear) strafeDirection = 1f;
+            if (leftClear && !rightClear)
+            {
+                strafeDirection = -1f;
+            }
+            else if (rightClear && !leftClear)
+            {
+                strafeDirection = 1f;
+            }
         }
     }
 
@@ -197,6 +217,7 @@ public class PrototypeAIBrain : MonoBehaviour
 
         if (isBlockedLow || isBlockedMid)
         {
+            // Check if there is space to jump OVER it
             if (!Physics.Raycast(clearanceHeight, worldMoveDirection, checkDist + 1f, environmentLayer))
             {
                 Vector3 scanDownPos = transform.position + (worldMoveDirection.normalized * checkDist) + (Vector3.up * maxObstacleJumpHeight);
@@ -209,8 +230,10 @@ public class PrototypeAIBrain : MonoBehaviour
 
                 if (charController != null && charController.isGrounded && activeJumpTimer <= 0f)
                 {
+                    // Trigger a jump
                     activeJumpTimer = 0.1f;
 
+                    // If it's tall, trigger flight to clear it (if we have energy)
                     if (obstacleHeight > standardJumpHeight && !isConservingEnergy)
                     {
                         activeFlightTimer = 0.3f + Mathf.Lerp(0.1f, 0.6f, (obstacleHeight - standardJumpHeight) / (maxObstacleJumpHeight - standardJumpHeight));
@@ -218,6 +241,7 @@ public class PrototypeAIBrain : MonoBehaviour
                 }
                 else if (charController != null && !charController.isGrounded && activeFlightTimer <= 0f && !isConservingEnergy)
                 {
+                    // We are in the air, but might need more height to clear it
                     activeFlightTimer = 0.2f;
                 }
             }
@@ -318,6 +342,7 @@ public class PrototypeAIBrain : MonoBehaviour
         Vector3 desiredWorldMoveDir = Vector3.zero;
         float currentDistance = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z), new Vector3(currentTarget.position.x, 0, currentTarget.position.z));
 
+        // ELEVATION CHECK
         float myElevatedY = transform.position.y + eyeHeight;
         float targetY = currentTarget.root.position.y + currentChip.relativeElevation;
 
@@ -329,7 +354,7 @@ public class PrototypeAIBrain : MonoBehaviour
             }
             else if (!charController.isGrounded)
             {
-                activeFlightTimer = 0.2f;
+                activeFlightTimer = 0.2f; // Fly up!
             }
         }
 
@@ -340,7 +365,10 @@ public class PrototypeAIBrain : MonoBehaviour
             if (currentDistance > activeTargetRange + 5f) zInput = 1f;
             else if (currentDistance < activeTargetRange - 5f) zInput = -1f;
 
-            if (Random.Range(0f, 100f) < 2f) strafeDirection *= -1f;
+            if (Random.Range(0f, 100f) < 2f)
+            {
+                strafeDirection *= -1f;
+            }
 
             Vector3 localIntent = new Vector3(strafeDirection, 0f, zInput).normalized;
             Vector3 forward = controller.lookTargetForward;
@@ -367,6 +395,7 @@ public class PrototypeAIBrain : MonoBehaviour
 
         if (!hasLineOfSight && currentChip.actionType == MovementActionType.MoveForward)
         {
+            // Force strafe to find LOS
             Vector3 right = Vector3.Cross(Vector3.up, controller.lookTargetForward);
             desiredWorldMoveDir += (right * strafeDirection);
             desiredWorldMoveDir.Normalize();
@@ -426,6 +455,13 @@ public class PrototypeAIBrain : MonoBehaviour
                 {
                     activeBoostTimer = Random.Range(1f, 3f);
                 }
+
+                // --- NEW: QUICK BOOST AI ROLL ---
+                if (Random.Range(0f, 100f) <= quickBoostChance)
+                {
+                    bool isPerfect = Random.Range(0f, 100f) <= perfectQuickBoostChance;
+                    controller.TriggerQuickBoost(isPerfect);
+                }
             }
         }
     }
@@ -445,8 +481,14 @@ public class PrototypeAIBrain : MonoBehaviour
         if (activeFlightTimer > 0f)
         {
             activeFlightTimer -= Time.deltaTime;
-            if (hasSafeEnergy) shouldHoldJump = true;
-            else activeFlightTimer = 0f;
+            if (hasSafeEnergy)
+            {
+                shouldHoldJump = true;
+            }
+            else
+            {
+                activeFlightTimer = 0f;
+            }
         }
 
         controller.isJumping = shouldHoldJump;

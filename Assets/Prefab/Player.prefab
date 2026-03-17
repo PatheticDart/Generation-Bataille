@@ -2716,6 +2716,10 @@ MonoBehaviour:
   jumpDelay: 0.25
   totalWeight: 30000
   baselineWeight: 30000
+  qbThrust: 150
+  qbEnergyDrain: 100
+  qbDuration: 0.1
+  qbReloadTime: 0.8
   walkAcceleration: 100
   walkDeceleration: 150
   boostAcceleration: 250
@@ -2748,6 +2752,8 @@ MonoBehaviour:
   isJumping: 0
   restrictTo8Directions: 1
   cameraEffects: {fileID: 7960159375031588431}
+  isQuickBoosting: 0
+  isPerfectQuickBoosting: 0
   thrusterBufferTime: 0.1
   bunnyHopWindow: 0.1
   boostToJumpDelay: 0.2
@@ -2765,6 +2771,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4745a1512a7801a458b336912805ff80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerBrain
+  activeControlScheme: 1
+  doubleTapWindow: 0.3
+  perfectQBHoldTime: 0.5
+  perfectQBReleaseWindow: 0.3
   cinemachineFollowTarget: {fileID: 3369438313961492974}
   mouseSensitivity: 0.1
   controllerSensitivity: 150
