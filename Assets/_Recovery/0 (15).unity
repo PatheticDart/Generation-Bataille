@@ -1592,7 +1592,7 @@ GameObject:
   - component: {fileID: 51035613}
   - component: {fileID: 51035614}
   m_Layer: 13
-  m_Name: '#Environment'
+  m_Name: Environment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -35379,8 +35379,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechUI
   mechStats: {fileID: 2136971441}
   mechController: {fileID: 2136971442}
-  mechWeaponManager: {fileID: 0}
-  weaponManager: {fileID: 0}
+  weaponManager: {fileID: 2136971437}
   energySlider: {fileID: 302859746}
   energyFillImage: {fileID: 1930596658}
   normalColor: {r: 0, g: 1, b: 0, a: 1}
@@ -35395,14 +35394,14 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   displayAsKMH: 1
-  leftArmAmmoTexts: []
-  rightArmAmmoTexts: []
-  leftBackAmmoTexts: []
-  rightBackAmmoTexts: []
-  leftArmCompactTexts: []
-  rightArmCompactTexts: []
-  leftBackCompactTexts: []
-  rightBackCompactTexts: []
+  leftArmAmmoTexts:
+  - {fileID: 1154252077}
+  rightArmAmmoTexts:
+  - {fileID: 1008082190}
+  leftBackAmmoTexts:
+  - {fileID: 857553877}
+  rightBackAmmoTexts:
+  - {fileID: 1978785154}
   activeWeaponAlpha: 1
   inactiveWeaponAlpha: 0.5
 --- !u!114 &1068148213
@@ -37688,8 +37687,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechUI
   mechStats: {fileID: 2136971441}
   mechController: {fileID: 2136971442}
-  mechWeaponManager: {fileID: 0}
-  weaponManager: {fileID: 0}
+  weaponManager: {fileID: 2136971437}
   energySlider: {fileID: 135643530}
   energyFillImage: {fileID: 1336509236}
   normalColor: {r: 0, g: 1, b: 0, a: 1}
@@ -37704,14 +37702,14 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   displayAsKMH: 1
-  leftArmAmmoTexts: []
-  rightArmAmmoTexts: []
-  leftBackAmmoTexts: []
-  rightBackAmmoTexts: []
-  leftArmCompactTexts: []
-  rightArmCompactTexts: []
-  leftBackCompactTexts: []
-  rightBackCompactTexts: []
+  leftArmAmmoTexts:
+  - {fileID: 2086384163}
+  rightArmAmmoTexts:
+  - {fileID: 1524900214}
+  leftBackAmmoTexts:
+  - {fileID: 1855452407}
+  rightBackAmmoTexts:
+  - {fileID: 195453869}
   activeWeaponAlpha: 1
   inactiveWeaponAlpha: 0.5
 --- !u!114 &1155018048
@@ -44121,7 +44119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.ProbeVolumePerSceneData
   serializedBakingSet: {fileID: 11400000, guid: a2ff757a62f0d1843ab83438cf5c8d66, type: 2}
-  sceneGUID: 99c9720ab356a0642a771bea13969a05
+  sceneGUID: 909cc1db645e4374288dcc95a02de724
   obsoleteAsset: {fileID: 0}
   obsoleteCellSharedDataAsset: {fileID: 0}
   obsoleteCellSupportDataAsset: {fileID: 0}
@@ -68963,14 +68961,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 8572363042151226, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: m_StopNaN
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8572363042151226, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: m_RenderPostProcessing
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1441388170710831350, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_Name
-      value: //Player
+      value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
-      propertyPath: rightBackWeapon
-      value: 
-      objectReference: {fileID: 11400000, guid: e9ad598c56a310f40b997fccc01a3904, type: 2}
     - target: {fileID: 3328027176561732157, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: brakeSlideDeceleration
       value: 3
@@ -69025,11 +69027,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8756377758456706338, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: gamepadDeadzone
-      value: 0.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 8756377758456706338, guid: 80496d6bc88cde24babae56a69323157, type: 3}
-      propertyPath: activeControlScheme
-      value: 0
+      value: 0.4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -70461,63 +70459,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4166156634510245330}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &3112114368280149439
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 116883504142496098, guid: 2c3eeb0589326784f94ef37cfc1d27b4, type: 3}
-      propertyPath: m_Name
-      value: ///Essential
-      objectReference: {fileID: 0}
-    - target: {fileID: 2918551080104841684, guid: 2c3eeb0589326784f94ef37cfc1d27b4, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2918551080104841684, guid: 2c3eeb0589326784f94ef37cfc1d27b4, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2918551080104841684, guid: 2c3eeb0589326784f94ef37cfc1d27b4, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2918551080104841684, guid: 2c3eeb0589326784f94ef37cfc1d27b4, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2918551080104841684, guid: 2c3eeb0589326784f94ef37cfc1d27b4, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2918551080104841684, guid: 2c3eeb0589326784f94ef37cfc1d27b4, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2918551080104841684, guid: 2c3eeb0589326784f94ef37cfc1d27b4, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2918551080104841684, guid: 2c3eeb0589326784f94ef37cfc1d27b4, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2918551080104841684, guid: 2c3eeb0589326784f94ef37cfc1d27b4, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2918551080104841684, guid: 2c3eeb0589326784f94ef37cfc1d27b4, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 2c3eeb0589326784f94ef37cfc1d27b4, type: 3}
 --- !u!33 &3118268057071413995
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -76475,6 +76416,8 @@ SceneRoots:
   m_Roots:
   - {fileID: 410087041}
   - {fileID: 1748971260}
+  - {fileID: 51035613}
+  - {fileID: 1493234208601943067}
   - {fileID: 2505749524426059375}
   - {fileID: 2136971443}
   - {fileID: 625890013}
@@ -76483,6 +76426,3 @@ SceneRoots:
   - {fileID: 543450652823475490}
   - {fileID: 1312730594}
   - {fileID: 629927277}
-  - {fileID: 51035613}
-  - {fileID: 3112114368280149439}
-  - {fileID: 1493234208601943067}

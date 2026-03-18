@@ -23,9 +23,11 @@ public class PlayerBrain : MonoBehaviour
     [Tooltip("Assign the empty GameObject the Cinemachine Virtual Camera is set to Follow")]
     public Transform cinemachineFollowTarget;
 
-    [Header("Look Sensitivities")]
+    [Header("Sensitivities & Deadzones")]
     public float mouseSensitivity = 0.1f;
     public float controllerSensitivity = 150f;
+    [Tooltip("Filters out stick snap-back on gamepads to prevent accidental coasting direction changes.")]
+    public float gamepadDeadzone = 0.25f;
 
     [Header("Movement Input Action References")]
     public InputActionReference moveAction;
@@ -44,15 +46,16 @@ public class PlayerBrain : MonoBehaviour
 
     // --- INPUT STATE BUFFERS ---
     private float lastBoostTapTime = -10f;
-    private float lastBoostReleaseTime = -10f; // NEW: Tracks exactly when the boost key was let go
+    private float lastBoostReleaseTime = -10f;
     private float boostHoldStartTime = 0f;
     private bool isChargingBoostQB = false;
 
     private float lastJumpTapTime = -10f;
     private float jumpHoldStartTime = 0f;
     private bool isChargingJumpQB = false;
-    
-    private bool doubleTapFlightActive = false; 
+
+    private bool doubleTapFlightActive = false;
+    private bool stationaryJumpLock = false;
 
     void OnEnable()
     {
@@ -115,6 +118,17 @@ public class PlayerBrain : MonoBehaviour
 
         // --- MOVEMENT & ACTIONS ---
         Vector2 moveValue = moveAction.action.ReadValue<Vector2>();
+
+        // Check if the input is coming from a Gamepad
+        bool isGamepad = moveAction.action.activeControl != null && moveAction.action.activeControl.device is Gamepad;
+
+        // Apply aggressive deadzone specifically for Gamepads to filter out thumbstick snap-back
+        if (isGamepad && moveValue.magnitude < gamepadDeadzone)
+        {
+            moveValue = Vector2.zero;
+        }
+
+        // RESTORED: .normalized forces the animations to be fully on or off, stopping micro-adjustments!
         controller.moveInput = new Vector3(moveValue.x, 0, moveValue.y).normalized;
 
         if (mainCamera != null)
@@ -156,7 +170,7 @@ public class PlayerBrain : MonoBehaviour
         {
             float holdDuration = Time.time - boostHoldStartTime;
             bool isPerfect = holdDuration >= perfectQBHoldTime && holdDuration <= (perfectQBHoldTime + perfectQBReleaseWindow);
-            
+
             controller.TriggerQuickBoost(isPerfect);
             isChargingBoostQB = false;
         }
@@ -176,15 +190,21 @@ public class PlayerBrain : MonoBehaviour
         {
             float holdDuration = Time.time - jumpHoldStartTime;
             bool isPerfect = holdDuration >= perfectQBHoldTime && holdDuration <= (perfectQBHoldTime + perfectQBReleaseWindow);
-            
+
             controller.TriggerQuickBoost(isPerfect);
             isChargingJumpQB = false;
         }
 
         if (boostAction.action.WasPressedThisFrame())
         {
-            // NEW: Checks if the time since the first tap OR the time since the release was fast enough
-            if (Time.time - lastBoostTapTime <= doubleTapWindow || Time.time - lastBoostReleaseTime <= doubleTapWindow)
+            bool isStationary = controller.moveInput.magnitude < 0.1f;
+
+            if (isStationary)
+            {
+                doubleTapFlightActive = true;
+                stationaryJumpLock = true;
+            }
+            else if (Time.time - lastBoostTapTime <= doubleTapWindow || Time.time - lastBoostReleaseTime <= doubleTapWindow)
             {
                 doubleTapFlightActive = true;
             }
@@ -194,14 +214,20 @@ public class PlayerBrain : MonoBehaviour
         if (boostAction.action.WasReleasedThisFrame())
         {
             doubleTapFlightActive = false;
-            lastBoostReleaseTime = Time.time; // Store the exact moment the boost was let go
+            stationaryJumpLock = false;
+            lastBoostReleaseTime = Time.time;
+        }
+
+        if (controller.moveInput.magnitude > 0.1f)
+        {
+            stationaryJumpLock = false;
         }
 
         bool isHoldingBoost = boostAction.action.IsPressed();
         bool inAir = charController != null && !charController.isGrounded;
 
         controller.isJumping = (doubleTapFlightActive && isHoldingBoost) || (inAir && isHoldingBoost);
-        controller.isBoosting = isHoldingBoost;
+        controller.isBoosting = isHoldingBoost && !stationaryJumpLock;
     }
 
     private void HandleTargetRotation()

@@ -42,12 +42,11 @@ public class MechAnimator : MonoBehaviour
     {
         if (animator == null || mechController == null || characterController == null) return;
 
-        // 1. INPUT HANDLING & SMOOTHING
-        float targetX = mechController.moveInput.x;
-        float targetZ = mechController.moveInput.z;
+        // 1. INPUT HANDLING (READING FROM CUSTOM ANIMATOR INPUT IN CONTROLLER)
+        float targetX = mechController.animMoveInput.x;
+        float targetZ = mechController.animMoveInput.z;
 
-        // DYNAMIC SMOOTHING: If the player suddenly inputs the opposite direction, slow down the animation blend
-        // to simulate the mech shifting its heavy weight before changing directions.
+        // DYNAMIC SMOOTHING: Slow down blend when shifting heavy weight
         float currentBlendTimeX = (Mathf.Sign(currentAnimX) != Mathf.Sign(targetX) && Mathf.Abs(targetX) > 0.1f && Mathf.Abs(currentAnimX) > 0.1f)
             ? blendSmoothTime * 2.5f
             : blendSmoothTime;
@@ -62,16 +61,12 @@ public class MechAnimator : MonoBehaviour
         animator.SetFloat(moveXHash, currentAnimX);
         animator.SetFloat(moveZHash, currentAnimZ);
 
-        // 2. IS MOVING LOGIC 
-        bool playerWantsToMove = mechController.HasRecentMovementInput;
-        animator.SetBool(isMovingHash, playerWantsToMove && !mechController.isRecoveringFromLanding);
+        // 2. IS MOVING LOGIC
+        bool isAnimationMoving = mechController.animMoveInput.magnitude > 0.1f;
+        animator.SetBool(isMovingHash, isAnimationMoving && !mechController.isRecoveringFromLanding);
 
-        // 3. BOOST LOGIC 
-        bool hasEnergy = stats != null && !stats.energyIsDepleted;
-        bool canBoostOnGround = mechController.isBoosting && playerWantsToMove && characterController.isGrounded && hasEnergy;
-        bool finalIsBoostingState = characterController.isGrounded ? canBoostOnGround : (mechController.isBoosting && hasEnergy);
-
-        animator.SetBool(isBoostingHash, finalIsBoostingState);
+        // 3. BOOST LOGIC (Reads exact physics intent from the controller)
+        animator.SetBool(isBoostingHash, mechController.isAnimationBoosting);
 
         // 4. JUMP & GROUND STATES
         animator.SetBool(isJumpingHash, mechController.isPreparingToJump);
