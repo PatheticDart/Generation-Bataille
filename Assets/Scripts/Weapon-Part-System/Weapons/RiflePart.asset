@@ -25,5 +25,3 @@ MonoBehaviour:
   effectiveRange: 200
   firingInterval: 75
   ammoPrice: 45
-  bulletSpeed: 500
-  bulletPrefab: {fileID: 1248065161744127623, guid: 17a7957f1b799304594f0be12f86ea04, type: 3}

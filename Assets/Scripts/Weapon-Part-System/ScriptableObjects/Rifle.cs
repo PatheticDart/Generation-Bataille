@@ -11,11 +11,6 @@ public class Rifle : WeaponPart
     public int effectiveRange;
     public int firingInterval;
     public int ammoPrice;
-
-    [Header("Hidden Stats")]
-    public int bulletSpeed = 500;
-    public BaseProjectile bulletPrefab;
-    
 }
 
 [Serializable]

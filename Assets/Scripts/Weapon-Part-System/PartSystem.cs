@@ -206,14 +206,14 @@ public class PartSystem : MonoBehaviour
         if (leftBackWepNode != null && equippedParts.TryGetValue(PartType.BackL, out Part lBackPart))
         {
             GameObject wepObj = InstantiateWeaponData(lBackPart, leftBackWepNode, true); // true = Look for Left variant
-            RegisterIfWeapon(PartType.BackL, wepObj, lBackPart);
+            RegisterIfWeapon(PartType.BackL, wepObj);
         }
 
         Transform rightBackWepNode = FindDeepChild(currentTorso.transform, "RightBackWeaponNode");
         if (rightBackWepNode != null && equippedParts.TryGetValue(PartType.BackR, out Part rBackPart))
         {
             GameObject wepObj = InstantiateWeaponData(rBackPart, rightBackWepNode, false); // false = Look for Right variant
-            RegisterIfWeapon(PartType.BackR, wepObj, rBackPart);
+            RegisterIfWeapon(PartType.BackR, wepObj);
         }
 
         if (currentLeftArm != null && equippedParts.TryGetValue(PartType.ArmL, out Part lArmWepPart))
@@ -222,7 +222,7 @@ public class PartSystem : MonoBehaviour
             if (lArmWepNode != null)
             {
                 GameObject wepObj = InstantiateWeaponData(lArmWepPart, lArmWepNode, true);
-                RegisterIfWeapon(PartType.ArmL, wepObj, lArmWepPart); 
+                RegisterIfWeapon(PartType.ArmL, wepObj); 
             }
         }
 
@@ -232,7 +232,7 @@ public class PartSystem : MonoBehaviour
             if (rArmWepNode != null)
             {
                 GameObject wepObj = InstantiateWeaponData(rArmWepPart, rArmWepNode, false);
-                RegisterIfWeapon(PartType.ArmR, wepObj, rArmWepPart);
+                RegisterIfWeapon(PartType.ArmR, wepObj);
             }
         }
     }
@@ -313,21 +313,26 @@ public class PartSystem : MonoBehaviour
         return null;
     }
     // --- WEAPON REGISTRATION ---
-    private void RegisterIfWeapon(PartType slot, GameObject spawnedObj, Part partData) 
+    private void RegisterIfWeapon(PartType slot, GameObject spawnedObj)
     {
         if (spawnedObj == null) return;
 
-        if (spawnedObj.TryGetComponent(out FunctionalWeapon weapon))
+        if (spawnedObj.TryGetComponent<FunctionalWeapon>(out FunctionalWeapon weapon))
         {
-            // THIS IS THE MAGIC HANDOFF!
-            weapon.InitializeWeapon(partData); 
-
             switch (slot)
             {
-                case PartType.ArmL: _weaponManager.RegisterWeapon(true, 0, weapon); break;
-                case PartType.BackL: _weaponManager.RegisterWeapon(true, 1, weapon); break;
-                case PartType.ArmR: _weaponManager.RegisterWeapon(false, 0, weapon); break;
-                case PartType.BackR: _weaponManager.RegisterWeapon(false, 1, weapon); break;
+                case PartType.ArmL:
+                    _weaponManager.RegisterWeapon(true, 0, weapon);
+                    break;
+                case PartType.BackL:
+                    _weaponManager.RegisterWeapon(true, 1, weapon);
+                    break;
+                case PartType.ArmR:
+                    _weaponManager.RegisterWeapon(false, 0, weapon);
+                    break;
+                case PartType.BackR:
+                    _weaponManager.RegisterWeapon(false, 1, weapon);
+                    break;
             }
         }
     }
