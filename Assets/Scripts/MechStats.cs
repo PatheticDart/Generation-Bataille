@@ -33,6 +33,7 @@ public class MechStats : MonoBehaviour
     public float boostAcceleration = 10f;
     public float boostDeceleration = 15f;
 
+    // --- MOVEMENT REFINEMENTS ---
     [Tooltip("Penalty applied to walk speed when moving backwards (0.3 = 30% slower).")]
     [Range(0f, 1f)]
     public float backwardSpeedPenalty = 0.3f;
