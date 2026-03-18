@@ -5,6 +5,7 @@ public class MainMenuBtnManager : MonoBehaviour
 {
 
     public int mainSceneIndex = 1; //main game index 
+    public GameObject opponentSelectPanel;
     public GameObject mainMenuPanel, settingsPanel;
 
     void Start()
@@ -20,7 +21,16 @@ public class MainMenuBtnManager : MonoBehaviour
 
     public void StartGame()
     {
-        SceneManager.LoadScene(mainSceneIndex);
+        // SceneManager.LoadScene(mainSceneIndex);
+        mainMenuPanel.SetActive(false);
+        opponentSelectPanel.SetActive(true);
+    }
+
+    public void BackToMainMenu()
+    {
+        opponentSelectPanel.SetActive(false);
+        settingsPanel.SetActive(false);
+        mainMenuPanel.SetActive(true);
     }
 
     public void OpenSettings()

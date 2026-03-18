@@ -20,6 +20,7 @@ public class RotateObject : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         // Check if a new object should be spawned
         if (objectToRotate != lastObjectToRotate && objectToRotate != null)
         {
