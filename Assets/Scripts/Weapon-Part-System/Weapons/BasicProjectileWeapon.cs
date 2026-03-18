@@ -6,67 +6,73 @@ public class BasicProjectileWeapon : FunctionalWeapon
     [Tooltip("Where the projectile will spawn. Create an empty GameObject child for this.")]
     public Transform muzzlePoint;
 
-    // The data container passed in from the PartSystem
     private Rifle _rifleStats; 
     
-    private float _nextFireTime = 0f;
+    #region State
+        private int _currentAmmo;
+        private float _nextFireTime = 0f;
+    #endregion
 
     // 1. Receive and store the stats when the mech is initialized
     public override void InitializeWeapon(Part data)
     {
-        base.InitializeWeapon(data);
-        
-        // Cast the generic Part data to our specific Rifle data
+        base.InitializeWeapon(data); 
         _rifleStats = data as Rifle;
 
-        if (_rifleStats == null)
+        if (_rifleStats == null) return;
+
+        if (_rifleStats.bulletPrefab != null && GlobalProjectilePool.Instance != null)
         {
-            Debug.LogError($"[{gameObject.name}] Initialization failed: Provided data is not a Rifle Part!");
+            // 1. Calculate shots per second (1000ms / firing interval)
+            float shotsPerSecond = 1000f / _rifleStats.firingInterval;
+            
+            // 2. Multiply by the bullet's maximum lifetime
+            float maxAliveBullets = shotsPerSecond * _rifleStats.bulletPrefab.lifetime;
+            
+            // 3. Round up to the nearest whole number, and add a safety buffer of 5
+            int optimalPoolSize = Mathf.CeilToInt(maxAliveBullets) + 5;
+
+            // 4. Tell the global pool to warm up the exact optimal amount!
+            GlobalProjectilePool.Instance.PreWarm(_rifleStats.bulletPrefab, optimalPoolSize);
+            
+            Debug.Log($"[{gameObject.name}] Auto-calculated optimal pool size: {optimalPoolSize}");
         }
     }
 
-    // 2. Handle the firing logic using the ScriptableObject stats
     public override void OnFireHeld()
     {
         if (_rifleStats == null) return;
 
-        if (Time.time >= _nextFireTime)
+        // Check if the fire rate timer has passed AND if we actually have bullets left
+        if (Time.time >= _nextFireTime && _currentAmmo > 0)
         {
             Fire();
-            
-            // Assuming firingInterval is in milliseconds (e.g., 100 for 10 shots a second)
             _nextFireTime = Time.time + (_rifleStats.firingInterval / 1000f);
         }
-    }
-
-    public override void OnFirePressed()
-    {
-        // Optional: If you want pulling the trigger to immediately fire 
-        // regardless of the automatic fire rate, you can put a check here.
+        else if (_currentAmmo <= 0 && Time.time >= _nextFireTime)
+        {
+            // TODO: Play an "empty magazine click" sound effect here!
+        }
     }
 
     private void Fire()
     {
-        if (muzzlePoint == null)
+        if (muzzlePoint == null || _rifleStats.bulletPrefab == null) return;
+
+        if (GlobalProjectilePool.Instance == null)
         {
-            Debug.LogWarning($"{gameObject.name}: Missing Muzzle Point!");
+            Debug.LogError("GlobalProjectilePool is missing from the scene!");
             return;
         }
 
-        if (_rifleStats.bulletPrefab == null)
-        {
-            Debug.LogWarning($"{gameObject.name}: Missing Bullet Prefab in the Rifle ScriptableObject!");
-            return;
-        }
+        _currentAmmo--;
 
-        // Spawn the exact projectile defined in your Garage/ScriptableObject
-        BaseProjectile proj = Instantiate(_rifleStats.bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
+        BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(_rifleStats.bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
 
         // Pass the stats from the gun into the newly spawned bullet
         proj.SetupStats(_rifleStats.attackPower, _rifleStats.bulletSpeed);
+        proj.SetPrefabReference(_rifleStats.bulletPrefab);
 
-        // TODO: Ammo depletion logic goes here
-
-        // Optional: Play sound or muzzle flash particle effect here
+        // TODO: Play sound or muzzle flash particle effect here
     }
 }
