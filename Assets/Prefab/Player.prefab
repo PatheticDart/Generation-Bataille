@@ -6179,7 +6179,7 @@ MonoBehaviour:
   m_RenderPostProcessing: 1
   m_Antialiasing: 2
   m_AntialiasingQuality: 2
-  m_StopNaN: 0
+  m_StopNaN: 1
   m_Dithering: 0
   m_ClearDepth: 1
   m_AllowXRRendering: 1
@@ -8607,7 +8607,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechUI
   mechStats: {fileID: 3328027176561732157}
   mechController: {fileID: 2730814866030396684}
-  weaponManager: {fileID: 7114393932837201338}
+  mechWeaponManager: {fileID: 7114393932837201338}
+  weaponManager: {fileID: 3414217044222115974}
   energySlider: {fileID: 5109409025447308917}
   energyFillImage: {fileID: 1340795376948933235}
   normalColor: {r: 0, g: 1, b: 0, a: 1}
@@ -8630,6 +8631,14 @@ MonoBehaviour:
   - {fileID: 2997400810746840380}
   rightBackAmmoTexts:
   - {fileID: 7312752858735102378}
+  leftArmCompactTexts:
+  - {fileID: 8517517353808793817}
+  rightArmCompactTexts:
+  - {fileID: 5894539552434491940}
+  leftBackCompactTexts:
+  - {fileID: 821487168247096622}
+  rightBackCompactTexts:
+  - {fileID: 7414911000158373366}
   activeWeaponAlpha: 1
   inactiveWeaponAlpha: 0.5
 --- !u!114 &305254860392059479

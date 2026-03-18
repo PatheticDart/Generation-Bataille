@@ -37489,7 +37489,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechUI
   mechStats: {fileID: 2136971441}
   mechController: {fileID: 2136971442}
-  weaponManager: {fileID: 2136971437}
+  weaponManager: {fileID: 0}
   energySlider: {fileID: 302859746}
   energyFillImage: {fileID: 1930596658}
   normalColor: {r: 0, g: 1, b: 0, a: 1}
@@ -37504,14 +37504,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   displayAsKMH: 1
-  leftArmAmmoTexts:
-  - {fileID: 1154252077}
-  rightArmAmmoTexts:
-  - {fileID: 1008082190}
-  leftBackAmmoTexts:
-  - {fileID: 857553877}
-  rightBackAmmoTexts:
-  - {fileID: 1978785154}
+  leftArmAmmoTexts: []
+  rightArmAmmoTexts: []
+  leftBackAmmoTexts: []
+  rightBackAmmoTexts: []
   activeWeaponAlpha: 1
   inactiveWeaponAlpha: 0.5
 --- !u!114 &1068148213
@@ -39797,7 +39793,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechUI
   mechStats: {fileID: 2136971441}
   mechController: {fileID: 2136971442}
-  weaponManager: {fileID: 2136971437}
+  weaponManager: {fileID: 0}
   energySlider: {fileID: 135643530}
   energyFillImage: {fileID: 1336509236}
   normalColor: {r: 0, g: 1, b: 0, a: 1}
@@ -39812,14 +39808,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   displayAsKMH: 1
-  leftArmAmmoTexts:
-  - {fileID: 2086384163}
-  rightArmAmmoTexts:
-  - {fileID: 1524900214}
-  leftBackAmmoTexts:
-  - {fileID: 1855452407}
-  rightBackAmmoTexts:
-  - {fileID: 195453869}
+  leftArmAmmoTexts: []
+  rightArmAmmoTexts: []
+  leftBackAmmoTexts: []
+  rightBackAmmoTexts: []
   activeWeaponAlpha: 1
   inactiveWeaponAlpha: 0.5
 --- !u!114 &1155018048
@@ -72669,14 +72661,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 8572363042151226, guid: 80496d6bc88cde24babae56a69323157, type: 3}
-      propertyPath: m_StopNaN
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8572363042151226, guid: 80496d6bc88cde24babae56a69323157, type: 3}
-      propertyPath: m_RenderPostProcessing
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1441388170710831350, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_Name
       value: //Player
