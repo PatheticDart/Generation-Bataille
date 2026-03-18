@@ -21,7 +21,9 @@ MonoBehaviour:
   allowedLocations: 6
   ammoType: 0
   attackPower: 0
-  ammo: 0
+  ammo: 12
   effectiveRange: 0
   firingInterval: 0
   ammoPrice: 0
+  bulletSpeed: 500
+  bulletPrefab: {fileID: 2573111247287563323, guid: db0969aa8507d4d4fafeaec9fc9dac6b, type: 3}
