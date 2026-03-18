@@ -12,10 +12,7 @@ public class MissileArrayWeapon : FunctionalWeapon
     [Tooltip("Time between each missile leaving the tube in a single burst.")]
     public float staggerTime = 0.1f;
 
-    [Header("Testing (No FCS Yet)")]
-    [Tooltip("Change this to test how the array handles partial lock-ons.")]
-    public int simulatedLocks = 4;
-
+    private FCSLockBox _fcs;
     private Rifle _missileStats; 
     private float _nextFireTime = 0f;
     private float _nextStaggerTime = 0f;
@@ -25,11 +22,16 @@ public class MissileArrayWeapon : FunctionalWeapon
     private int _currentBarrelIndex = 0;
     private int _missilesToFireThisBurst = 0;
     private int _missilesFiredSoFar = 0;
+    
+    // NEW: The weapon must remember who we were looking at when the trigger was pulled!
+    private Transform _burstTarget;
 
     public override void InitializeWeapon(Part data)
     {
         base.InitializeWeapon(data); 
         _missileStats = data as Rifle;
+        
+        _fcs = transform.root.GetComponentInChildren<FCSLockBox>();
 
         if (_missileStats != null && _missileStats.bulletPrefab != null && GlobalProjectilePool.Instance != null)
         {
@@ -37,20 +39,26 @@ public class MissileArrayWeapon : FunctionalWeapon
         }
     }
 
-    // Moved to OnFirePressed so it only takes a single click!
     public override void OnFirePressed()
     {
         if (_missileStats == null || muzzlePoints.Count == 0) return;
 
-        // Only start a new salvo if we aren't currently firing one, the weapon cooled down, and we have ammo
         if (!_isFiringBurst && Time.time >= _nextFireTime && currentResource > 0)
         {
-            // --- FCS LOCK SIMULATION ---
-            // TODO: Later, we will replace 'simulatedLocks' with: fcsLockBox.GetCurrentLockCount()
-            int currentLocks = simulatedLocks; 
-            
-            // Calculate the exact size of the salvo. 
-            // It takes the SMALLEST number out of: your locks, your tubes, or your remaining ammo.
+            int currentLocks = 1; 
+            _burstTarget = null; // Default to no target (dumb-fire)
+
+            if (_fcs != null && _fcs.isHardLocked)
+            {
+                currentLocks = _fcs.currentLockCount;
+                
+                // 1. SAVE THE TARGET!
+                _burstTarget = _fcs.currentTarget; 
+                
+                // 2. Now it is safe to reset the FCS
+                _fcs.ConsumeLocks(); 
+            }
+
             _missilesToFireThisBurst = Mathf.Min(currentLocks, muzzlePoints.Count, Mathf.FloorToInt(currentResource));
             
             if (_missilesToFireThisBurst > 0)
@@ -58,12 +66,11 @@ public class MissileArrayWeapon : FunctionalWeapon
                 _isFiringBurst = true;
                 _missilesFiredSoFar = 0;
                 _currentBarrelIndex = 0;
-                _nextStaggerTime = Time.time; // Force the first missile to fire immediately
+                _nextStaggerTime = Time.time; 
             }
         }
     }
 
-    // We use Unity's Update loop to handle the stagger so you don't have to hold the button
     private void Update()
     {
         if (_isFiringBurst && Time.time >= _nextStaggerTime)
@@ -71,10 +78,9 @@ public class MissileArrayWeapon : FunctionalWeapon
             FireMissileFromCurrentTube();
 
             _missilesFiredSoFar++;
-            _currentBarrelIndex++; // Move to the next tube
+            _currentBarrelIndex++; 
             _nextStaggerTime = Time.time + staggerTime;
 
-            // If we fired the amount we locked onto, OR we ran out of ammo mid-burst, stop.
             if (_missilesFiredSoFar >= _missilesToFireThisBurst || currentResource <= 0)
             {
                 _isFiringBurst = false;
@@ -99,17 +105,16 @@ public class MissileArrayWeapon : FunctionalWeapon
         proj.SetupStats(_missileStats.attackPower, _missileStats.bulletSpeed);
         proj.SetPrefabReference(_missileStats.bulletPrefab);
 
-        // Temporarily passing null since the FCS isn't built yet
+        // Pass the saved target instead of asking the FCS!
         if (proj is HomingMissile homingMissile)
         {
-            homingMissile.SetHomingData(null);
+            homingMissile.SetHomingData(_burstTarget);
         }
 
         currentResource--;
         NotifyResourceChange();
     }
 
-    // We leave these empty now!
     public override void OnFireHeld() { }
     public override void OnFireReleased() { } 
 }

@@ -1972,6 +1972,8 @@ MonoBehaviour:
   fcsRange: 300
   lockSpeed: 1
   fcsTurnRate: 3
+  maxMultiLocks: 6
+  multiLockInterval: 0.3
   softLockColor: {r: 0, g: 1, b: 0, a: 1}
   hardLockColor: {r: 1, g: 0, b: 0, a: 1}
   stickyThreshold: 2
@@ -69015,6 +69017,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8756377758456706338, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: activeControlScheme
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -72604,6 +72610,8 @@ MonoBehaviour:
   fcsRange: 300
   lockSpeed: 1
   fcsTurnRate: 120
+  maxMultiLocks: 6
+  multiLockInterval: 0.3
   softLockColor: {r: 0, g: 1, b: 0, a: 1}
   hardLockColor: {r: 1, g: 0, b: 0, a: 1}
   stickyThreshold: 0.2

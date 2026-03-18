@@ -13,13 +13,18 @@ public class FCSLockBox : MonoBehaviour
     public float lockSpeed = 1.5f;
     [Tooltip("Maximum tracking speed in degrees per second. Try 180 to 300 for a snappy feel.")]
     public float fcsTurnRate = 180f;
+    
+    // --- NEW MULTI-LOCK STATS ---
+    [Tooltip("Maximum number of targets/missiles the FCS can lock onto at once.")]
+    public int maxMultiLocks = 6;
+    [Tooltip("How fast subsequent locks are acquired after the first hard lock.")]
+    public float multiLockInterval = 0.3f;
 
     [Header("Colors")]
     public Color softLockColor = Color.green;
     public Color hardLockColor = Color.red;
 
     [Header("Mechanics")]
-    [Tooltip("If the FCS is within this many degrees of the center, it snaps instantly (prevents micro-jitter).")]
     public float stickyThreshold = 2f;
     public LayerMask targetLayer;
     public bool isPlayer = true;
@@ -34,12 +39,8 @@ public class FCSLockBox : MonoBehaviour
     public TextMeshProUGUI rangefinderText;
 
     [Header("Weapon UI Integration")]
-    [Tooltip("Drag the MechWeaponManager here to read the active weapon states.")]
     public MechWeaponManager weaponManager;
-
-    [Tooltip("Opacity level (0 to 1) for the weapon currently selected.")]
     public float activeWeaponAlpha = 1.0f;
-    [Tooltip("Opacity level (0 to 1) for the weapon currently stowed/deactivated.")]
     public float inactiveWeaponAlpha = 0.5f;
 
     public List<TextMeshProUGUI> leftArmAmmoTexts = new List<TextMeshProUGUI>();
@@ -53,6 +54,9 @@ public class FCSLockBox : MonoBehaviour
     public Transform currentTarget { get; private set; }
     public bool isSoftLocked { get; private set; }
     public bool isHardLocked { get; private set; }
+    
+    // --- NEW PUBLIC PROPERTY ---
+    public int currentLockCount { get; private set; } 
     private float currentLockTimer = 0f;
 
     void Start()
@@ -60,9 +64,7 @@ public class FCSLockBox : MonoBehaviour
         if (weaponManager == null && isPlayer) weaponManager = GetComponent<MechWeaponManager>();
 
         if (isPlayer && lockBoxUI != null)
-        {
             lockBoxUI.sizeDelta = new Vector2(fcsWidth * 15f, fcsHeight * 15f);
-        }
 
         if (isPlayer && reticleUI != null)
         {
@@ -76,29 +78,25 @@ public class FCSLockBox : MonoBehaviour
         UpdateFCSTrailingRotation();
         DetectAndManageTargets();
 
-        if (isPlayer)
-        {
-            UpdateUI();
-        }
+        if (isPlayer) UpdateUI();
+    }
+
+    // --- NEW METHOD FOR WEAPONS TO CALL ---
+    public void ConsumeLocks()
+    {
+        // Resets the lock count back to 0 so the FCS has to start acquiring them again
+        currentLockCount = 0;
+        currentLockTimer = 0f;
+        isHardLocked = false;
     }
 
     private void UpdateFCSTrailingRotation()
     {
         if (aimMaster == null) return;
-
-        // Calculate the angular distance between the FCS and the Camera
         float angleDifference = Quaternion.Angle(transform.rotation, aimMaster.rotation);
 
-        if (angleDifference <= stickyThreshold)
-        {
-            // Inside the buffer: Snap instantly to prevent floating-point jitter
-            transform.rotation = aimMaster.rotation;
-        }
-        else
-        {
-            // Outside the buffer: Trail behind using the fixed turn rate
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, aimMaster.rotation, fcsTurnRate * Time.deltaTime);
-        }
+        if (angleDifference <= stickyThreshold) transform.rotation = aimMaster.rotation;
+        else transform.rotation = Quaternion.RotateTowards(transform.rotation, aimMaster.rotation, fcsTurnRate * Time.deltaTime);
     }
 
     private void DetectAndManageTargets()
@@ -146,13 +144,23 @@ public class FCSLockBox : MonoBehaviour
                 isSoftLocked = true;
                 isHardLocked = false;
                 currentLockTimer = 0f;
+                currentLockCount = 0;
             }
             else
             {
-                if (!isHardLocked)
+                currentLockTimer += Time.deltaTime;
+                
+                // --- MULTI-LOCK ACCUMULATION LOGIC ---
+                if (currentLockTimer >= lockSpeed) 
                 {
-                    currentLockTimer += Time.deltaTime;
-                    if (currentLockTimer >= lockSpeed) isHardLocked = true;
+                    isHardLocked = true;
+                    
+                    // Calculate how many subsequent locks we've earned based on the interval
+                    float extraTime = currentLockTimer - lockSpeed;
+                    currentLockCount = 1 + Mathf.FloorToInt(extraTime / multiLockInterval);
+                    
+                    // Cap it at the FCS max
+                    currentLockCount = Mathf.Clamp(currentLockCount, 1, maxMultiLocks);
                 }
             }
         }
@@ -162,15 +170,14 @@ public class FCSLockBox : MonoBehaviour
             isSoftLocked = false;
             isHardLocked = false;
             currentLockTimer = 0f;
+            currentLockCount = 0;
         }
     }
 
     private void UpdateUI()
     {
         if (mainCamera == null || lockBoxUI == null || reticleUI == null) return;
-
         RectTransform canvasRect = (RectTransform)lockBoxUI.parent;
-
         Vector3 origin = mainCamera.transform.position;
         Vector3 projectionPoint = origin + transform.forward * 100f;
         Vector3 boxScreenPos = mainCamera.WorldToScreenPoint(projectionPoint);
@@ -188,27 +195,18 @@ public class FCSLockBox : MonoBehaviour
             if (enemyScreenPos.z > 0)
             {
                 reticleUI.gameObject.SetActive(true);
-
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, enemyScreenPos, mainCamera, out Vector2 reticleLocalPos);
                 reticleUI.localPosition = reticleLocalPos;
 
                 Color targetColor = isHardLocked ? hardLockColor : softLockColor;
 
-                foreach (Image img in reticleChildImages)
-                {
-                    if (img != null) img.color = targetColor;
-                }
-
-                foreach (TextMeshProUGUI txt in reticleChildTexts)
-                {
-                    if (txt != null) txt.color = targetColor;
-                }
+                foreach (Image img in reticleChildImages) if (img != null) img.color = targetColor;
+                foreach (TextMeshProUGUI txt in reticleChildTexts) if (txt != null) txt.color = targetColor;
 
                 if (weaponManager != null)
                 {
                     ApplyAmmoAlpha(leftArmAmmoTexts, targetColor, weaponManager.leftArmActive ? activeWeaponAlpha : inactiveWeaponAlpha);
                     ApplyAmmoAlpha(leftBackAmmoTexts, targetColor, !weaponManager.leftArmActive ? activeWeaponAlpha : inactiveWeaponAlpha);
-
                     ApplyAmmoAlpha(rightArmAmmoTexts, targetColor, weaponManager.rightArmActive ? activeWeaponAlpha : inactiveWeaponAlpha);
                     ApplyAmmoAlpha(rightBackAmmoTexts, targetColor, !weaponManager.rightArmActive ? activeWeaponAlpha : inactiveWeaponAlpha);
                 }
@@ -220,15 +218,9 @@ public class FCSLockBox : MonoBehaviour
                     rangefinderText.text = $"{distanceToTarget:F0}m";
                 }
             }
-            else
-            {
-                reticleUI.gameObject.SetActive(false);
-            }
+            else reticleUI.gameObject.SetActive(false);
         }
-        else
-        {
-            reticleUI.gameObject.SetActive(false);
-        }
+        else reticleUI.gameObject.SetActive(false);
     }
 
     private void ApplyAmmoAlpha(List<TextMeshProUGUI> textList, Color baseColor, float targetAlpha)
