@@ -19,12 +19,11 @@ public class MechController : MonoBehaviour
 
     [Header("Input (Driven by Player or AI)")]
     public Vector3 moveInput;
-    public Vector3 lookTargetForward; // Kept as a fallback
+    public Vector3 lookTargetForward;
     public bool isBoosting;
     public bool isJumping;
 
     [Header("Movement Settings")]
-    [Tooltip("Forces analog controller movement into 8 rigid directions to simulate a mechanical chassis.")]
     public bool restrictTo8Directions = true;
 
     [Header("Camera & Effects")]
@@ -38,7 +37,6 @@ public class MechController : MonoBehaviour
     private Vector3 qbDirection;
     private Vector3 worldQBDirection;
 
-    // Thruster Node Caching
     private List<GameObject> leftQBThrusters = new List<GameObject>();
     private List<GameObject> rightQBThrusters = new List<GameObject>();
     private List<GameObject> frontQBThrusters = new List<GameObject>();
@@ -52,6 +50,7 @@ public class MechController : MonoBehaviour
     private Vector3 currentHorizontalVelocity;
 
     public bool isRecoveringFromLanding { get; private set; }
+    public bool isBraking { get; private set; } // NEW: Differentiates a Brake from a Vertical Drop
     private float recoveryTimer = 0f;
 
     private Vector3 lastActiveMoveInput;
@@ -74,6 +73,10 @@ public class MechController : MonoBehaviour
 
     public float jumpInputBufferTime = 0.2f;
     private float lastJumpInputTime = -10f;
+
+    // NEW: Braking Timers
+    private bool pendingBrake = false;
+    private float timeSinceStoppedBoosting = 0f;
 
     public bool HasRecentMovementInput => Time.time <= lastMoveInputTime + thrusterBufferTime;
 
@@ -184,10 +187,7 @@ public class MechController : MonoBehaviour
 
     private void HandleBodyRotation()
     {
-        // 1. Grab the FCS direction if available, otherwise use the old fallback
         Vector3 targetForward = fcsLockBox != null ? fcsLockBox.forward : lookTargetForward;
-
-        // 2. Flatten the Y-axis so the mech doesn't physically lean backwards or forwards
         targetForward.y = 0f;
 
         if (targetForward.sqrMagnitude > 0.01f && mechBody != null)
@@ -218,7 +218,6 @@ public class MechController : MonoBehaviour
         bool currentIsJumping = isJumping;
         bool currentIsBoosting = isBoosting;
 
-        // --- 8-WAY MOVEMENT SNAP (ONLY WHEN WALKING) ---
         bool isWalkingState = controller.isGrounded && !currentIsBoosting;
 
         if (restrictTo8Directions && isWalkingState && currentMoveInput.magnitude > 0.1f)
@@ -238,12 +237,14 @@ public class MechController : MonoBehaviour
 
         Vector3 effectiveMoveInput = (currentMoveInput.magnitude > 0.1f) ? currentMoveInput : (HasRecentMovementInput ? lastActiveMoveInput : Vector3.zero);
 
+        // --- RECOVERY & BRAKING LOCK ---
         if (isRecoveringFromLanding)
         {
             recoveryTimer -= Time.deltaTime;
             if (recoveryTimer <= 0)
             {
                 isRecoveringFromLanding = false;
+                isBraking = false;
             }
             else
             {
@@ -256,87 +257,96 @@ public class MechController : MonoBehaviour
 
         bool canHorizontalBoost = currentIsBoosting && !stats.energyIsDepleted && (effectiveMoveInput.magnitude > 0 || !controller.isGrounded);
 
+        // --- BOOST STOP (BRAKE) DETECTION ---
         bool isActuallyBoostingOnGround = canHorizontalBoost && controller.isGrounded;
-        if (isActuallyBoostingOnGround && !wasActuallyBoostingLastFrame)
+        bool isActuallyQuickBoostingOnGround = isQuickBoosting && controller.isGrounded;
+
+        if (isActuallyBoostingOnGround || isActuallyQuickBoostingOnGround)
         {
-            boostStartTime = Time.time;
+            pendingBrake = true;
+            timeSinceStoppedBoosting = 0f;
         }
-        else if (!isActuallyBoostingOnGround && wasActuallyBoostingLastFrame)
+        else if (pendingBrake)
         {
-            boostEndTime = Time.time;
+            if (!controller.isGrounded)
+            {
+                pendingBrake = false; // Cancel brake if we walk off a ledge or jump
+            }
+            else
+            {
+                timeSinceStoppedBoosting += Time.deltaTime;
+                if (timeSinceStoppedBoosting >= stats.brakeBufferTime)
+                {
+                    // Trigger Brake!
+                    isRecoveringFromLanding = true;
+                    isBraking = true; // Flags it so we use the sliding friction instead of hard landing friction
+                    isPreparingToJump = false;
+                    lastJumpOrLandTime = -100f;
+
+                    float speedFactor = Mathf.Clamp01(currentHorizontalVelocity.magnitude / stats.boostHorizontalSpeed);
+                    float weightFactor = stats.totalWeight / stats.baselineWeight;
+
+                    recoveryTimer = Mathf.Clamp(Mathf.Lerp(stats.baseBrakeTime, stats.maxBrakeTime, speedFactor) * weightFactor, stats.baseBrakeTime, stats.maxBrakeTime);
+
+                    if (cameraEffects != null)
+                    {
+                        float shakeSeverity = Mathf.Lerp(0.5f, 1.5f, speedFactor) * weightFactor;
+                        cameraEffects.TriggerImpactShake(shakeSeverity);
+                    }
+
+                    pendingBrake = false;
+                }
+            }
         }
+
+        // --- TRACKING FOR JUMP DELAYS ---
+        if (isActuallyBoostingOnGround && !wasActuallyBoostingLastFrame) boostStartTime = Time.time;
+        else if (!isActuallyBoostingOnGround && wasActuallyBoostingLastFrame) boostEndTime = Time.time;
         wasActuallyBoostingLastFrame = isActuallyBoostingOnGround;
 
         bool isActuallyWalkingOnGround = !canHorizontalBoost && controller.isGrounded && (effectiveMoveInput.magnitude > 0);
-        if (isActuallyWalkingOnGround && !wasActuallyWalkingLastFrame)
-        {
-            walkStartTime = Time.time;
-        }
+        if (isActuallyWalkingOnGround && !wasActuallyWalkingLastFrame) walkStartTime = Time.time;
         wasActuallyWalkingLastFrame = isActuallyWalkingOnGround;
 
         float currentWalkSpeed = stats.walkSpeed;
-
-        if (controller.isGrounded && effectiveMoveInput.z < -0.1f)
-        {
-            currentWalkSpeed *= (1f - stats.backwardSpeedPenalty);
-        }
+        if (controller.isGrounded && effectiveMoveInput.z < -0.1f) currentWalkSpeed *= (1f - stats.backwardSpeedPenalty);
 
         float targetSpeed = canHorizontalBoost ? stats.boostHorizontalSpeed : currentWalkSpeed;
 
-        // --- DYNAMIC REFERENCE FRAME FOR MOVEMENT ---
         Vector3 referenceForward;
         Vector3 referenceRight;
 
         if (isWalkingState && mechBody != null)
         {
-            // Walking: Movement is bound to the physical chassis of the mech
             referenceForward = mechBody.forward;
             referenceRight = mechBody.right;
-
-            referenceForward.y = 0f;
-            referenceRight.y = 0f;
-            referenceForward.Normalize();
-            referenceRight.Normalize();
+            referenceForward.y = 0f; referenceRight.y = 0f;
+            referenceForward.Normalize(); referenceRight.Normalize();
         }
         else
         {
-            // Boosting/Flying: Movement chases the FCS Lockbox (or camera fallback)
             referenceForward = fcsLockBox != null ? fcsLockBox.forward : lookTargetForward;
             if (referenceForward == Vector3.zero) referenceForward = transform.forward;
-
-            referenceForward.y = 0f;
-            referenceForward.Normalize();
+            referenceForward.y = 0f; referenceForward.Normalize();
             referenceRight = Vector3.Cross(Vector3.up, referenceForward).normalized;
         }
 
         Vector3 targetDirection = (referenceForward * effectiveMoveInput.z + referenceRight * effectiveMoveInput.x).normalized;
         Vector3 targetVelocity = targetDirection * targetSpeed;
 
-        // --- ACCELERATION & VELOCITY ---
+        // --- ACCELERATION & SLIDING ---
         if (isRecoveringFromLanding && controller.isGrounded)
         {
-            currentHorizontalVelocity = Vector3.Lerp(currentHorizontalVelocity, Vector3.zero, stats.hardLandingSlideDeceleration * Time.deltaTime);
+            // Dynamically select the friction based on if we are Braking or vertically Hard Landing
+            float slideFriction = isBraking ? stats.brakeSlideDeceleration : stats.hardLandingSlideDeceleration;
+            currentHorizontalVelocity = Vector3.Lerp(currentHorizontalVelocity, Vector3.zero, slideFriction * Time.deltaTime);
         }
         else
         {
             float accelRate;
-            if (!controller.isGrounded)
-            {
-                accelRate = (effectiveMoveInput.magnitude > 0) ? stats.airAcceleration : stats.airDeceleration;
-            }
-            else
-            {
-                if (effectiveMoveInput.magnitude > 0)
-                {
-                    accelRate = canHorizontalBoost ? stats.boostAcceleration : stats.walkAcceleration;
-                }
-                else
-                {
-                    accelRate = canHorizontalBoost ? stats.boostDeceleration : stats.walkDeceleration;
-                }
-            }
+            if (!controller.isGrounded) accelRate = (effectiveMoveInput.magnitude > 0) ? stats.airAcceleration : stats.airDeceleration;
+            else accelRate = effectiveMoveInput.magnitude > 0 ? (canHorizontalBoost ? stats.boostAcceleration : stats.walkAcceleration) : (canHorizontalBoost ? stats.boostDeceleration : stats.walkDeceleration);
 
-            // --- ADDITIVE QUICK BOOST PHYSICS ---
             if (isQuickBoosting)
             {
                 float thrust = isPerfectQuickBoosting ? stats.qbThrust : (stats.qbThrust * 0.70f);
@@ -352,14 +362,12 @@ public class MechController : MonoBehaviour
 
         bool energyUsedThisFrame = false;
 
-        // --- JUMP LOGIC ---
         if (controller.isGrounded)
         {
             verticalVelocity = -2f;
 
             if (currentIsJumping) lastJumpInputTime = Time.time;
             bool hasBufferedJump = (Time.time <= lastJumpInputTime + jumpInputBufferTime);
-
             bool canBunnyHop = (Time.time <= lastJumpOrLandTime + bunnyHopWindow);
 
             bool isBoostJumpLocked = isActuallyBoostingOnGround && (Time.time < boostStartTime + boostToJumpDelay);
@@ -420,7 +428,7 @@ public class MechController : MonoBehaviour
         bool wasGroundedBeforeMove = controller.isGrounded;
         controller.Move(finalMove * Time.deltaTime);
 
-        // --- HARD LANDING IMPACT ---
+        // --- VERTICAL HARD LANDING IMPACT ---
         if (!wasGroundedBeforeMove && controller.isGrounded)
         {
             lastJumpOrLandTime = Time.time;
@@ -428,6 +436,7 @@ public class MechController : MonoBehaviour
             if (verticalVelocity <= stats.minHardLandingThreshold)
             {
                 isRecoveringFromLanding = true;
+                isBraking = false; // Overrides a brake with a true Hard Landing
                 isPreparingToJump = false;
 
                 lastJumpOrLandTime = -100f;

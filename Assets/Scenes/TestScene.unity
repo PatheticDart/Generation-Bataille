@@ -67455,6 +67455,7 @@ MonoBehaviour:
   cameraEffects: {fileID: 238367879}
   isQuickBoosting: 0
   isPerfectQuickBoosting: 0
+  brakeBufferWindow: 0.15
   thrusterBufferTime: 0.1
   bunnyHopWindow: 0.1
   boostToJumpDelay: 0.25
@@ -67496,6 +67497,10 @@ MonoBehaviour:
   boostDeceleration: 500
   backwardSpeedPenalty: 0.5
   hardLandingSlideDeceleration: 2
+  minBrakeSpeedThreshold: 15
+  brakeSlideDeceleration: 6
+  baseBrakeTime: 0.3
+  maxBrakeTime: 0.8
   airAcceleration: 150
   airDeceleration: 15
   minHardLandingThreshold: -80
@@ -69074,6 +69079,10 @@ PrefabInstance:
     - target: {fileID: 1441388170710831350, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 3328027176561732157, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: brakeSlideDeceleration
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4990922796757935852, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_AnchorMax.x
@@ -73628,6 +73637,7 @@ MonoBehaviour:
   cameraEffects: {fileID: 3069685175811353191}
   isQuickBoosting: 0
   isPerfectQuickBoosting: 0
+  brakeBufferWindow: 0.15
   thrusterBufferTime: 0.1
   bunnyHopWindow: 0.1
   boostToJumpDelay: 0.2
@@ -75153,6 +75163,10 @@ MonoBehaviour:
   boostDeceleration: 500
   backwardSpeedPenalty: 0.5
   hardLandingSlideDeceleration: 2
+  minBrakeSpeedThreshold: 15
+  brakeSlideDeceleration: 6
+  baseBrakeTime: 0.3
+  maxBrakeTime: 0.8
   airAcceleration: 150
   airDeceleration: 15
   minHardLandingThreshold: -80

@@ -37,18 +37,26 @@ public class MechStats : MonoBehaviour
     [Tooltip("Penalty applied to walk speed when moving backwards (0.3 = 30% slower).")]
     [Range(0f, 1f)]
     public float backwardSpeedPenalty = 0.3f;
-    [Tooltip("Friction multiplier during a hard landing slide. E.g., 2f for a long slide, 10f for a short stop.")]
-    public float hardLandingSlideDeceleration = 5f;
 
-    [Header("Air Kinematics")]
-    public float airAcceleration = 5f;
-    public float airDeceleration = 1.5f;
+    [Header("Braking (Boost Stop)")]
+    [Tooltip("Time before the mech hard-brakes after letting go of boost on the ground.")]
+    public float brakeBufferTime = 0.3f;
+    [Tooltip("Friction multiplier during a brake slide.")]
+    public float brakeSlideDeceleration = 5f;
+    public float baseBrakeTime = 0.4f;
+    public float maxBrakeTime = 1.0f;
 
     [Header("Landing & Impact")]
+    [Tooltip("Friction multiplier during a hard landing slide. E.g., 2f for a long slide, 10f for a short stop.")]
+    public float hardLandingSlideDeceleration = 5f;
     public float minHardLandingThreshold = -25f;
     public float maxHardLandingThreshold = -80f;
     public float baseHardLandingTime = 0.5f;
     public float maxHardLandingTime = 2.5f;
+
+    [Header("Air Kinematics")]
+    public float airAcceleration = 5f;
+    public float airDeceleration = 1.5f;
 
     private void Start()
     {
