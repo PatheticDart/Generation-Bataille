@@ -160,9 +160,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7011467395999629845}
-  - component: {fileID: 1248065161744127623}
+  - component: {fileID: 2955705441231836777}
+  - component: {fileID: 1308738950659927275}
   m_Layer: 0
-  m_Name: GrenadeBullet
+  m_Name: HomingMissile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -184,7 +185,34 @@ Transform:
   - {fileID: 7343282408090217781}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1248065161744127623
+--- !u!54 &2955705441231836777
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8331362034265100734}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &1308738950659927275
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -193,14 +221,62 @@ MonoBehaviour:
   m_GameObject: {fileID: 8331362034265100734}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 134a5b3b9cf780d4ea1a850778811bf8, type: 3}
+  m_Script: {fileID: 11500000, guid: 99522229b9b669540a636f4158dc2a6c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: '::'
+  m_EditorClassIdentifier: Assembly-CSharp::HomingMissile
   lifetime: 3
   damage: 50
-  speed: 100
-  useGravity: 0
-  gravityMultiplier: 1
-  hitMask:
+  curveDuration: 3
+  speedCurve:
     serializedVersion: 2
-    m_Bits: 14336
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.2
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxSpeed: 150
+  turnCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxTurnSpeed: 180
+  explosionRadius: 8
+  explosionForce: 1000
+  explosionEffectPrefab: {fileID: -1510230874400619309, guid: 3ace37360f306cb4aac03640550fa9ef, type: 3}

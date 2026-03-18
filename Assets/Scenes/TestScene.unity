@@ -35379,6 +35379,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechUI
   mechStats: {fileID: 2136971441}
   mechController: {fileID: 2136971442}
+  mechWeaponManager: {fileID: 0}
   weaponManager: {fileID: 0}
   energySlider: {fileID: 302859746}
   energyFillImage: {fileID: 1930596658}
@@ -35398,6 +35399,10 @@ MonoBehaviour:
   rightArmAmmoTexts: []
   leftBackAmmoTexts: []
   rightBackAmmoTexts: []
+  leftArmCompactTexts: []
+  rightArmCompactTexts: []
+  leftBackCompactTexts: []
+  rightBackCompactTexts: []
   activeWeaponAlpha: 1
   inactiveWeaponAlpha: 0.5
 --- !u!114 &1068148213
@@ -37683,6 +37688,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechUI
   mechStats: {fileID: 2136971441}
   mechController: {fileID: 2136971442}
+  mechWeaponManager: {fileID: 0}
   weaponManager: {fileID: 0}
   energySlider: {fileID: 135643530}
   energyFillImage: {fileID: 1336509236}
@@ -37702,6 +37708,10 @@ MonoBehaviour:
   rightArmAmmoTexts: []
   leftBackAmmoTexts: []
   rightBackAmmoTexts: []
+  leftArmCompactTexts: []
+  rightArmCompactTexts: []
+  leftBackCompactTexts: []
+  rightBackCompactTexts: []
   activeWeaponAlpha: 1
   inactiveWeaponAlpha: 0.5
 --- !u!114 &1155018048
@@ -67333,7 +67343,6 @@ MonoBehaviour:
   cameraEffects: {fileID: 238367879}
   isQuickBoosting: 0
   isPerfectQuickBoosting: 0
-  brakeBufferWindow: 0.15
   thrusterBufferTime: 0.1
   bunnyHopWindow: 0.1
   boostToJumpDelay: 0.25
@@ -67374,17 +67383,17 @@ MonoBehaviour:
   boostAcceleration: 250
   boostDeceleration: 500
   backwardSpeedPenalty: 0.5
-  hardLandingSlideDeceleration: 2
-  minBrakeSpeedThreshold: 15
+  brakeBufferTime: 0.3
   brakeSlideDeceleration: 6
   baseBrakeTime: 0.3
   maxBrakeTime: 0.8
-  airAcceleration: 150
-  airDeceleration: 15
+  hardLandingSlideDeceleration: 2
   minHardLandingThreshold: -80
   maxHardLandingThreshold: -180
   baseHardLandingTime: 0.5
   maxHardLandingTime: 2.5
+  airAcceleration: 150
+  airDeceleration: 15
 --- !u!143 &2136971442
 CharacterController:
   m_ObjectHideFlags: 0
@@ -68958,6 +68967,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: //Player
       objectReference: {fileID: 0}
+    - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: rightBackWeapon
+      value: 
+      objectReference: {fileID: 11400000, guid: e9ad598c56a310f40b997fccc01a3904, type: 2}
     - target: {fileID: 3328027176561732157, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: brakeSlideDeceleration
       value: 3
@@ -73572,7 +73585,6 @@ MonoBehaviour:
   cameraEffects: {fileID: 3069685175811353191}
   isQuickBoosting: 0
   isPerfectQuickBoosting: 0
-  brakeBufferWindow: 0.15
   thrusterBufferTime: 0.1
   bunnyHopWindow: 0.1
   boostToJumpDelay: 0.2
@@ -75097,17 +75109,17 @@ MonoBehaviour:
   boostAcceleration: 250
   boostDeceleration: 500
   backwardSpeedPenalty: 0.5
-  hardLandingSlideDeceleration: 2
-  minBrakeSpeedThreshold: 15
+  brakeBufferTime: 0.3
   brakeSlideDeceleration: 6
   baseBrakeTime: 0.3
   maxBrakeTime: 0.8
-  airAcceleration: 150
-  airDeceleration: 15
+  hardLandingSlideDeceleration: 2
   minHardLandingThreshold: -80
   maxHardLandingThreshold: -180
   baseHardLandingTime: 0.25
   maxHardLandingTime: 2.5
+  airAcceleration: 150
+  airDeceleration: 15
 --- !u!114 &7696119273953596950
 MonoBehaviour:
   m_ObjectHideFlags: 0

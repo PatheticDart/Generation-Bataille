@@ -9,6 +9,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 7522982781472501600, guid: 017c9fcd02ca72049806a4014da0bea6, type: 3}
+      propertyPath: playOnAwake
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7522982781472501600, guid: 017c9fcd02ca72049806a4014da0bea6, type: 3}
       propertyPath: UVModule.tilesX
       value: 10
       objectReference: {fileID: 0}
@@ -88,9 +92,38 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: d9420d6ef011f7042b0873f1bf9787bb, type: 2}
+    - target: {fileID: 7522982782318301002, guid: 017c9fcd02ca72049806a4014da0bea6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7522982782318301003, guid: 017c9fcd02ca72049806a4014da0bea6, type: 3}
+      propertyPath: playOnAwake
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3867138268855580864, guid: 017c9fcd02ca72049806a4014da0bea6, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7522982781472501662, guid: 017c9fcd02ca72049806a4014da0bea6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -1510230874400619309}
   m_SourcePrefab: {fileID: 100100000, guid: 017c9fcd02ca72049806a4014da0bea6, type: 3}
+--- !u!1 &1007127540951276732 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7522982781472501662, guid: 017c9fcd02ca72049806a4014da0bea6, type: 3}
+  m_PrefabInstance: {fileID: 7322019369622811426}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-1510230874400619309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1007127540951276732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ae56487ccd99ac4fa863a397bc84edb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PooledVFX
+  lifetime: 5

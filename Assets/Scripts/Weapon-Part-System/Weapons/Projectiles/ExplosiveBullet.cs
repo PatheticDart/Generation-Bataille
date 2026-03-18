@@ -7,7 +7,7 @@ public class ExplosiveBullet : RaycastProjectile
     public float explosionForce = 500f;
     
     [Tooltip("Optional: Drop a particle effect prefab here to spawn on impact.")]
-    public GameObject explosionEffectPrefab; 
+    public PooledVFX explosionEffectPrefab;
 
     public override void HandleHit(GameObject hitObject, Vector3 hitPoint, Vector3 hitNormal)
     {
@@ -18,10 +18,10 @@ public class ExplosiveBullet : RaycastProjectile
     private void Detonate(Vector3 point)
     {
         // 1. Play visual effect
-        if (explosionEffectPrefab != null)
+        // CHANGE THIS from Instantiate to GlobalVFXPool.Spawn:
+        if (explosionEffectPrefab != null && GlobalVFXPool.Instance != null)
         {
-            // Note: For a fully optimized game, you'd want to Pool your explosions too!
-            Instantiate(explosionEffectPrefab, point, Quaternion.identity);
+            GlobalVFXPool.Instance.Spawn(explosionEffectPrefab, point, Quaternion.identity);
         }
 
         // 2. Find everything in the blast radius
@@ -30,13 +30,12 @@ public class ExplosiveBullet : RaycastProjectile
         foreach (Collider col in caughtInBlast)
         {
             // Apply physical force if the object has a Rigidbody
-            if (col.TryGetComponent<Rigidbody>(out Rigidbody rb))
+            if (col.TryGetComponent(out Rigidbody rb))
             {
                 rb.AddExplosionForce(explosionForce, point, explosionRadius);
             }
 
             // TODO: Pass the `damage` variable to the object's health script here!
-            // Example: if (col.TryGetComponent<MechHealth>(out MechHealth hp)) hp.TakeDamage(damage);
         }
     }
 }
