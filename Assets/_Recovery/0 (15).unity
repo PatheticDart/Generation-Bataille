@@ -44119,7 +44119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.ProbeVolumePerSceneData
   serializedBakingSet: {fileID: 11400000, guid: a2ff757a62f0d1843ab83438cf5c8d66, type: 2}
-  sceneGUID: 99c9720ab356a0642a771bea13969a05
+  sceneGUID: 909cc1db645e4374288dcc95a02de724
   obsoleteAsset: {fileID: 0}
   obsoleteCellSharedDataAsset: {fileID: 0}
   obsoleteCellSupportDataAsset: {fileID: 0}
@@ -69027,11 +69027,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8756377758456706338, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: gamepadDeadzone
-      value: 0.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 8756377758456706338, guid: 80496d6bc88cde24babae56a69323157, type: 3}
-      propertyPath: activeControlScheme
-      value: 0
+      value: 0.4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

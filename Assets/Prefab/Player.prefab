@@ -2725,13 +2725,17 @@ MonoBehaviour:
   boostAcceleration: 250
   boostDeceleration: 500
   backwardSpeedPenalty: 0.5
+  brakeBufferTime: 0.3
+  brakeSlideDeceleration: 3
+  baseBrakeTime: 0.4
+  maxBrakeTime: 1
   hardLandingSlideDeceleration: 2
-  airAcceleration: 150
-  airDeceleration: 15
   minHardLandingThreshold: -80
   maxHardLandingThreshold: -220
   baseHardLandingTime: 0.25
   maxHardLandingTime: 2.5
+  airAcceleration: 150
+  airDeceleration: 15
 --- !u!114 &1607095534319946367
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2771,13 +2775,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4745a1512a7801a458b336912805ff80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerBrain
-  activeControlScheme: 1
+  activeControlScheme: 0
   doubleTapWindow: 0.3
   perfectQBHoldTime: 0.5
   perfectQBReleaseWindow: 0.3
   cinemachineFollowTarget: {fileID: 3369438313961492974}
   mouseSensitivity: 0.1
   controllerSensitivity: 150
+  gamepadDeadzone: 0.8
   moveAction: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   lookAction: {fileID: -5630151704836100654, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   jumpAction: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
@@ -6179,7 +6184,7 @@ MonoBehaviour:
   m_RenderPostProcessing: 1
   m_Antialiasing: 2
   m_AntialiasingQuality: 2
-  m_StopNaN: 0
+  m_StopNaN: 1
   m_Dithering: 0
   m_ClearDepth: 1
   m_AllowXRRendering: 1

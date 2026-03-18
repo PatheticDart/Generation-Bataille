@@ -22,6 +22,7 @@ public class MechController : MonoBehaviour
     public bool isJumping;
 
     [Header("Movement Settings")]
+    [Tooltip("If true, walking, coasting, and hard landings snap to 8-way directions. Boosting remains 360 free-form.")]
     public bool restrictTo8Directions = true;
 
     [Header("Camera & Effects")]
@@ -71,7 +72,7 @@ public class MechController : MonoBehaviour
     public float jumpInputBufferTime = 0.2f;
     private float lastJumpInputTime = -10f;
 
-    // --- NEW: COASTING & ANIMATION SYNC ---
+    // --- COASTING & ANIMATION SYNC ---
     public Vector3 animMoveInput { get; private set; }
     public bool isAnimationBoosting { get; private set; }
 
@@ -209,20 +210,23 @@ public class MechController : MonoBehaviour
         bool currentIsJumping = isJumping;
         bool wantsToBoost = isBoosting && !stats.energyIsDepleted;
 
-        // --- 1. DIRECTION SNAPPING & LOCKING ---
+        // --- 1. DIRECTION RECORDING & COAST LOCKING ---
         if (currentMoveInput.magnitude > 0.1f)
         {
             lastMoveInputTime = Time.time;
             lastActiveMoveInput = currentMoveInput;
 
-            if (restrictTo8Directions)
-            {
-                float angle = Mathf.Atan2(currentMoveInput.x, currentMoveInput.z) * Mathf.Rad2Deg;
-                angle = Mathf.Round(angle / 45f) * 45f;
-                currentMoveInput = new Vector3(Mathf.Sin(angle * Mathf.Deg2Rad), 0f, Mathf.Cos(angle * Mathf.Deg2Rad)).normalized;
-            }
+            // Always mathematically calculate the 8-way locked direction in the background
+            float angle = Mathf.Atan2(currentMoveInput.x, currentMoveInput.z) * Mathf.Rad2Deg;
+            angle = Mathf.Round(angle / 45f) * 45f;
+            lockedBoostDirection = new Vector3(Mathf.Sin(angle * Mathf.Deg2Rad), 0f, Mathf.Cos(angle * Mathf.Deg2Rad)).normalized;
 
-            lockedBoostDirection = currentMoveInput.normalized;
+            // Apply 8-way lock ONLY if walking (Boosting is free-form 360 degrees!)
+            bool isWalkingStateCheck = controller.isGrounded && !wantsToBoost;
+            if (restrictTo8Directions && isWalkingStateCheck)
+            {
+                currentMoveInput = lockedBoostDirection * currentMoveInput.magnitude;
+            }
         }
 
         // --- 2. RECOVERY LOCK ---
@@ -305,7 +309,7 @@ public class MechController : MonoBehaviour
 
         if (isDirectionalCoasting || isCoastingToBrake)
         {
-            effectiveMoveInput = lockedBoostDirection;
+            effectiveMoveInput = lockedBoostDirection; // Injects the locked 8-way direction into the physics & animator!
             if (effectiveMoveInput == Vector3.zero) effectiveMoveInput = Vector3.forward;
         }
         else if (currentMoveInput.magnitude < 0.1f)
