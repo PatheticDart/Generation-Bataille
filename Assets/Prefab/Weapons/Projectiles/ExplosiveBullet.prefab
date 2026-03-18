@@ -206,4 +206,4 @@ MonoBehaviour:
     m_Bits: 10240
   explosionRadius: 5
   explosionForce: 500
-  explosionEffectPrefab: {fileID: -1510230874400619309, guid: 3ace37360f306cb4aac03640550fa9ef, type: 3}
+  explosionEffectPrefab: {fileID: 1511278109059685584, guid: 57e5b83dfee152a47aedf7d83c83e9f5, type: 3}

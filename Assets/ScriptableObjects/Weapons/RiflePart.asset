@@ -23,7 +23,7 @@ MonoBehaviour:
   attackPower: 350
   ammo: 120
   effectiveRange: 200
-  firingInterval: 500
+  firingInterval: 250
   ammoPrice: 45
   bulletSpeed: 1500
   bulletPrefab: {fileID: 1248065161744127623, guid: 17a7957f1b799304594f0be12f86ea04, type: 3}
