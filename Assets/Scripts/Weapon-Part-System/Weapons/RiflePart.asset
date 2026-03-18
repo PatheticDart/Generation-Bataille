@@ -15,7 +15,7 @@ MonoBehaviour:
   partName: XLR-012 Taurus
   partDescription: A medium-range rifle, good all-rounder. Favored by Bataille rookies.
   price: 16000
-  weight: 500
+  weight: 250
   prefab: {fileID: 4309120590859779937, guid: 35df14322c2ebc04582f513b90dddfb2, type: 3}
   energyDrain: 10
   allowedLocations: 24
@@ -23,7 +23,7 @@ MonoBehaviour:
   attackPower: 350
   ammo: 120
   effectiveRange: 200
-  firingInterval: 75
+  firingInterval: 500
   ammoPrice: 45
-  bulletSpeed: 500
+  bulletSpeed: 1500
   bulletPrefab: {fileID: 1248065161744127623, guid: 17a7957f1b799304594f0be12f86ea04, type: 3}
