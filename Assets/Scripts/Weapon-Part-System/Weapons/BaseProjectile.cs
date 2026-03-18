@@ -6,45 +6,19 @@ public abstract class BaseProjectile : MonoBehaviour
     public float lifetime = 3f;
     public float damage = 50f;
 
-    protected BaseProjectile originalPrefabReference;
-    private float currentLifeTimer;
-
-    // Added 'virtual' so RaycastProjectile can tap into this
-    protected virtual void OnEnable()
+    public virtual void InitializeBullet()
     {
-        currentLifeTimer = lifetime;
-    }
-
-    public void SetPrefabReference(BaseProjectile prefabRef)
-    {
-        originalPrefabReference = prefabRef;
+        Destroy(gameObject, lifetime);
     }
 
     public virtual void SetupStats(float newDamage, float newSpeed)
     {
         damage = newDamage;
+        // We leave speed for the child classes to handle, since physics and hitscan handle speed differently
     }
 
-    protected virtual void Update()
-    {
-        currentLifeTimer -= Time.deltaTime;
-        if (currentLifeTimer <= 0)
-        {
-            ReturnToGlobalPool();
-        }
-    }
+    protected virtual void Update() {}
+    protected virtual void FixedUpdate() {}
 
     public abstract void HandleHit(GameObject hitObject, Vector3 hitPoint, Vector3 hitNormal);
-
-    protected void ReturnToGlobalPool()
-    {
-        if (GlobalProjectilePool.Instance != null && originalPrefabReference != null)
-        {
-            GlobalProjectilePool.Instance.ReturnToPool(this, originalPrefabReference);
-        }
-        else
-        {
-            gameObject.SetActive(false); 
-        }
-    }
 }
