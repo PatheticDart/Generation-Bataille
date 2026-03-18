@@ -53,6 +53,7 @@ public class PrototypeAIBrain : MonoBehaviour
     [Header("Default Action Probabilities")]
     [Tooltip("Chance to randomly perform an evasive ground boost.")]
     [Range(0f, 100f)] public float boostChance = 40f;
+    // --- NEW QUICK BOOST VARS ---
     [Tooltip("Chance AI will attempt a Quick Boost during combat.")]
     [Range(0f, 100f)] public float quickBoostChance = 25f;
     [Tooltip("If the AI Quick Boosts, this is the chance it will execute a Perfect QB.")]
@@ -437,6 +438,8 @@ public class PrototypeAIBrain : MonoBehaviour
         {
             activeTargetAngle = chip.targetAngle + Random.Range(-chip.angleUncertainty, chip.angleUncertainty);
         }
+
+        Debug.Log($"[AI Brain] Loaded Chip {currentChipIndex}: {chip.actionType} | Duration: {chip.duration}s | Active Target Range: {activeTargetRange:F1}m");
     }
 
     private void HandleRandomActions()
@@ -453,6 +456,7 @@ public class PrototypeAIBrain : MonoBehaviour
                     activeBoostTimer = Random.Range(1f, 3f);
                 }
 
+                // --- NEW: QUICK BOOST AI ROLL ---
                 if (Random.Range(0f, 100f) <= quickBoostChance)
                 {
                     bool isPerfect = Random.Range(0f, 100f) <= perfectQuickBoostChance;

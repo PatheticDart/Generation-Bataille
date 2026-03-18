@@ -1522,7 +1522,7 @@ MonoBehaviour:
   fcsHeight: 30
   fcsRange: 300
   lockSpeed: 1
-  fcsTurnRate: 120
+  fcsTurnRate: 3
   softLockColor: {r: 0, g: 1, b: 0, a: 1}
   hardLockColor: {r: 1, g: 0, b: 0, a: 1}
   stickyThreshold: 1.5
@@ -4478,9 +4478,6 @@ MonoBehaviour:
   landingShakeBaseAmplitude: 6
   landingShakeFrequency: 1
   shakeDecayRate: 5
-  footstepShakeBaseAmplitude: 1
-  footstepShakeFrequency: 12
-  footstepDecayRate: 12
 --- !u!114 &238367880
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20154,7 +20151,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.ProbeVolumePerSceneData
   serializedBakingSet: {fileID: 0}
-  sceneGUID: 0d2151bb51ac6504fb4f9b8b279a45f3
+  sceneGUID: 99c9720ab356a0642a771bea13969a05
   obsoleteAsset: {fileID: 0}
   obsoleteCellSharedDataAsset: {fileID: 0}
   obsoleteCellSupportDataAsset: {fileID: 0}
@@ -30546,51 +30543,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   cameraPivot: {fileID: 1150575358}
   aimTrackingSpeed: 15
-  eyeHeight: 2
   targetLayer:
     serializedVersion: 2
     m_Bits: 64
   detectionRadius: 500
   currentTarget: {fileID: 0}
-  approachRange: 300
-  approachType: 0
-  approachCriticalENRate: 30
-  approachRequiredENRate: 70
+  preferredDistance: 150
+  distanceMargin: 30
+  minDirectionSwapInterval: 1
+  maxDirectionSwapInterval: 5
+  decisionInterval: 1
   boostChance: 70
-  movementOrderList:
-  - actionType: 0
-    duration: 5
-    targetRange: 10
-    distanceUncertainty: 0
-    relativeElevation: 0
-    targetAngle: 0
-    angleUncertainty: 0
-  - actionType: 1
-    duration: 5
-    targetRange: 20
-    distanceUncertainty: 0
-    relativeElevation: 10
-    targetAngle: -30
-    angleUncertainty: 0
-  - actionType: 1
-    duration: 5
-    targetRange: 10
-    distanceUncertainty: 0
-    relativeElevation: 10
-    targetAngle: 30
-    angleUncertainty: 0
-  - actionType: 1
-    duration: 5
-    targetRange: 50
-    distanceUncertainty: 0
-    relativeElevation: 40
-    targetAngle: 180
-    angleUncertainty: 0
-  environmentLayer:
-    serializedVersion: 2
-    m_Bits: 8192
-  maxObstacleJumpHeight: 12
-  standardJumpHeight: 3
+  jumpChance: 50
+  flightChance: 15.8
   energyEfficiency: 80
 --- !u!114 &2136971436
 MonoBehaviour:
@@ -30621,15 +30586,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 467cffe475e187f4d9e4728308a2086c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  weaponManager: {fileID: 0}
   leftArmActive: 1
   rightArmActive: 1
-  leftBackActive: 0
-  rightBackActive: 0
-  armTransitionTime: 0.3
-  backWeaponTransitionTime: 0.6
   hasAimableLeftBackWeapon: 1
   hasAimableRightBackWeapon: 1
+  isPlayerControlled: 0
 --- !u!114 &2136971438
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30664,7 +30625,10 @@ MonoBehaviour:
   - {fileID: 2150226367516778880, guid: a540d15f01c45824091e07da3e4031ad, type: 3}
   headParts:
   - {fileID: 7348662245296258834, guid: 189b873af02d7e545a720091644bfe43, type: 3}
-  armParts: []
+  leftArmParts:
+  - {fileID: 8169893698953032091, guid: 24804825ee5a1b041b4e024227f60754, type: 3}
+  rightArmParts:
+  - {fileID: 4139686519054979381, guid: fdebc14e088959940ab3115f0a672800, type: 3}
   boosterParts:
   - {fileID: 7579171410865374785, guid: 4dad9fef9088e7246afc739bed3cb276, type: 3}
   leftArmWeapons:
@@ -30722,12 +30686,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   mechBody: {fileID: 333853245}
-  fcsLockBox: {fileID: 0}
   moveInput: {x: 0, y: 0, z: 0}
   lookTargetForward: {x: 0, y: 0, z: 0}
   isBoosting: 0
   isJumping: 0
-  restrictTo8Directions: 1
   cameraEffects: {fileID: 238367879}
   thrusterBufferTime: 0.1
   bunnyHopWindow: 0.1
