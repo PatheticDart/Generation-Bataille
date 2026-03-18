@@ -93,6 +93,10 @@ PrefabInstance:
       propertyPath: projectileSpeed
       value: 200
       objectReference: {fileID: 0}
+    - target: {fileID: 5396846255677963612, guid: 25cc9e16c8242334bbf79112c374bb00, type: 3}
+      propertyPath: projectilePrefab
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 7982167368190329064, guid: 25cc9e16c8242334bbf79112c374bb00, type: 3}
       propertyPath: m_LocalPosition.y
       value: -0.027120113
@@ -253,6 +257,6 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   muzzlePoint: {fileID: 857808499567954254}
-  projectilePrefab: {fileID: 8331362034265100734, guid: 17a7957f1b799304594f0be12f86ea04, type: 3}
+  projectilePrefab: {fileID: 0}
   fireRate: 0.1
   projectileSpeed: 200

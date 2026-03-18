@@ -39,9 +39,7 @@ MonoBehaviour:
   cellDescs:
     m_Keys: 
     m_Values: []
-  m_SerializedPerSceneCellList:
-  - sceneGUID: 99c9720ab356a0642a771bea13969a05
-    cellList: 
+  m_SerializedPerSceneCellList: []
   cellSharedDataAsset:
     m_AssetGUID: 
     m_StreamableAssetPath: 
@@ -106,7 +104,7 @@ MonoBehaviour:
   version: 2
   freezePlacement: 0
   probeOffset: {x: 0, y: 0, z: 0}
-  simplificationLevels: 5
+  simplificationLevels: 3
   minDistanceBetweenProbes: 1
   renderersLayerMask:
     serializedVersion: 2

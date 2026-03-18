@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.Collections;
 
 public class MechWeaponManager : MonoBehaviour
@@ -22,17 +23,24 @@ public class MechWeaponManager : MonoBehaviour
     public bool hasAimableLeftBackWeapon = true;
     public bool hasAimableRightBackWeapon = true;
 
-    private bool isLeftTransitioning = false;
-    private bool isRightTransitioning = false;
+    // --- UI EXPOSED PROPERTIES ---
+    // The UI can read these, but only this script can change them
+    public bool IsLeftTransitioning { get; private set; } = false;
+    public bool IsRightTransitioning { get; private set; } = false;
+
+    public int ActiveLeftSlot => leftArmTargetState ? 0 : 1;
+    public int ActiveRightSlot => rightArmTargetState ? 0 : 1;
+
+    // --- UI EXPOSED EVENTS ---
+    // UI scripts can subscribe to these to know exactly when to play animations or swap icons
+    public event Action<bool, int> OnWeaponSwapStarted;   // Returns (isLeft, targetSlotIndex)
+    public event Action<bool, int> OnWeaponSwapCompleted; // Returns (isLeft, activeSlotIndex)
 
     private bool canFireLeft = true;
     private bool canFireRight = true;
 
     private bool leftArmTargetState = true;
     private bool rightArmTargetState = true;
-
-    private int LSlot => leftArmTargetState ? 0 : 1;
-    private int RSlot => rightArmTargetState ? 0 : 1;
 
     void Start()
     {
@@ -46,65 +54,52 @@ public class MechWeaponManager : MonoBehaviour
 
     public void ToggleLeftWeapon()
     {
-        if (!isLeftTransitioning) StartCoroutine(ToggleLeftSequence());
+        if (!IsLeftTransitioning) StartCoroutine(ToggleLeftSequence());
     }
 
     public void ToggleRightWeapon()
     {
-        if (!isRightTransitioning) StartCoroutine(ToggleRightSequence());
+        if (!IsRightTransitioning) StartCoroutine(ToggleRightSequence());
     }
 
     public void ProcessLeftFire(bool pressed, bool held, bool released)
     {
         if (weaponManager == null) return;
 
-        if (canFireLeft)
-        {
-            weaponManager.FireWeapon(true, LSlot, pressed, held, released);
-        }
-        else
-        {
-            weaponManager.ForceRelease(true, LSlot);
-        }
+        if (canFireLeft) weaponManager.FireWeapon(true, ActiveLeftSlot, pressed, held, released);
+        else weaponManager.ForceRelease(true, ActiveLeftSlot);
     }
 
     public void ProcessRightFire(bool pressed, bool held, bool released)
     {
         if (weaponManager == null) return;
 
-        if (canFireRight)
-        {
-            weaponManager.FireWeapon(false, RSlot, pressed, held, released);
-        }
-        else
-        {
-            weaponManager.ForceRelease(false, RSlot);
-        }
+        if (canFireRight) weaponManager.FireWeapon(false, ActiveRightSlot, pressed, held, released);
+        else weaponManager.ForceRelease(false, ActiveRightSlot);
     }
 
     // --- SEQUENCING COROUTINES ---
 
     private IEnumerator ToggleLeftSequence()
     {
-        isLeftTransitioning = true;
+        IsLeftTransitioning = true;
         canFireLeft = false;
+        weaponManager.ForceRelease(true, ActiveLeftSlot);
 
-        weaponManager.ForceRelease(true, LSlot);
+        // Tell the UI a swap just started, and pass the slot we are moving TO
+        leftArmTargetState = !leftArmTargetState; 
+        OnWeaponSwapStarted?.Invoke(true, ActiveLeftSlot);
 
-        if (leftArmTargetState)
+        if (!leftArmTargetState) // Switching to Back (Slot 1)
         {
-            leftArmTargetState = false;
-
             leftArmActive = false;
             yield return new WaitForSeconds(armTransitionTime);
 
             leftBackActive = true;
             yield return new WaitForSeconds(backWeaponTransitionTime);
         }
-        else
+        else // Switching to Arm (Slot 0)
         {
-            leftArmTargetState = true;
-
             leftBackActive = false;
             yield return new WaitForSeconds(backWeaponTransitionTime);
 
@@ -113,20 +108,23 @@ public class MechWeaponManager : MonoBehaviour
         }
 
         canFireLeft = true;
-        isLeftTransitioning = false;
+        IsLeftTransitioning = false;
+        
+        // Tell the UI the swap is completely done
+        OnWeaponSwapCompleted?.Invoke(true, ActiveLeftSlot);
     }
 
     private IEnumerator ToggleRightSequence()
     {
-        isRightTransitioning = true;
+        IsRightTransitioning = true;
         canFireRight = false;
+        weaponManager.ForceRelease(false, ActiveRightSlot);
 
-        weaponManager.ForceRelease(false, RSlot);
+        rightArmTargetState = !rightArmTargetState;
+        OnWeaponSwapStarted?.Invoke(false, ActiveRightSlot);
 
-        if (rightArmTargetState)
+        if (!rightArmTargetState)
         {
-            rightArmTargetState = false;
-
             rightArmActive = false;
             yield return new WaitForSeconds(armTransitionTime);
 
@@ -135,8 +133,6 @@ public class MechWeaponManager : MonoBehaviour
         }
         else
         {
-            rightArmTargetState = true;
-
             rightBackActive = false;
             yield return new WaitForSeconds(backWeaponTransitionTime);
 
@@ -145,6 +141,8 @@ public class MechWeaponManager : MonoBehaviour
         }
 
         canFireRight = true;
-        isRightTransitioning = false;
+        IsRightTransitioning = false;
+        
+        OnWeaponSwapCompleted?.Invoke(false, ActiveRightSlot);
     }
 }

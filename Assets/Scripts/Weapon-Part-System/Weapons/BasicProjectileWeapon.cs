@@ -3,56 +3,57 @@ using UnityEngine;
 public class BasicProjectileWeapon : FunctionalWeapon
 {
     [Header("Weapon Setup")]
-    [Tooltip("Where the projectile will spawn. Create an empty GameObject child for this.")]
     public Transform muzzlePoint;
-    public GameObject projectilePrefab;
 
-    [Header("Testing Stats")]
-    public float fireRate = 0.2f; // Time in seconds between shots
-    public float projectileSpeed = 100f;
-
+    private Rifle _rifleStats; 
     private float _nextFireTime = 0f;
 
-    // Triggered by your WeaponManager when the input is held
-    public override void OnFireHeld()
+    public override void InitializeWeapon(Part data)
     {
-        if (Time.time >= _nextFireTime)
+        base.InitializeWeapon(data); // Sets maxResource and currentResource
+        _rifleStats = data as Rifle;
+
+        if (_rifleStats == null) return;
+
+        // Pool warming logic remains the same
+        if (_rifleStats.bulletPrefab != null && GlobalProjectilePool.Instance != null)
         {
-            Fire();
-            _nextFireTime = Time.time + fireRate;
+            float shotsPerSecond = 1000f / _rifleStats.firingInterval;
+            float maxAliveBullets = shotsPerSecond * _rifleStats.bulletPrefab.lifetime;
+            int optimalPoolSize = Mathf.CeilToInt(maxAliveBullets) + 5;
+
+            GlobalProjectilePool.Instance.PreWarm(_rifleStats.bulletPrefab, optimalPoolSize);
         }
     }
 
-    // You can also use this for semi-automatic firing
-    public override void OnFirePressed()
+    public override void OnFireHeld()
     {
-        // Optional: Add logic here if you want it to fire instantly on click 
-        // regardless of fireRate, or keep it strictly tied to OnFireHeld.
+        if (_rifleStats == null) return;
+
+        // Use currentResource (Ammo) from base class
+        if (Time.time >= _nextFireTime && currentResource > 0)
+        {
+            Fire();
+            _nextFireTime = Time.time + (_rifleStats.firingInterval / 1000f);
+        }
     }
 
     private void Fire()
     {
-        if (projectilePrefab == null || muzzlePoint == null)
-        {
-            Debug.LogWarning($"{gameObject.name}: Missing Muzzle Point or Projectile Prefab!");
-            return;
-        }
+        if (muzzlePoint == null || _rifleStats.bulletPrefab == null) return;
 
-        // Spawn the projectile at the muzzle
-        GameObject proj = Instantiate(projectilePrefab, muzzlePoint.position, muzzlePoint.rotation);
+        // 1. Subtract resource and notify UI
+        currentResource--;
+        NotifyResourceChange();
 
-        // Try to apply physics if the projectile has a Rigidbody
-        if (proj.TryGetComponent<Rigidbody>(out Rigidbody rb))
-        {
-            rb.linearVelocity = muzzlePoint.forward * projectileSpeed;
-        }
-        else
-        {
-            // Fallback for simple transform-based movement
-            SimpleProjectile basicMovement = proj.AddComponent<SimpleProjectile>();
-            basicMovement.speed = projectileSpeed;
-        }
+        // 2. Spawn bullet
+        BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(
+            _rifleStats.bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
 
-        // Optional: Play sound or muzzle flash particle effect here
+        proj.SetupStats(_rifleStats.attackPower, _rifleStats.bulletSpeed);
+        proj.SetPrefabReference(_rifleStats.bulletPrefab);
     }
+
+    public override void OnFirePressed() { }
+    public override void OnFireReleased() { }
 }

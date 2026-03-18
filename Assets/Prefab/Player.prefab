@@ -2716,6 +2716,10 @@ MonoBehaviour:
   jumpDelay: 0.25
   totalWeight: 30000
   baselineWeight: 30000
+  qbThrust: 150
+  qbEnergyDrain: 100
+  qbDuration: 0.1
+  qbReloadTime: 0.8
   walkAcceleration: 100
   walkDeceleration: 150
   boostAcceleration: 250
@@ -2748,6 +2752,8 @@ MonoBehaviour:
   isJumping: 0
   restrictTo8Directions: 1
   cameraEffects: {fileID: 7960159375031588431}
+  isQuickBoosting: 0
+  isPerfectQuickBoosting: 0
   thrusterBufferTime: 0.1
   bunnyHopWindow: 0.1
   boostToJumpDelay: 0.2
@@ -2765,6 +2771,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4745a1512a7801a458b336912805ff80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerBrain
+  activeControlScheme: 1
+  doubleTapWindow: 0.3
+  perfectQBHoldTime: 0.5
+  perfectQBReleaseWindow: 0.3
   cinemachineFollowTarget: {fileID: 3369438313961492974}
   mouseSensitivity: 0.1
   controllerSensitivity: 150
@@ -6076,7 +6086,7 @@ Transform:
   m_GameObject: {fileID: 3892685215485691324}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 5.3999996, z: -13}
+  m_LocalPosition: {x: 0, y: 5.3999996, z: -16}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6169,7 +6179,7 @@ MonoBehaviour:
   m_RenderPostProcessing: 1
   m_Antialiasing: 2
   m_AntialiasingQuality: 2
-  m_StopNaN: 0
+  m_StopNaN: 1
   m_Dithering: 0
   m_ClearDepth: 1
   m_AllowXRRendering: 1
@@ -8597,7 +8607,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechUI
   mechStats: {fileID: 3328027176561732157}
   mechController: {fileID: 2730814866030396684}
-  weaponManager: {fileID: 7114393932837201338}
+  mechWeaponManager: {fileID: 7114393932837201338}
+  weaponManager: {fileID: 3414217044222115974}
   energySlider: {fileID: 5109409025447308917}
   energyFillImage: {fileID: 1340795376948933235}
   normalColor: {r: 0, g: 1, b: 0, a: 1}
@@ -8620,6 +8631,14 @@ MonoBehaviour:
   - {fileID: 2997400810746840380}
   rightBackAmmoTexts:
   - {fileID: 7312752858735102378}
+  leftArmCompactTexts:
+  - {fileID: 8517517353808793817}
+  rightArmCompactTexts:
+  - {fileID: 5894539552434491940}
+  leftBackCompactTexts:
+  - {fileID: 821487168247096622}
+  rightBackCompactTexts:
+  - {fileID: 7414911000158373366}
   activeWeaponAlpha: 1
   inactiveWeaponAlpha: 0.5
 --- !u!114 &305254860392059479
@@ -9416,7 +9435,7 @@ Transform:
   m_GameObject: {fileID: 5951335286877087644}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 5.3999996, z: -13}
+  m_LocalPosition: {x: 0, y: 5.3999996, z: -16}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9524,7 +9543,7 @@ MonoBehaviour:
   ShoulderOffset: {x: 0, y: 5, z: 0}
   VerticalArmLength: 0.4
   CameraSide: 1
-  CameraDistance: 13
+  CameraDistance: 16
   AvoidObstacles:
     Enabled: 1
     CollisionFilter:
