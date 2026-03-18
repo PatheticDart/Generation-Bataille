@@ -309,7 +309,7 @@ MonoBehaviour:
   - {fileID: 995118188311141335}
   - {fileID: 585686036689444540}
   trajectory: 0
-  staggerTime: 0.05
+  staggerTime: 0.1
 --- !u!4 &5453501718749423239 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7787283042491051338, guid: d186ffe6fdbdf96499d7994196fb83c4, type: 3}
@@ -537,7 +537,7 @@ MonoBehaviour:
   - {fileID: 2337289620246965066}
   - {fileID: 2015304621871913387}
   trajectory: 0
-  staggerTime: 0.05
+  staggerTime: 0.1
 --- !u!4 &4827490457617721390 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8061349251257141284, guid: a351ad4b5abfd8a428e4c5379b7a4862, type: 3}

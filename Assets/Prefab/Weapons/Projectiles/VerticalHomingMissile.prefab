@@ -278,52 +278,24 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  maxSpeed: 150
   turnCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: -0.001607269
-      value: 0.198123
-      inSlope: -0.66103154
-      outSlope: -0.66103154
-      tangentMode: 0
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.27165857
-    - serializedVersion: 3
-      time: 0.076515146
-      value: 0.18520159
-      inSlope: 0.048127502
-      outSlope: 0.048127502
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.4946283
-    - serializedVersion: 3
-      time: 0.14696902
-      value: 0.1856411
-      inSlope: -0.10978603
-      outSlope: -0.10978603
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.331347
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.30238286
-      value: 0.9909399
-      inSlope: 0.03204203
-      outSlope: 0.03204203
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33693647
-      outWeight: 0.05932053
+      inWeight: 0
+      outWeight: 0
     - serializedVersion: 3
       time: 1
       value: 1
       inSlope: 0
       outSlope: 0
-      tangentMode: 0
+      tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0

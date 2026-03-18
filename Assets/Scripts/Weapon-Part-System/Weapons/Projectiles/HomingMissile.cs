@@ -7,11 +7,10 @@ public class HomingMissile : BaseProjectile
     [Tooltip("How many seconds it takes for the curves below to read from left (0) to right (1).")]
     public float curveDuration = 3f;
 
-    [Tooltip("X: Time (0 to 1). Y: Forward Speed Multiplier (0 to 1).")]
+    [Tooltip("X: Time. Y: Speed Multiplier (0 to 1). Multiplies the Bullet Speed set in the weapon stats!")]
     public AnimationCurve speedCurve = AnimationCurve.EaseInOut(0, 0.2f, 1, 1);
-    public float maxSpeed = 150f;
-
-    [Tooltip("X: Time (0 to 1). Y: Turn Speed Multiplier (0 to 1). Keep Y at 0 at the start to simulate Clearance Time!")]
+    
+    [Tooltip("X: Time. Y: Turn Speed Multiplier (0 to 1). Keep Y at 0 at the start to simulate Clearance Time.")]
     public AnimationCurve turnCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     public float maxTurnSpeed = 180f;
 
@@ -24,6 +23,9 @@ public class HomingMissile : BaseProjectile
     private Transform _target;
     private float _timeAlive;
     private bool _hasDetonated;
+    
+    // NEW: Variable to hold the speed passed from the weapon
+    private float _flightSpeed = 100f; 
 
     private void Awake()
     {
@@ -51,6 +53,9 @@ public class HomingMissile : BaseProjectile
     public override void SetupStats(float newDamage, float newSpeed)
     {
         base.SetupStats(newDamage, newSpeed);
+        
+        // NOW WE USE IT: Store the speed passed from the weapon's ScriptableObject
+        _flightSpeed = newSpeed; 
     }
 
     protected override void Update()
@@ -66,10 +71,10 @@ public class HomingMissile : BaseProjectile
         _timeAlive += Time.fixedDeltaTime;
         float curveProgress = Mathf.Clamp01(_timeAlive / curveDuration);
 
-        float currentSpeed = speedCurve.Evaluate(curveProgress) * maxSpeed;
+        // Multiply the curve value (0 to 1) by the weapon's top speed!
+        float currentSpeed = speedCurve.Evaluate(curveProgress) * _flightSpeed;
         float currentTurnSpeed = turnCurve.Evaluate(curveProgress) * maxTurnSpeed;
 
-        // Will safely skip turning if _target is null!
         if (_target != null && currentTurnSpeed > 0f)
         {
             Vector3 directionToTarget = (_target.position - transform.position).normalized;
@@ -101,7 +106,7 @@ public class HomingMissile : BaseProjectile
         Collider[] caughtInBlast = Physics.OverlapSphere(transform.position, explosionRadius);
         foreach (Collider col in caughtInBlast)
         {
-            if (col.TryGetComponent<Rigidbody>(out Rigidbody targetRb))
+            if (col.TryGetComponent(out Rigidbody targetRb))
             {
                 targetRb.AddExplosionForce(explosionForce, transform.position, explosionRadius);
             }
