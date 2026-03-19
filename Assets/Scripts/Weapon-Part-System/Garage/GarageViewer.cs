@@ -108,4 +108,14 @@ public class GarageViewer : MonoBehaviour
             _orbiter.Radius = Mathf.Clamp(newRadius, minRadius, maxRadius);
         }
     }
+
+    // Add this to your existing GarageViewer script!
+    public void SetActiveCamera(CinemachineCamera newCam)
+    {
+        vcam = newCam;
+        if (vcam != null)
+        {
+            _orbiter = vcam.GetComponent<CinemachineOrbitalFollow>();
+        }
+    }
 }
