@@ -33,7 +33,9 @@ public class MechController : MonoBehaviour
     public bool isPerfectQuickBoosting = false;
     private float currentQBDuration = 0f;
     private float currentQBCooldown = 0f;
-    private Vector3 qbDirection;
+
+    // NEW: Made public so MechAnimator can read it!
+    public Vector3 qbDirection { get; private set; }
     private Vector3 worldQBDirection;
 
     private List<GameObject> leftQBThrusters = new List<GameObject>();
@@ -138,7 +140,7 @@ public class MechController : MonoBehaviour
         else
             qbDirection = new Vector3(0, 0, Mathf.Sign(inputDir.z));
 
-        lockedBoostDirection = qbDirection; // Lock for coasting
+        lockedBoostDirection = qbDirection;
 
         bool isWalkingState = controller.isGrounded && !isBoosting;
         Vector3 refForward = (isWalkingState && mechBody != null) ? mechBody.forward : (fcsLockBox != null ? fcsLockBox.forward : lookTargetForward);
@@ -210,26 +212,22 @@ public class MechController : MonoBehaviour
         bool currentIsJumping = isJumping;
         bool wantsToBoost = isBoosting && !stats.energyIsDepleted;
 
-        // --- 1. DIRECTION RECORDING & COAST LOCKING ---
         if (currentMoveInput.magnitude > 0.1f)
         {
             lastMoveInputTime = Time.time;
             lastActiveMoveInput = currentMoveInput;
 
-            // Always mathematically calculate the 8-way locked direction in the background
             float angle = Mathf.Atan2(currentMoveInput.x, currentMoveInput.z) * Mathf.Rad2Deg;
             angle = Mathf.Round(angle / 45f) * 45f;
             lockedBoostDirection = new Vector3(Mathf.Sin(angle * Mathf.Deg2Rad), 0f, Mathf.Cos(angle * Mathf.Deg2Rad)).normalized;
 
-            // Apply 8-way lock ONLY if walking (Boosting is free-form 360 degrees!)
-            bool isWalkingStateCheck = controller.isGrounded && !wantsToBoost;
+            bool isWalkingStateCheck = controller.isGrounded && !wantsToBoost && !isQuickBoosting;
             if (restrictTo8Directions && isWalkingStateCheck)
             {
                 currentMoveInput = lockedBoostDirection * currentMoveInput.magnitude;
             }
         }
 
-        // --- 2. RECOVERY LOCK ---
         if (isRecoveringFromLanding)
         {
             recoveryTimer -= Time.deltaTime;
@@ -248,10 +246,7 @@ public class MechController : MonoBehaviour
             }
         }
 
-        // --- 3. DIRECTIONAL COASTING CHECK ---
         bool isDirectionalCoasting = wantsToBoost && currentMoveInput.magnitude < 0.1f && lockedBoostDirection != Vector3.zero && controller.isGrounded;
-
-        // --- 4. BRAKE COASTING TRIGGER ---
         bool isActivelySpeeding = (wantsToBoost || isQuickBoosting) && controller.isGrounded && !isRecoveringFromLanding;
 
         if (isActivelySpeeding)
@@ -261,20 +256,18 @@ public class MechController : MonoBehaviour
         }
         else if (wasActivelySpeedingLastFrame && controller.isGrounded && !isRecoveringFromLanding)
         {
-            // The exact frame the user lets go of Boost or QB ends while moving on the ground
             isCoastingToBrake = true;
             coastingTimer = 0f;
         }
         wasActivelySpeedingLastFrame = isActivelySpeeding;
 
-        // --- 5. BRAKE COASTING EXECUTION ---
         bool forceBoostPhysics = false;
 
         if (isCoastingToBrake)
         {
             if (!controller.isGrounded || wantsToBoost || isQuickBoosting || isJumping)
             {
-                isCoastingToBrake = false; // Cancel coasting
+                isCoastingToBrake = false;
             }
             else
             {
@@ -283,7 +276,6 @@ public class MechController : MonoBehaviour
 
                 if (coastingTimer >= stats.brakeBufferTime)
                 {
-                    // Trigger Brake!
                     isRecoveringFromLanding = true;
                     isBraking = true;
                     isPreparingToJump = false;
@@ -304,12 +296,11 @@ public class MechController : MonoBehaviour
             }
         }
 
-        // --- 6. EFFECTIVE MOVE INPUT RESOLUTION ---
         Vector3 effectiveMoveInput = currentMoveInput;
 
-        if (isDirectionalCoasting || isCoastingToBrake)
+        if (isDirectionalCoasting || isCoastingToBrake || isQuickBoosting)
         {
-            effectiveMoveInput = lockedBoostDirection; // Injects the locked 8-way direction into the physics & animator!
+            effectiveMoveInput = lockedBoostDirection;
             if (effectiveMoveInput == Vector3.zero) effectiveMoveInput = Vector3.forward;
         }
         else if (currentMoveInput.magnitude < 0.1f)
@@ -321,7 +312,6 @@ public class MechController : MonoBehaviour
 
         bool canHorizontalBoost = forceBoostPhysics || (wantsToBoost && (effectiveMoveInput.magnitude > 0 || !controller.isGrounded));
 
-        // --- JUMP DELAY TRACKERS ---
         bool isActuallyBoostingOnGround = canHorizontalBoost && controller.isGrounded && !isRecoveringFromLanding;
         if (isActuallyBoostingOnGround && !wasActuallyBoostingLastFrame) boostStartTime = Time.time;
         else if (!isActuallyBoostingOnGround && wasActuallyBoostingLastFrame) boostEndTime = Time.time;
@@ -331,12 +321,11 @@ public class MechController : MonoBehaviour
         if (isActuallyWalkingOnGround && !wasActuallyWalkingLastFrame) walkStartTime = Time.time;
         wasActuallyWalkingLastFrame = isActuallyWalkingOnGround;
 
-        // --- 7. TARGET SPEED & REFERENCE FRAME ---
         float currentWalkSpeed = stats.walkSpeed;
         if (controller.isGrounded && effectiveMoveInput.z < -0.1f) currentWalkSpeed *= (1f - stats.backwardSpeedPenalty);
 
         float targetSpeed = canHorizontalBoost ? stats.boostHorizontalSpeed : currentWalkSpeed;
-        bool isWalkingState = controller.isGrounded && !canHorizontalBoost;
+        bool isWalkingState = controller.isGrounded && !canHorizontalBoost && !isQuickBoosting;
 
         Vector3 referenceForward;
         Vector3 referenceRight;
@@ -359,7 +348,6 @@ public class MechController : MonoBehaviour
         Vector3 targetDirection = (referenceForward * effectiveMoveInput.z + referenceRight * effectiveMoveInput.x).normalized;
         Vector3 targetVelocity = targetDirection * targetSpeed;
 
-        // --- 8. ACCELERATION & SLIDING ---
         if (isRecoveringFromLanding && controller.isGrounded)
         {
             float slideFriction = isBraking ? stats.brakeSlideDeceleration : stats.hardLandingSlideDeceleration;
@@ -386,7 +374,6 @@ public class MechController : MonoBehaviour
 
         bool energyUsedThisFrame = false;
 
-        // --- 9. JUMP EXECUTION LOGIC ---
         if (controller.isGrounded)
         {
             verticalVelocity = -2f;
@@ -453,7 +440,6 @@ public class MechController : MonoBehaviour
         bool wasGroundedBeforeMove = controller.isGrounded;
         controller.Move(finalMove * Time.deltaTime);
 
-        // --- 10. VERTICAL HARD LANDING OVERRIDE ---
         if (!wasGroundedBeforeMove && controller.isGrounded)
         {
             lastJumpOrLandTime = Time.time;
@@ -461,9 +447,9 @@ public class MechController : MonoBehaviour
             if (verticalVelocity <= stats.minHardLandingThreshold)
             {
                 isRecoveringFromLanding = true;
-                isBraking = false; // Vertical drop overrides horizontal brake
+                isBraking = false;
                 isPreparingToJump = false;
-                isCoastingToBrake = false; // NEVER coast after a drop
+                isCoastingToBrake = false;
                 wasActivelySpeedingLastFrame = false;
                 lastJumpOrLandTime = -100f;
 
@@ -486,13 +472,11 @@ public class MechController : MonoBehaviour
 
         if (isRecoveringFromLanding && impactWorldDirection.sqrMagnitude > 0.01f)
         {
-            // Dynamically convert world slide momentum to local space for rotating slide animations
             Vector3 localSlide = mechBody.InverseTransformDirection(impactWorldDirection);
             animMoveInput = new Vector3(localSlide.x, 0f, localSlide.z).normalized;
         }
         else if (isDirectionalCoasting || isCoastingToBrake)
         {
-            // Keep the boost animation locked and playing!
             animMoveInput = lockedBoostDirection;
         }
         else
