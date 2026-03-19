@@ -198,6 +198,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   lifetime: 3
   damage: 50
+  visualRenderers: []
+  trailRenderer: {fileID: 8322707103791459647}
+  impactEffectPrefab: {fileID: 290559836538120028, guid: 5f2bc166e68df974bb952c4ec5c43454, type: 3}
   speed: 100
   useGravity: 0
   gravityMultiplier: 1

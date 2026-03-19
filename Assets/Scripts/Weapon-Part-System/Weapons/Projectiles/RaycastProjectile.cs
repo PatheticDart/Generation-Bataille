@@ -11,10 +11,9 @@ public abstract class RaycastProjectile : BaseProjectile
     protected Vector3 currentVelocity;
     protected Vector3 previousPosition;
 
-    // Replaced InitializeBullet with OnEnable to catch the Object Pool wake-up
     protected override void OnEnable()
     {
-        base.OnEnable(); // Calls the life timer reset in BaseProjectile
+        base.OnEnable(); 
         previousPosition = transform.position;
     }
 
@@ -24,13 +23,16 @@ public abstract class RaycastProjectile : BaseProjectile
         speed = newSpeed; 
         
         currentVelocity = transform.forward * speed; 
-        
         previousPosition = transform.position; 
     }
 
     protected override void Update()
     {
         base.Update(); 
+
+        // THE FIX: If the bullet has already hit something and is just waiting 
+        // for its trail to fade, stop moving and stop raycasting!
+        if (isReturning) return;
 
         if (useGravity)
         {

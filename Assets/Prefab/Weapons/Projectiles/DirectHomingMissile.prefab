@@ -81,7 +81,7 @@ TrailRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Time: 2.5
+  m_Time: 0.5
   m_PreviewTimeScale: 1
   m_Parameters:
     serializedVersion: 3
@@ -160,7 +160,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7011467395999629845}
-  - component: {fileID: 2955705441231836777}
   - component: {fileID: 1308738950659927275}
   m_Layer: 0
   m_Name: DirectHomingMissile
@@ -185,33 +184,6 @@ Transform:
   - {fileID: 7343282408090217781}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &2955705441231836777
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8331362034265100734}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!114 &1308738950659927275
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -226,6 +198,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HomingMissile
   lifetime: 3
   damage: 50
+  visualRenderers: []
+  trailRenderer: {fileID: 8322707103791459647}
+  impactEffectPrefab: {fileID: -1510230874400619309, guid: 912fa048f42c5fc46aaf79d80ea9869a, type: 3}
   curveDuration: 3
   speedCurve:
     serializedVersion: 2
@@ -303,6 +278,8 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   maxTurnSpeed: 180
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 10240
   explosionRadius: 8
   explosionForce: 1000
-  explosionEffectPrefab: {fileID: -1510230874400619309, guid: 3ace37360f306cb4aac03640550fa9ef, type: 3}
