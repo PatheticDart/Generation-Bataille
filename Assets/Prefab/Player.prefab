@@ -3079,8 +3079,6 @@ MonoBehaviour:
   rightBackActive: 0
   armTransitionTime: 0.3
   backWeaponTransitionTime: 0.6
-  hasAimableLeftBackWeapon: 0
-  hasAimableRightBackWeapon: 1
 --- !u!114 &2685966738517261474
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3159,16 +3157,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   partSystem: {fileID: 3298013329077157459}
-  headPart: {fileID: 11400000, guid: 40fa96e1bd6a78347a00505f794cead6, type: 2}
-  torsoPart: {fileID: 11400000, guid: ad24f73db7847774da69c87f9a2d54d5, type: 2}
-  armsPart: {fileID: 11400000, guid: 8d8f70af0e0eda945a8785e3a82f4fef, type: 2}
-  legsPart: {fileID: 11400000, guid: 2b423920b65a5864bb85dc01602bcab4, type: 2}
-  boosterPart: {fileID: 11400000, guid: a732b840083e0334eb4a1bf4e1bf5e25, type: 2}
-  generatorPart: {fileID: 11400000, guid: c640b173a42f6c348b2e7b44d4adc39b, type: 2}
-  fcsPart: {fileID: 11400000, guid: e5add7940a91066469b8abd3dcda879d, type: 2}
+  headPart: {fileID: 11400000, guid: fe8f5ec60a5f70d4282481dfe2c1234b, type: 2}
+  torsoPart: {fileID: 11400000, guid: 195905ff58a71ab4ba69ee55e47e8f72, type: 2}
+  armsPart: {fileID: 11400000, guid: 356e7e35596178c4cbdf8dce34909bb4, type: 2}
+  legsPart: {fileID: 11400000, guid: a0d8e29c4862e41478ca49b626fd2b0a, type: 2}
+  boosterPart: {fileID: 11400000, guid: 1c8d2caafb3720747b479e3ddd849fe0, type: 2}
+  generatorPart: {fileID: 11400000, guid: e9b2c84c5a524024aa244a613764a137, type: 2}
+  fcsPart: {fileID: 11400000, guid: fb6366968963ba64d88bb76b136b9171, type: 2}
   leftArmWeapon: {fileID: 11400000, guid: 7769537fa209c154cabcbc2006da6c34, type: 2}
   rightArmWeapon: {fileID: 11400000, guid: 1e2bad12e4455b44595852a57f867586, type: 2}
-  leftBackWeapon: {fileID: 11400000, guid: b538732c6775e914abb5ec7269055c48, type: 2}
+  leftBackWeapon: {fileID: 11400000, guid: 5ac209751e713144c9fa3a1332ad4ec4, type: 2}
   rightBackWeapon: {fileID: 11400000, guid: e9ad598c56a310f40b997fccc01a3904, type: 2}
   reloadKey: 286
   loadOnStart: 1
