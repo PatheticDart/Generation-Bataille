@@ -15,17 +15,13 @@ public class GarageAnimator : MonoBehaviour
     }
 
     [Header("Setup")]
-    [Tooltip("Drag the Animation Skeleton object here!")]
     public Animator animator;
+    public PartSystem partSystem;
 
     [Header("Preview Controls")]
-    [Tooltip("Change this in the Inspector to preview different animations on loop.")]
     public GaragePose currentPose = GaragePose.Idle;
-    
-    [Tooltip("How fast the mech transitions between poses when you change the Enum.")]
     public float blendSpeed = 8f;
 
-    // Animator Hash IDs (Identical to your combat animator)
     private readonly int moveXHash = Animator.StringToHash("LocalMoveX");
     private readonly int moveZHash = Animator.StringToHash("LocalMoveZ");
     private readonly int isGroundedHash = Animator.StringToHash("IsGrounded");
@@ -34,20 +30,20 @@ public class GarageAnimator : MonoBehaviour
     private readonly int isBoostingHash = Animator.StringToHash("IsBoosting");
     private readonly int isMovingHash = Animator.StringToHash("IsMoving");
 
-    // Internal smoothing variables
     private float currentAnimX = 0f;
     private float currentAnimZ = 0f;
+    private bool _wasBoosting = false;
 
     void Start()
     {
         if (animator == null) animator = GetComponentInChildren<Animator>();
+        if (partSystem == null) partSystem = GetComponentInParent<PartSystem>();
     }
 
     void Update()
     {
         if (animator == null) return;
 
-        // 1. Setup default "simulated" inputs
         float targetX = 0f;
         float targetZ = 0f;
         bool isGrounded = true;
@@ -56,11 +52,11 @@ public class GarageAnimator : MonoBehaviour
         bool isMoving = false;
         bool isHardLanding = false;
 
-        // 2. Modify simulated inputs based on the selected enum
         switch (currentPose)
         {
             case GaragePose.Idle:
-                // Defaults are fine for Idle
+                // THE FIX: Provide a tiny forward bias so Atan2(0,0) doesn't flip the mech 180 degrees
+                targetZ = 0.01f; 
                 break;
             case GaragePose.WalkForward:
                 targetZ = 1f;
@@ -91,11 +87,19 @@ public class GarageAnimator : MonoBehaviour
                 break;
         }
 
-        // 3. Smoothly blend the floats so the mech physically shifts its weight
+        if (isBoosting != _wasBoosting)
+        {
+            if (partSystem != null) partSystem.ToggleThrusters(isBoosting);
+            _wasBoosting = isBoosting;
+        }
+
         currentAnimX = Mathf.Lerp(currentAnimX, targetX, Time.deltaTime * blendSpeed);
         currentAnimZ = Mathf.Lerp(currentAnimZ, targetZ, Time.deltaTime * blendSpeed);
 
-        // 4. Feed the fake data into your existing Animator Controller
+        // Snap to absolute 0 if the values get small enough to prevent float precision jitters
+        if (Mathf.Abs(currentAnimX) < 0.005f) currentAnimX = 0f;
+        if (Mathf.Abs(currentAnimZ) < 0.005f && currentPose != GaragePose.Idle) currentAnimZ = 0f;
+
         animator.SetFloat(moveXHash, currentAnimX);
         animator.SetFloat(moveZHash, currentAnimZ);
 

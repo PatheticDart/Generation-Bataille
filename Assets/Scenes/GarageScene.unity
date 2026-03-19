@@ -40132,6 +40132,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7361038256474985031, guid: 80496d6bc88cde24babae56a69323157, type: 3}
   m_PrefabInstance: {fileID: 482584354}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2077744745 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3298013329077157459, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+  m_PrefabInstance: {fileID: 482584354}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb25985fbf6666243bb874a2bcca1ab3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PartSystem
 --- !u!1 &2085945648
 GameObject:
   m_ObjectHideFlags: 0
@@ -41005,6 +41016,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   animator: {fileID: 431070275}
+  partSystem: {fileID: 2077744745}
   currentPose: 0
   blendSpeed: 8
 --- !u!114 &8424664019777762617
