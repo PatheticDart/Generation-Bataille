@@ -1,21 +1,22 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
-using Unity.Cinemachine; // NEW Cinemachine 3 Namespace!
+using Unity.Cinemachine; 
 
 public class GarageViewer : MonoBehaviour
 {
     [Header("Cinemachine 3 Setup")]
-    [Tooltip("Drag your CinemachineCamera here (not the old VirtualCamera!)")]
+    [Tooltip("Drag your active CinemachineCamera here.")]
     public CinemachineCamera vcam;
 
     [Header("Orbit Settings")]
     public float rotationSpeed = 0.2f;
-    
-    [Tooltip("How fast the camera moves up and down the mech's body.")]
     public float heightSpeed = 0.02f;
     public float minHeight = 0f;
     public float maxHeight = 10f;
+    
+    [Tooltip("How quickly the camera slows down after letting go. Lower = spins longer.")]
+    public float orbitFriction = 5.0f;
 
     [Header("Zoom Settings")]
     public float zoomSpeed = 0.01f;
@@ -29,12 +30,14 @@ public class GarageViewer : MonoBehaviour
 
     private CinemachineOrbitalFollow _orbiter;
     private bool _startedClickOnUI = false;
+    
+    // Tracks the current spin speed
+    private float _orbitVelocityX = 0f;
 
     void Start()
     {
         if (vcam != null)
         {
-            // In CM3, pipeline components are just standard components on the camera!
             _orbiter = vcam.GetComponent<CinemachineOrbitalFollow>();
         }
     }
@@ -45,12 +48,13 @@ public class GarageViewer : MonoBehaviour
         orbitDeltaAction.Enable();
         zoomScrollAction.Enable();
 
-        // Check if the initial click was on a UI menu
         orbitPressAction.started += ctx =>
         {
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             {
                 _startedClickOnUI = true;
+                // Instantly kill momentum if the user clicks a UI button
+                _orbitVelocityX = 0f; 
             }
         };
 
@@ -72,28 +76,35 @@ public class GarageViewer : MonoBehaviour
         if (_orbiter == null) return;
 
         HandleZoom();
-
-        if (!_startedClickOnUI)
-        {
-            HandleOrbit();
-        }
+        HandleOrbit();
     }
 
     private void HandleOrbit()
     {
-        if (orbitPressAction.IsPressed())
+        // 1. Capture Input and set velocity
+        if (!_startedClickOnUI && orbitPressAction.IsPressed())
         {
             Vector2 delta = orbitDeltaAction.ReadValue<Vector2>();
 
-            // X-Axis: Orbit around the mech
-            _orbiter.HorizontalAxis.Value += delta.x * rotationSpeed;
+            // Horizontal: Convert mouse delta to velocity
+            _orbitVelocityX = delta.x * rotationSpeed;
 
-            // Y-Axis: Move the TargetOffset up and down to look at feet vs head
+            // Vertical: We keep this direct for precise framing
             Vector3 offset = _orbiter.TargetOffset;
             offset.y -= delta.y * heightSpeed; 
             offset.y = Mathf.Clamp(offset.y, minHeight, maxHeight);
-            
             _orbiter.TargetOffset = offset;
+        }
+        else
+        {
+            // 2. Apply friction to decay the velocity over time
+            _orbitVelocityX = Mathf.Lerp(_orbitVelocityX, 0f, Time.deltaTime * orbitFriction);
+        }
+
+        // 3. Always apply the velocity to the camera axis
+        if (Mathf.Abs(_orbitVelocityX) > 0.001f)
+        {
+            _orbiter.HorizontalAxis.Value += _orbitVelocityX;
         }
     }
 
@@ -103,19 +114,19 @@ public class GarageViewer : MonoBehaviour
         
         if (Mathf.Abs(scroll.y) > 0.01f)
         {
-            // CM3 has a dedicated Radius property, making zoom logic beautifully simple
             float newRadius = _orbiter.Radius - (scroll.y * zoomSpeed);
             _orbiter.Radius = Mathf.Clamp(newRadius, minRadius, maxRadius);
         }
     }
 
-    // Add this to your existing GarageViewer script!
     public void SetActiveCamera(CinemachineCamera newCam)
     {
         vcam = newCam;
         if (vcam != null)
         {
             _orbiter = vcam.GetComponent<CinemachineOrbitalFollow>();
+            // Reset velocity when switching cameras so it doesn't spin the new view wildly
+            _orbitVelocityX = 0f; 
         }
     }
 }

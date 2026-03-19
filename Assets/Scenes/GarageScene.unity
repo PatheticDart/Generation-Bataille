@@ -40949,7 +40949,8 @@ MonoBehaviour:
   heightSpeed: 0.02
   minHeight: 0
   maxHeight: 10
-  zoomSpeed: 0.01
+  orbitFriction: 5
+  zoomSpeed: 0.5
   minRadius: 5
   maxRadius: 25
   orbitPressAction:
