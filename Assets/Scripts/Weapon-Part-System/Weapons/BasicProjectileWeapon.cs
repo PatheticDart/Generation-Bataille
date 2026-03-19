@@ -4,18 +4,18 @@ public class BasicProjectileWeapon : FunctionalWeapon
 {
     [Header("Weapon Setup")]
     public Transform muzzlePoint;
+    public PooledVFX muzzleFlash; // NEW: Assign your flash prefab here!
 
     private Rifle _rifleStats; 
     private float _nextFireTime = 0f;
 
     public override void InitializeWeapon(Part data)
     {
-        base.InitializeWeapon(data); // Sets maxResource and currentResource
+        base.InitializeWeapon(data); 
         _rifleStats = data as Rifle;
 
         if (_rifleStats == null) return;
 
-        // Pool warming logic remains the same
         if (_rifleStats.bulletPrefab != null && GlobalProjectilePool.Instance != null)
         {
             float shotsPerSecond = 1000f / _rifleStats.firingInterval;
@@ -30,7 +30,6 @@ public class BasicProjectileWeapon : FunctionalWeapon
     {
         if (_rifleStats == null) return;
 
-        // Use currentResource (Ammo) from base class
         if (Time.time >= _nextFireTime && currentResource > 0)
         {
             Fire();
@@ -42,11 +41,12 @@ public class BasicProjectileWeapon : FunctionalWeapon
     {
         if (muzzlePoint == null || _rifleStats.bulletPrefab == null) return;
 
-        // 1. Subtract resource and notify UI
         currentResource--;
         NotifyResourceChange();
 
-        // 2. Spawn bullet
+        // NEW: Play the flash!
+        PlayMuzzleFlash(muzzleFlash, muzzlePoint);
+
         BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(
             _rifleStats.bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
 

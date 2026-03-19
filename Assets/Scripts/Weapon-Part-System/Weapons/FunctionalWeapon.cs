@@ -10,7 +10,6 @@ public abstract class FunctionalWeapon : PartTemplate
     public float maxResource;
     public bool isOverheated { get; protected set; }
 
-    // UI scripts subscribe to this to update bars/numbers
     public event Action<float, float> OnResourceChanged;
 
     public virtual void InitializeWeapon(Part data)
@@ -28,6 +27,15 @@ public abstract class FunctionalWeapon : PartTemplate
     protected void NotifyResourceChange()
     {
         OnResourceChanged?.Invoke(currentResource, maxResource);
+    }
+
+    // --- UPDATED: Now accepts the specific prefab as an argument ---
+    protected void PlayMuzzleFlash(PooledVFX flashPrefab, Transform spawnLocation)
+    {
+        if (flashPrefab != null && GlobalVFXPool.Instance != null && spawnLocation != null)
+        {
+            GlobalVFXPool.Instance.Spawn(flashPrefab, spawnLocation.position, spawnLocation.rotation);
+        }
     }
 
     public abstract void OnFireHeld();
