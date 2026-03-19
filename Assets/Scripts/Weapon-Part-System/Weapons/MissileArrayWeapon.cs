@@ -7,15 +7,14 @@ public class MissileArrayWeapon : FunctionalWeapon
 
     [Header("Missile Array Settings")]
     public List<Transform> muzzlePoints = new List<Transform>();
+    public PooledVFX muzzleFlash; // NEW: Assign flash/smoke here
     public LaunchTrajectory trajectory = LaunchTrajectory.Direct;
     
-    // Internal State
     private FCSLockBox _fcs;
-    private MissileLauncherPart _missileData; // Refactored: Now uses specialized MissileLauncher SO
+    private MissileLauncherPart _missileData; 
     private float _nextFireTime = 0f;
     private float _nextStaggerTime = 0f;
     
-    // Burst Tracking
     private bool _isFiringBurst = false;
     private int _currentBarrelIndex = 0;
     private int _missilesToFireThisBurst = 0;
@@ -24,18 +23,12 @@ public class MissileArrayWeapon : FunctionalWeapon
 
     public override void InitializeWeapon(Part data)
     {
-        print(data.name);
-
         base.InitializeWeapon(data); 
-        
-        // 1. Cast specifically to MissileLauncher
         _missileData = data as MissileLauncherPart;
-
         _fcs = transform.root.GetComponentInChildren<FCSLockBox>();
 
         if (_missileData != null && _missileData.bulletPrefab != null && GlobalProjectilePool.Instance != null)
         {
-            // 2. Pre-warm the pool based on the SO's prefab
             GlobalProjectilePool.Instance.PreWarm(_missileData.bulletPrefab, muzzlePoints.Count * 3);
         }
     }
@@ -55,8 +48,6 @@ public class MissileArrayWeapon : FunctionalWeapon
             }
 
             _missilesToFireThisBurst = Mathf.Min(currentLocks, muzzlePoints.Count, Mathf.FloorToInt(currentResource));
-            
-            Debug.Log($"<color=green>SUCCESS:</color> Preparing to fire {_missilesToFireThisBurst} missiles!");
 
             if (_missilesToFireThisBurst > 0)
             {
@@ -67,6 +58,7 @@ public class MissileArrayWeapon : FunctionalWeapon
             }
         }
     }
+    
     private void Update()
     {
         if (_isFiringBurst && Time.time >= _nextStaggerTime)
@@ -75,15 +67,11 @@ public class MissileArrayWeapon : FunctionalWeapon
 
             _missilesFiredSoFar++;
             _currentBarrelIndex++; 
-            
-            // 3. staggerTime is now pulled from the ScriptableObject!
             _nextStaggerTime = Time.time + _missileData.staggerTime;
 
             if (_missilesFiredSoFar >= _missilesToFireThisBurst || currentResource <= 0)
             {
                 _isFiringBurst = false;
-                
-                // 4. Use firingInterval from the SO base class
                 _nextFireTime = Time.time + (_missileData.firingInterval / 1000f);
             }
         }
@@ -95,6 +83,9 @@ public class MissileArrayWeapon : FunctionalWeapon
 
         Transform muzzle = muzzlePoints[_currentBarrelIndex];
         
+        // NEW: Play flash/smoke effect when tube fires!
+        PlayMuzzleFlash(muzzleFlash, muzzle);
+        
         Quaternion spawnRotation = muzzle.rotation;
         if (trajectory == LaunchTrajectory.Vertical)
         {
@@ -104,7 +95,6 @@ public class MissileArrayWeapon : FunctionalWeapon
         BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(
             _missileData.bulletPrefab, muzzle.position, spawnRotation);
 
-        // 5. Setup stats using MissileLauncher's inherited data
         proj.SetupStats(_missileData.attackPower, _missileData.bulletSpeed);
         proj.SetPrefabReference(_missileData.bulletPrefab);
 

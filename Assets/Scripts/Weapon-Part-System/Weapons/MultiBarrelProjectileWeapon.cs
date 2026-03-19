@@ -9,6 +9,9 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
     [Tooltip("Add all muzzle points in the order they should fire.")]
     public List<Transform> muzzlePoints = new List<Transform>();
     
+    [Tooltip("The muzzle flash to play for every barrel.")]
+    public PooledVFX muzzleFlash; // Reverted to a single variable!
+    
     public FireMode fireMode = FireMode.Sequential;
 
     private Rifle _rifleStats; 
@@ -22,13 +25,11 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
 
         if (_rifleStats == null) return;
 
-        // Auto-calculate pool size
         if (_rifleStats.bulletPrefab != null && GlobalProjectilePool.Instance != null)
         {
             float shotsPerSecond = 1000f / _rifleStats.firingInterval;
             float maxAliveBullets = shotsPerSecond * _rifleStats.bulletPrefab.lifetime;
             
-            // If simultaneous, we need a larger pool buffer
             int multiplier = (fireMode == FireMode.Simultaneous) ? muzzlePoints.Count : 1;
             int optimalPoolSize = (Mathf.CeilToInt(maxAliveBullets) * multiplier) + 5;
 
@@ -42,14 +43,8 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
 
         if (Time.time >= _nextFireTime && currentResource > 0)
         {
-            if (fireMode == FireMode.Sequential)
-            {
-                FireSequential();
-            }
-            else
-            {
-                FireSimultaneous();
-            }
+            if (fireMode == FireMode.Sequential) FireSequential();
+            else FireSimultaneous();
 
             _nextFireTime = Time.time + (_rifleStats.firingInterval / 1000f);
         }
@@ -57,30 +52,29 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
 
     private void FireSequential()
     {
-        // 1. Get current barrel
         Transform currentMuzzle = muzzlePoints[_currentBarrelIndex];
         
-        // 2. Spawn and setup bullet
+        // Play the single flash prefab at the current muzzle
+        PlayMuzzleFlash(muzzleFlash, currentMuzzle);
+
         SpawnBullet(currentMuzzle);
 
-        // 3. Subtract 1 ammo and notify
         currentResource--;
         NotifyResourceChange();
-
-        // 4. Increment index for next shot
         _currentBarrelIndex = (_currentBarrelIndex + 1) % muzzlePoints.Count;
     }
 
     private void FireSimultaneous()
     {
-        // 1. Fire from every barrel at once
         foreach (Transform muzzle in muzzlePoints)
         {
             if (currentResource <= 0) break;
 
+            // Play the single flash prefab at every muzzle that fires
+            PlayMuzzleFlash(muzzleFlash, muzzle);
+
             SpawnBullet(muzzle);
             
-            // 2. Subtract 1 ammo per bullet spawned
             currentResource--;
         }
 
