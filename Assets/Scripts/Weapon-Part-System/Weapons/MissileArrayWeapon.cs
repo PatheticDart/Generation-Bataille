@@ -9,9 +9,11 @@ public class MissileArrayWeapon : FunctionalWeapon
     public List<Transform> muzzlePoints = new List<Transform>();
     public LaunchTrajectory trajectory = LaunchTrajectory.Direct;
     
-    // Internal State
+    [Tooltip("Time between each missile leaving the tube in a single burst.")]
+    public float staggerTime = 0.1f;
+
     private FCSLockBox _fcs;
-    private MissileLauncherPart _missileData; // Refactored: Now uses specialized MissileLauncher SO
+    private Rifle _missileStats; 
     private float _nextFireTime = 0f;
     private float _nextStaggerTime = 0f;
     
@@ -20,42 +22,43 @@ public class MissileArrayWeapon : FunctionalWeapon
     private int _currentBarrelIndex = 0;
     private int _missilesToFireThisBurst = 0;
     private int _missilesFiredSoFar = 0;
+    
+    // NEW: The weapon must remember who we were looking at when the trigger was pulled!
     private Transform _burstTarget;
 
     public override void InitializeWeapon(Part data)
     {
         base.InitializeWeapon(data); 
-        
-        // 1. Cast specifically to MissileLauncher
-        _missileData = data as MissileLauncherPart;
+        _missileStats = data as Rifle;
         
         _fcs = transform.root.GetComponentInChildren<FCSLockBox>();
 
-        if (_missileData != null && _missileData.bulletPrefab != null && GlobalProjectilePool.Instance != null)
+        if (_missileStats != null && _missileStats.bulletPrefab != null && GlobalProjectilePool.Instance != null)
         {
-            // 2. Pre-warm the pool based on the SO's prefab
-            GlobalProjectilePool.Instance.PreWarm(_missileData.bulletPrefab, muzzlePoints.Count * 3);
+            GlobalProjectilePool.Instance.PreWarm(_missileStats.bulletPrefab, muzzlePoints.Count * 3);
         }
     }
 
     public override void OnFirePressed()
     {
-        // Null check against our new data container
-        if (_missileData == null || muzzlePoints.Count == 0) return;
+        if (_missileStats == null || muzzlePoints.Count == 0) return;
 
         if (!_isFiringBurst && Time.time >= _nextFireTime && currentResource > 0)
         {
             int currentLocks = 1; 
-            _burstTarget = null;
+            _burstTarget = null; // Default to no target (dumb-fire)
 
             if (_fcs != null && _fcs.isHardLocked)
             {
                 currentLocks = _fcs.currentLockCount;
+                
+                // 1. SAVE THE TARGET!
                 _burstTarget = _fcs.currentTarget; 
+                
+                // 2. Now it is safe to reset the FCS
                 _fcs.ConsumeLocks(); 
             }
 
-            // Limit missiles by locks, available tubes, and current ammo
             _missilesToFireThisBurst = Mathf.Min(currentLocks, muzzlePoints.Count, Mathf.FloorToInt(currentResource));
             
             if (_missilesToFireThisBurst > 0)
@@ -76,24 +79,18 @@ public class MissileArrayWeapon : FunctionalWeapon
 
             _missilesFiredSoFar++;
             _currentBarrelIndex++; 
-            
-            // 3. staggerTime is now pulled from the ScriptableObject!
-            _nextStaggerTime = Time.time + _missileData.staggerTime;
+            _nextStaggerTime = Time.time + staggerTime;
 
             if (_missilesFiredSoFar >= _missilesToFireThisBurst || currentResource <= 0)
             {
                 _isFiringBurst = false;
-                
-                // 4. Use firingInterval from the SO base class
-                _nextFireTime = Time.time + (_missileData.firingInterval / 1000f);
+                _nextFireTime = Time.time + (_missileStats.firingInterval / 1000f);
             }
         }
     }
 
     private void FireMissileFromCurrentTube()
     {
-        if (_missileData == null) return;
-
         Transform muzzle = muzzlePoints[_currentBarrelIndex];
         
         Quaternion spawnRotation = muzzle.rotation;
@@ -103,12 +100,12 @@ public class MissileArrayWeapon : FunctionalWeapon
         }
 
         BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(
-            _missileData.bulletPrefab, muzzle.position, spawnRotation);
+            _missileStats.bulletPrefab, muzzle.position, spawnRotation);
 
-        // 5. Setup stats using MissileLauncher's inherited data
-        proj.SetupStats(_missileData.attackPower, _missileData.bulletSpeed);
-        proj.SetPrefabReference(_missileData.bulletPrefab);
+        proj.SetupStats(_missileStats.attackPower, _missileStats.bulletSpeed);
+        proj.SetPrefabReference(_missileStats.bulletPrefab);
 
+        // Pass the saved target instead of asking the FCS!
         if (proj is HomingMissile homingMissile)
         {
             homingMissile.SetHomingData(_burstTarget);
