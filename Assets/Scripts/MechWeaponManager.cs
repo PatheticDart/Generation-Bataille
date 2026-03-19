@@ -133,4 +133,16 @@ public class MechWeaponManager : MonoBehaviour
         IsRightTransitioning = false;
         OnWeaponSwapCompleted?.Invoke(false, ActiveRightSlot);
     }
+
+    public void ProcessLeftReload()
+    {
+        if (weaponManager == null) return;
+        if (canFireLeft) weaponManager.ReloadWeapon(true, ActiveLeftSlot);
+    }
+
+    public void ProcessRightReload()
+    {
+        if (weaponManager == null) return;
+        if (canFireRight) weaponManager.ReloadWeapon(false, ActiveRightSlot);
+    }
 }

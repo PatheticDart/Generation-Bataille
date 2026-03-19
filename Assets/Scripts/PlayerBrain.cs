@@ -40,6 +40,7 @@ public class PlayerBrain : MonoBehaviour
     public InputActionReference toggleRightAction;
     public InputActionReference fireLeftAction;
     public InputActionReference fireRightAction;
+    public InputActionReference reloadAction;
 
     private Vector2 cameraRotation;
     private Vector2 lookDelta;
@@ -68,6 +69,7 @@ public class PlayerBrain : MonoBehaviour
         if (toggleRightAction != null) toggleRightAction.action.Enable();
         if (fireLeftAction != null) fireLeftAction.action.Enable();
         if (fireRightAction != null) fireRightAction.action.Enable();
+        if (reloadAction != null) reloadAction.action.Enable(); 
     }
 
     void OnDisable()
@@ -81,6 +83,7 @@ public class PlayerBrain : MonoBehaviour
         if (toggleRightAction != null) toggleRightAction.action.Disable();
         if (fireLeftAction != null) fireLeftAction.action.Disable();
         if (fireRightAction != null) fireRightAction.action.Disable();
+        if (reloadAction != null) reloadAction.action.Disable(); 
     }
 
     void Start()
@@ -118,17 +121,13 @@ public class PlayerBrain : MonoBehaviour
 
         // --- MOVEMENT & ACTIONS ---
         Vector2 moveValue = moveAction.action.ReadValue<Vector2>();
-
-        // Check if the input is coming from a Gamepad
         bool isGamepad = moveAction.action.activeControl != null && moveAction.action.activeControl.device is Gamepad;
 
-        // Apply aggressive deadzone specifically for Gamepads to filter out thumbstick snap-back
         if (isGamepad && moveValue.magnitude < gamepadDeadzone)
         {
             moveValue = Vector2.zero;
         }
 
-        // RESTORED: .normalized forces the animations to be fully on or off, stopping micro-adjustments!
         controller.moveInput = new Vector3(moveValue.x, 0, moveValue.y).normalized;
 
         if (mainCamera != null)
@@ -147,9 +146,38 @@ public class PlayerBrain : MonoBehaviour
         if (toggleLeftAction.action.WasPressedThisFrame()) weaponManager.ToggleLeftWeapon();
         if (toggleRightAction.action.WasPressedThisFrame()) weaponManager.ToggleRightWeapon();
 
-        // --- WEAPON FIRING ---
-        weaponManager.ProcessLeftFire(fireLeftAction.action.WasPressedThisFrame(), fireLeftAction.action.IsPressed(), fireLeftAction.action.WasReleasedThisFrame());
-        weaponManager.ProcessRightFire(fireRightAction.action.WasPressedThisFrame(), fireRightAction.action.IsPressed(), fireRightAction.action.WasReleasedThisFrame());
+        // --- WEAPON FIRING & RELOADING ---
+        bool isReloadModifierHeld = reloadAction != null && reloadAction.action.IsPressed();
+
+        if (isReloadModifierHeld)
+        {
+            // 1. If holding reload, intercept the triggers to perform a reload
+            if (fireLeftAction.action.WasPressedThisFrame()) weaponManager.ProcessLeftReload();
+            if (fireRightAction.action.WasPressedThisFrame()) weaponManager.ProcessRightReload();
+
+            // 2. Safety Catch: If we were holding down the trigger to fire, and SUDDENLY pressed the reload modifier, 
+            // force a "release" signal so automatic weapons stop firing immediately.
+            if (reloadAction.action.WasPressedThisFrame())
+            {
+                weaponManager.ProcessLeftFire(false, false, true);
+                weaponManager.ProcessRightFire(false, false, true);
+            }
+        }
+        else
+        {
+            // 3. Normal Firing State
+            weaponManager.ProcessLeftFire(
+                fireLeftAction.action.WasPressedThisFrame(), 
+                fireLeftAction.action.IsPressed(), 
+                fireLeftAction.action.WasReleasedThisFrame()
+            );
+
+            weaponManager.ProcessRightFire(
+                fireRightAction.action.WasPressedThisFrame(), 
+                fireRightAction.action.IsPressed(), 
+                fireRightAction.action.WasReleasedThisFrame()
+            );
+        }
     }
 
     private void ProcessModernControls()
@@ -235,7 +263,6 @@ public class PlayerBrain : MonoBehaviour
         if (cinemachineFollowTarget == null) return;
 
         Vector2 lookValue = lookAction.action.ReadValue<Vector2>();
-
         bool isGamepad = lookAction.action.activeControl != null && lookAction.action.activeControl.device is Gamepad;
 
         if (isGamepad)
