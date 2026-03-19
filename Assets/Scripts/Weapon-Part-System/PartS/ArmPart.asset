@@ -9,22 +9,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5ce852a0fff29b4cb55694b70a13e85, type: 3}
-  m_Name: LegPart
-  m_EditorClassIdentifier: Assembly-CSharp::LegPart
-  prefab: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 54e261294cc399143a30b9498957ea11, type: 3}
+  m_Name: ArmPart
+  m_EditorClassIdentifier: Assembly-CSharp::ArmPart
   partName: 
   partDescription: 
   price: 0
   weight: 0
+  prefab: {fileID: 4736254782853429846, guid: 2e2d8fef3acc7e5419ad6b5182e88e56, type: 3}
   energyDrain: 0
   armorPoints: 0
   shellDef: 0
   energyDef: 0
-  movingEnergyDrain: 0
-  maxLegWeight: 0
-  movingAbility: 0
-  turningAbility: 0
-  landingStability: 0
-  defenseStability: 0
-  jumpPerformance: 0
+  recoilControl: 0

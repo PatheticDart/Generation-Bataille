@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78f00d33dd50c5b418b863960a55c259, type: 3}
   m_Name: HeadPart
   m_EditorClassIdentifier: Assembly-CSharp::HeadPart
+  prefab: {fileID: 0}
   partName: 
   partDescription: 
   price: 0
   weight: 0
-  prefab: {fileID: 7348662245296258834, guid: 189b873af02d7e545a720091644bfe43, type: 3}
   energyDrain: 0
   armorPoints: 0
   shellDef: 0

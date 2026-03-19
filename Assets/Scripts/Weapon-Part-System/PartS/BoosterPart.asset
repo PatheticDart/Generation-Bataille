@@ -9,16 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3ff72a4b09f22b4cbe75c1c7dbac3bf, type: 3}
-  m_Name: TorsoPart
-  m_EditorClassIdentifier: Assembly-CSharp::TorsoPart
-  prefab: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 6e5359cd2b61ae745b1ce74f5c407e65, type: 3}
+  m_Name: BoosterPart
+  m_EditorClassIdentifier: Assembly-CSharp::Booster
   partName: 
   partDescription: 
   price: 0
   weight: 0
-  energyDrain: 0
-  armorPoints: 0
-  shellDef: 0
-  energyDef: 0
-  maxArmWeight: 0
+  prefab: {fileID: 7579171410865374785, guid: 4dad9fef9088e7246afc739bed3cb276, type: 3}
+  boostPower: 0
+  chargeDrain: 0
