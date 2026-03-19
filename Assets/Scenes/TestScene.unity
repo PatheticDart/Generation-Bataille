@@ -68967,6 +68967,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: //Player
       objectReference: {fileID: 0}
+    - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: leftArmWeapon
+      value: 
+      objectReference: {fileID: 11400000, guid: 1e2bad12e4455b44595852a57f867586, type: 2}
+    - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: rightArmWeapon
+      value: 
+      objectReference: {fileID: 11400000, guid: 7769537fa209c154cabcbc2006da6c34, type: 2}
     - target: {fileID: 4990922796757935852, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -69015,6 +69023,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8756377758456706338, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: reloadAction
+      value: 
+      objectReference: {fileID: 8940067457376140650, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

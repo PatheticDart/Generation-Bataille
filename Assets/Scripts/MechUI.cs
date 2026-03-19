@@ -31,7 +31,7 @@ public class MechUI : MonoBehaviour
     public List<TextMeshProUGUI> leftBackAmmoTexts = new List<TextMeshProUGUI>();
     public List<TextMeshProUGUI> rightBackAmmoTexts = new List<TextMeshProUGUI>();
 
-    [Header("Compact Ammo UI (XX Only)")]
+    [Header("Compact Ammo UI (XX / XX)")]
     public List<TextMeshProUGUI> leftArmCompactTexts = new List<TextMeshProUGUI>();
     public List<TextMeshProUGUI> rightArmCompactTexts = new List<TextMeshProUGUI>();
     public List<TextMeshProUGUI> leftBackCompactTexts = new List<TextMeshProUGUI>();
@@ -73,22 +73,39 @@ public class MechUI : MonoBehaviour
         FunctionalWeapon weapon = weaponManager.GetWeapon(isLeft, slot);
         if (weapon == null) return;
 
-        // Initial update with the slot prefix
-        UpdateAmmoDisplay(prefix, std, compact, weapon.currentResource, weapon.maxResource);
+        // Initial update reading directly from the weapon
+        UpdateAmmoDisplay(prefix, std, compact, weapon);
 
-        // Subscribe to resource changes
-        weapon.OnResourceChanged += (curr, max) => UpdateAmmoDisplay(prefix, std, compact, curr, max);
+        // Subscribe to BOTH resource (clip) and reserve (backpack) changes
+        weapon.OnResourceChanged += (curr, max) => UpdateAmmoDisplay(prefix, std, compact, weapon);
+        weapon.OnReserveAmmoChanged += (reserve) => UpdateAmmoDisplay(prefix, std, compact, weapon);
     }
 
-    private void UpdateAmmoDisplay(string prefix, List<TextMeshProUGUI> stdList, List<TextMeshProUGUI> compactList, float current, float max)
+    // UPDATED: Dynamically checks if the weapon uses a magazine or a bottomless clip
+    private void UpdateAmmoDisplay(string prefix, List<TextMeshProUGUI> stdList, List<TextMeshProUGUI> compactList, FunctionalWeapon weapon)
     {
-        // Update Standard texts: "RA: 15/30"
-        string standardFormat = $"{prefix}: {current:F0}/{max:F0}";
+        string standardFormat = "";
+        string compactFormat = "";
+
+        // Check the ScriptableObject to see if this weapon has a magazine
+        ProjectileWeaponPart projData = weapon.GetWeaponData() as ProjectileWeaponPart;
+
+        if (projData != null && projData.magSize == -1)
+        {
+            // NO MAGAZINE (Belt-Fed/Bottomless): Show ONLY the running total (e.g., "LA: 450")
+            standardFormat = $"{prefix}: {weapon.currentResource:F0}";
+        }
+        else
+        {
+            // STANDARD MAGAZINE: Show Clip / Reserve Ammo in standard UI (e.g., "LA: 30/120")
+            standardFormat = $"{prefix}: {weapon.currentResource:F0}/{weapon.currentReserveAmmo:F0}";
+        }
+
+        compactFormat = $"{weapon.currentResource:F0}";
+
         foreach (var txt in stdList)
             if (txt != null) txt.text = standardFormat;
 
-        // Update Compact texts: "15"
-        string compactFormat = $"{current:F0}";
         foreach (var txt in compactList)
             if (txt != null) txt.text = compactFormat;
     }

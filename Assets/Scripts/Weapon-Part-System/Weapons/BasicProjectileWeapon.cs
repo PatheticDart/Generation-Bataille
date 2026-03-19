@@ -4,56 +4,80 @@ public class BasicProjectileWeapon : FunctionalWeapon
 {
     [Header("Weapon Setup")]
     public Transform muzzlePoint;
-    public PooledVFX muzzleFlash; // NEW: Assign your flash prefab here!
+    public PooledVFX muzzleFlash; 
 
-    private Rifle _rifleStats; 
+    private ProjectileWeaponPart _weaponStats; // Updated from Rifle
     private float _nextFireTime = 0f;
 
     public override void InitializeWeapon(Part data)
     {
         base.InitializeWeapon(data); 
-        _rifleStats = data as Rifle;
+        _weaponStats = data as ProjectileWeaponPart;
 
-        if (_rifleStats == null) return;
+        if (_weaponStats == null) return;
 
-        if (_rifleStats.bulletPrefab != null && GlobalProjectilePool.Instance != null)
+        if (_weaponStats.bulletPrefab != null && GlobalProjectilePool.Instance != null)
         {
-            float shotsPerSecond = 1000f / _rifleStats.firingInterval;
-            float maxAliveBullets = shotsPerSecond * _rifleStats.bulletPrefab.lifetime;
+            float shotsPerSecond = 1000f / _weaponStats.firingInterval;
+            float maxAliveBullets = shotsPerSecond * _weaponStats.bulletPrefab.lifetime;
             int optimalPoolSize = Mathf.CeilToInt(maxAliveBullets) + 5;
 
-            GlobalProjectilePool.Instance.PreWarm(_rifleStats.bulletPrefab, optimalPoolSize);
+            GlobalProjectilePool.Instance.PreWarm(_weaponStats.bulletPrefab, optimalPoolSize);
+        }
+    }
+
+    // --- NEW INPUT ROUTING ---
+    public override void OnFirePressed()
+    {
+        if (_weaponStats != null && _weaponStats.triggerType == WeaponTriggerType.SemiAuto)
+        {
+            TryFire();
         }
     }
 
     public override void OnFireHeld()
     {
-        if (_rifleStats == null) return;
-
-        if (Time.time >= _nextFireTime && currentResource > 0)
+        if (_weaponStats != null && _weaponStats.triggerType == WeaponTriggerType.FullAuto)
         {
-            Fire();
-            _nextFireTime = Time.time + (_rifleStats.firingInterval / 1000f);
+            TryFire();
+        }
+    }
+
+    public override void OnFireReleased() { }
+
+    // --- FIRING LOGIC ---
+    private void TryFire()
+    {
+        if (isReloading) return;
+
+        if (Time.time >= _nextFireTime)
+        {
+            if (currentResource > 0)
+            {
+                Fire();
+                _nextFireTime = Time.time + (_weaponStats.firingInterval / 1000f);
+            }
+            // Auto-Reload if empty
+            else if (currentReserveAmmo > 0)
+            {
+                Reload();
+            }
         }
     }
 
     private void Fire()
     {
-        if (muzzlePoint == null || _rifleStats.bulletPrefab == null) return;
+        if (muzzlePoint == null || _weaponStats.bulletPrefab == null) return;
 
         currentResource--;
         NotifyResourceChange();
 
-        // NEW: Play the flash!
         PlayMuzzleFlash(muzzleFlash, muzzlePoint);
 
         BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(
-            _rifleStats.bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
+            _weaponStats.bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
 
-        proj.SetupStats(_rifleStats.attackPower, _rifleStats.bulletSpeed);
-        proj.SetPrefabReference(_rifleStats.bulletPrefab);
+        proj.SetupStats(_weaponStats.attackPower, _weaponStats.bulletSpeed);
+        proj.SetPrefabReference(_weaponStats.bulletPrefab);
     }
-
-    public override void OnFirePressed() { }
-    public override void OnFireReleased() { }
 }

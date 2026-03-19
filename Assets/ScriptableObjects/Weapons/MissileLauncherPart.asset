@@ -22,7 +22,10 @@ MonoBehaviour:
   isAimableBackWeapon: 1
   attackPower: 800
   ammo: 40
-  firingInterval: 48
+  magSize: 8
+  reloadTime: 2
+  triggerType: 1
+  firingInterval: 2000
   effectiveRange: 400
   bulletSpeed: 500
   bulletPrefab: {fileID: 1308738950659927275, guid: 264b81a56ea4c524ca71c4f9a57f2204, type: 3}
