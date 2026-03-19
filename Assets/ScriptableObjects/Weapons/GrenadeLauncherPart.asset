@@ -20,11 +20,11 @@ MonoBehaviour:
   prefab: {fileID: 2622329409459792130, guid: 50c4032b41c61be49b7cb1e852e014b5, type: 3}
   energyDrain: 8
   allowedLocations: 6
-  ammoType: 0
+  isAimableBackWeapon: 1
   attackPower: 4200
   ammo: 30
-  effectiveRange: 1000
   firingInterval: 1000
-  ammoPrice: 1000
+  effectiveRange: 1000
   bulletSpeed: 1000
   bulletPrefab: {fileID: 2573111247287563323, guid: db0969aa8507d4d4fafeaec9fc9dac6b, type: 3}
+  ammoType: 0
