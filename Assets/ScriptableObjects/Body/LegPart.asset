@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5ce852a0fff29b4cb55694b70a13e85, type: 3}
   m_Name: LegPart
   m_EditorClassIdentifier: Assembly-CSharp::LegPart
-  prefab: {fileID: 0}
   partName: 
   partDescription: 
   price: 0
   weight: 0
+  prefab: {fileID: 3037054784377261881, guid: 58a2558b39ee698419dee504ac9040e9, type: 3}
   energyDrain: 0
   armorPoints: 0
   shellDef: 0
