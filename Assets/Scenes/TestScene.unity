@@ -68974,7 +68974,7 @@ PrefabInstance:
     - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: rightArmWeapon
       value: 
-      objectReference: {fileID: 11400000, guid: 7769537fa209c154cabcbc2006da6c34, type: 2}
+      objectReference: {fileID: 11400000, guid: 21d28d17156617044a9f5c13492092e1, type: 2}
     - target: {fileID: 4990922796757935852, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
