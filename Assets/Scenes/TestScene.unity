@@ -67242,8 +67242,6 @@ MonoBehaviour:
   rightBackActive: 0
   armTransitionTime: 0.3
   backWeaponTransitionTime: 0.6
-  hasAimableLeftBackWeapon: 1
-  hasAimableRightBackWeapon: 1
 --- !u!114 &2136971438
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -68969,34 +68967,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: //Player
       objectReference: {fileID: 0}
-    - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
-      propertyPath: fcsPart
-      value: 
-      objectReference: {fileID: 11400000, guid: fb6366968963ba64d88bb76b136b9171, type: 2}
-    - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
-      propertyPath: armsPart
-      value: 
-      objectReference: {fileID: 11400000, guid: 356e7e35596178c4cbdf8dce34909bb4, type: 2}
-    - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
-      propertyPath: headPart
-      value: 
-      objectReference: {fileID: 11400000, guid: fe8f5ec60a5f70d4282481dfe2c1234b, type: 2}
-    - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
-      propertyPath: legsPart
-      value: 
-      objectReference: {fileID: 11400000, guid: a0d8e29c4862e41478ca49b626fd2b0a, type: 2}
-    - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
-      propertyPath: torsoPart
-      value: 
-      objectReference: {fileID: 11400000, guid: 195905ff58a71ab4ba69ee55e47e8f72, type: 2}
-    - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
-      propertyPath: boosterPart
-      value: 
-      objectReference: {fileID: 11400000, guid: 1c8d2caafb3720747b479e3ddd849fe0, type: 2}
-    - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
-      propertyPath: generatorPart
-      value: 
-      objectReference: {fileID: 11400000, guid: e9b2c84c5a524024aa244a613764a137, type: 2}
     - target: {fileID: 4990922796757935852, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -69044,10 +69014,6 @@ PrefabInstance:
     - target: {fileID: 7361038256474985031, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8756377758456706338, guid: 80496d6bc88cde24babae56a69323157, type: 3}
-      propertyPath: activeControlScheme
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -70179,8 +70145,6 @@ MonoBehaviour:
   rightBackActive: 0
   armTransitionTime: 0.3
   backWeaponTransitionTime: 0.6
-  hasAimableLeftBackWeapon: 1
-  hasAimableRightBackWeapon: 1
 --- !u!4 &2766999452542754277
 Transform:
   m_ObjectHideFlags: 0

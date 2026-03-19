@@ -24,10 +24,13 @@ public class MissileArrayWeapon : FunctionalWeapon
 
     public override void InitializeWeapon(Part data)
     {
+        print(data.name);
+
         base.InitializeWeapon(data); 
         
         // 1. Cast specifically to MissileLauncher
         _missileData = data as MissileLauncherPart;
+
         
         _fcs = transform.root.GetComponentInChildren<FCSLockBox>();
 
@@ -40,10 +43,37 @@ public class MissileArrayWeapon : FunctionalWeapon
 
     public override void OnFirePressed()
     {
-        // Null check against our new data container
-        if (_missileData == null || muzzlePoints.Count == 0) return;
+        Debug.Log("<color=cyan>Missile Pod Trigger Pulled!</color>");
 
-        if (!_isFiringBurst && Time.time >= _nextFireTime && currentResource > 0)
+        // 1. Check if the ScriptableObject is the correct type
+        if (_missileData == null) 
+        {
+            Debug.LogError("FAILED: _missileData is NULL! The Part equipped is likely not a MissileLauncherPart.");
+            return;
+        }
+
+        // 2. Check for Muzzle Points
+        if (muzzlePoints.Count == 0) 
+        {
+            Debug.LogError("FAILED: No muzzle points assigned in the Inspector!");
+            return;
+        }
+
+        // 3. Check Ammo Status
+        if (currentResource <= 0)
+        {
+            Debug.LogWarning("FAILED: Out of Ammo! currentResource is 0.");
+            return;
+        }
+
+        // 4. Check Cooldown
+        if (Time.time < _nextFireTime)
+        {
+            Debug.Log("FAILED: Weapon is cooling down.");
+            return;
+        }
+
+        if (!_isFiringBurst)
         {
             int currentLocks = 1; 
             _burstTarget = null;
@@ -55,9 +85,10 @@ public class MissileArrayWeapon : FunctionalWeapon
                 _fcs.ConsumeLocks(); 
             }
 
-            // Limit missiles by locks, available tubes, and current ammo
             _missilesToFireThisBurst = Mathf.Min(currentLocks, muzzlePoints.Count, Mathf.FloorToInt(currentResource));
             
+            Debug.Log($"<color=green>SUCCESS:</color> Preparing to fire {_missilesToFireThisBurst} missiles!");
+
             if (_missilesToFireThisBurst > 0)
             {
                 _isFiringBurst = true;
@@ -67,7 +98,6 @@ public class MissileArrayWeapon : FunctionalWeapon
             }
         }
     }
-
     private void Update()
     {
         if (_isFiringBurst && Time.time >= _nextStaggerTime)
