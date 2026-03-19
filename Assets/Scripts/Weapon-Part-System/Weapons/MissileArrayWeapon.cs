@@ -31,7 +31,6 @@ public class MissileArrayWeapon : FunctionalWeapon
         // 1. Cast specifically to MissileLauncher
         _missileData = data as MissileLauncherPart;
 
-        
         _fcs = transform.root.GetComponentInChildren<FCSLockBox>();
 
         if (_missileData != null && _missileData.bulletPrefab != null && GlobalProjectilePool.Instance != null)
@@ -43,36 +42,6 @@ public class MissileArrayWeapon : FunctionalWeapon
 
     public override void OnFirePressed()
     {
-        Debug.Log("<color=cyan>Missile Pod Trigger Pulled!</color>");
-
-        // 1. Check if the ScriptableObject is the correct type
-        if (_missileData == null) 
-        {
-            Debug.LogError("FAILED: _missileData is NULL! The Part equipped is likely not a MissileLauncherPart.");
-            return;
-        }
-
-        // 2. Check for Muzzle Points
-        if (muzzlePoints.Count == 0) 
-        {
-            Debug.LogError("FAILED: No muzzle points assigned in the Inspector!");
-            return;
-        }
-
-        // 3. Check Ammo Status
-        if (currentResource <= 0)
-        {
-            Debug.LogWarning("FAILED: Out of Ammo! currentResource is 0.");
-            return;
-        }
-
-        // 4. Check Cooldown
-        if (Time.time < _nextFireTime)
-        {
-            Debug.Log("FAILED: Weapon is cooling down.");
-            return;
-        }
-
         if (!_isFiringBurst)
         {
             int currentLocks = 1; 
