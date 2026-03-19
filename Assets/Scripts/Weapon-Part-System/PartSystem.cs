@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(WeaponManager))]
+// Removed the RequireComponent so it can run naked in the Garage
 public class PartSystem : MonoBehaviour
 {
     [Header("Current Loadout")]
@@ -38,7 +38,7 @@ public class PartSystem : MonoBehaviour
     public Transform targetObject { get; private set; }
 
     // Internal References
-    private WeaponManager _weaponManager;
+    private WeaponManager _weaponManager; // Now optional!
     private GameObject currentLegs;
     private GameObject currentTorso;
     private GameObject currentHead;
@@ -49,6 +49,7 @@ public class PartSystem : MonoBehaviour
 
     private void Awake()
     {
+        // Try to get it, but don't panic if it's missing
         _weaponManager = GetComponent<WeaponManager>();
     }
 
@@ -108,8 +109,6 @@ public class PartSystem : MonoBehaviour
         {
             if (armsPart is VisiblePart visibleArms && visibleArms.prefab != null)
             {
-                // Spawn the combined arms wrapper parent temporarily on the torso 
-                // (using raw Instantiate so we don't trigger events on the wrapper we are about to destroy)
                 GameObject armsWrapper = Instantiate(visibleArms.prefab.gameObject, currentTorso.transform);
 
                 if (armsWrapper != null)
@@ -117,7 +116,6 @@ public class PartSystem : MonoBehaviour
                     Transform extractedLeftArm = null;
                     Transform extractedRightArm = null;
 
-                    // Identify which child is the left arm and which is the right arm by checking the name
                     foreach (Transform child in armsWrapper.transform)
                     {
                         string lowerName = child.name.ToLower();
@@ -131,11 +129,9 @@ public class PartSystem : MonoBehaviour
                         }
                     }
 
-                    // Fallback: If names don't match, just grab the first and second children
                     if (extractedLeftArm == null && armsWrapper.transform.childCount > 0) extractedLeftArm = armsWrapper.transform.GetChild(0);
                     if (extractedRightArm == null && armsWrapper.transform.childCount > 1) extractedRightArm = armsWrapper.transform.GetChild(1);
 
-                    // Slot and sync the Left Arm
                     if (extractedLeftArm != null && leftArmNode != null)
                     {
                         extractedLeftArm.SetParent(leftArmNode, false);
@@ -146,11 +142,9 @@ public class PartSystem : MonoBehaviour
                         SyncPartToBone(currentLeftArm, animLeftArmBone);
                         SyncChildBone(currentLeftArm, "Lower Arm Bone Left", animLowerArmBoneLeft);
                         
-                        // Fire the event on the individual extracted arm
                         if (currentLeftArm.TryGetComponent<PartTemplate>(out PartTemplate lTemp)) lTemp.SpawnPart();
                     }
 
-                    // Slot and sync the Right Arm
                     if (extractedRightArm != null && rightArmNode != null)
                     {
                         extractedRightArm.SetParent(rightArmNode, false);
@@ -161,11 +155,9 @@ public class PartSystem : MonoBehaviour
                         SyncPartToBone(currentRightArm, animRightArmBone);
                         SyncChildBone(currentRightArm, "Lower Arm Bone Right", animLowerArmBoneRight);
                         
-                        // Fire the event on the individual extracted arm
                         if (currentRightArm.TryGetComponent<PartTemplate>(out PartTemplate rTemp)) rTemp.SpawnPart();
                     }
 
-                    // Destroy the empty wrapper parent now that the arms have been extracted
                     DestroyImmediate(armsWrapper);
                 }
             }
@@ -205,14 +197,14 @@ public class PartSystem : MonoBehaviour
         Transform leftBackWepNode = FindDeepChild(currentTorso.transform, "LeftBackWeaponNode");
         if (leftBackWepNode != null && equippedParts.TryGetValue(PartType.BackL, out Part lBackPart))
         {
-            GameObject wepObj = InstantiateWeaponData(lBackPart, leftBackWepNode, true); // true = Look for Left variant
+            GameObject wepObj = InstantiateWeaponData(lBackPart, leftBackWepNode, true); 
             RegisterIfWeapon(PartType.BackL, wepObj, lBackPart);
         }
 
         Transform rightBackWepNode = FindDeepChild(currentTorso.transform, "RightBackWeaponNode");
         if (rightBackWepNode != null && equippedParts.TryGetValue(PartType.BackR, out Part rBackPart))
         {
-            GameObject wepObj = InstantiateWeaponData(rBackPart, rightBackWepNode, false); // false = Look for Right variant
+            GameObject wepObj = InstantiateWeaponData(rBackPart, rightBackWepNode, false); 
             RegisterIfWeapon(PartType.BackR, wepObj, rBackPart);
         }
 
@@ -237,20 +229,16 @@ public class PartSystem : MonoBehaviour
         }
     }
 
-    // --- STANDARD INSTANTIATION HELPER ---
     private GameObject InstantiatePartData(Part partData, Transform parent)
     {
         if (partData == null) return null;
 
         if (partData is VisiblePart visiblePart && visiblePart.prefab != null)
         {
-            // Spawn the generic GameObject
             GameObject obj = Instantiate(visiblePart.prefab, parent);
-
             obj.transform.localPosition = Vector3.zero;
             obj.transform.localRotation = Quaternion.identity;
 
-            // Trigger the initialized event if a template exists
             if (obj.TryGetComponent<PartTemplate>(out PartTemplate temp)) temp.SpawnPart();
             
             return obj;
@@ -259,7 +247,6 @@ public class PartSystem : MonoBehaviour
         return null;
     }
 
-    // --- WEAPON INSTANTIATION HELPER (With Wrapper Extraction) ---
     private GameObject InstantiateWeaponData(Part partData, Transform parent, bool isLeftVariant)
     {
         if (partData == null) return null;
@@ -269,7 +256,6 @@ public class PartSystem : MonoBehaviour
             GameObject wrapper = Instantiate(visiblePart.prefab, parent);
             Transform extractedWeapon = null;
 
-            // Search children for explicit Left or Right variants
             foreach (Transform child in wrapper.transform)
             {
                 string lowerName = child.name.ToLower();
@@ -285,7 +271,6 @@ public class PartSystem : MonoBehaviour
                 }
             }
 
-            // If a specific variant was found, pull it out and destroy the empty wrapper
             if (extractedWeapon != null)
             {
                 extractedWeapon.SetParent(parent, false);
@@ -296,13 +281,11 @@ public class PartSystem : MonoBehaviour
 
                 GameObject finalObj = extractedWeapon.gameObject;
                 
-                // Now we trigger the spawn event on the extracted child
                 if (finalObj.TryGetComponent<PartTemplate>(out PartTemplate temp)) temp.SpawnPart();
                 return finalObj;
             }
             else
             {
-                // Fallback: The prefab didn't have explicitly named L/R children.
                 wrapper.transform.localPosition = Vector3.zero;
                 wrapper.transform.localRotation = Quaternion.identity;
                 
@@ -312,27 +295,30 @@ public class PartSystem : MonoBehaviour
         }
         return null;
     }
-    // --- WEAPON REGISTRATION ---
+
     private void RegisterIfWeapon(PartType slot, GameObject spawnedObj, Part partData) 
     {
         if (spawnedObj == null) return;
 
         if (spawnedObj.TryGetComponent(out FunctionalWeapon weapon))
         {
-            // THIS IS THE MAGIC HANDOFF!
+            // Always initialize the weapon (sets ammo, limits, etc.) so it exists for Garage stats
             weapon.InitializeWeapon(partData); 
 
-            switch (slot)
+            // Only hook up to the firing systems if they actually exist in this scene!
+            if (_weaponManager != null)
             {
-                case PartType.ArmL: _weaponManager.RegisterWeapon(true, 0, weapon); break;
-                case PartType.BackL: _weaponManager.RegisterWeapon(true, 1, weapon); break;
-                case PartType.ArmR: _weaponManager.RegisterWeapon(false, 0, weapon); break;
-                case PartType.BackR: _weaponManager.RegisterWeapon(false, 1, weapon); break;
+                switch (slot)
+                {
+                    case PartType.ArmL: _weaponManager.RegisterWeapon(true, 0, weapon); break;
+                    case PartType.BackL: _weaponManager.RegisterWeapon(true, 1, weapon); break;
+                    case PartType.ArmR: _weaponManager.RegisterWeapon(false, 0, weapon); break;
+                    case PartType.BackR: _weaponManager.RegisterWeapon(false, 1, weapon); break;
+                }
             }
         }
     }
 
-    // --- SYSTEMS CONTROL ---
     public void ToggleThrusters(bool isActive)
     {
         foreach (GameObject thruster in thrusterEffects)
@@ -356,7 +342,6 @@ public class PartSystem : MonoBehaviour
         if (currentLegs) DestroyImmediate(currentLegs);
     }
 
-    // --- UTILITIES ---
     private void SyncChildBone(GameObject parentPart, string childName, Transform targetAnimBone, bool syncPos = false)
     {
         if (parentPart == null || targetAnimBone == null) return;
