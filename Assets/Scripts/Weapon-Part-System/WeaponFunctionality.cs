@@ -17,9 +17,10 @@ public abstract class FunctionalWeapon : PartTemplate
     {
         weaponData = data;
         
-        if (data is ProjectileWeaponPart projPart)
+        // If it's a Rifle, treat ammo as our resource
+        if (data is Rifle rifleData)
         {
-            maxResource = projPart.ammo;
+            maxResource = rifleData.ammo;
             currentResource = maxResource;
             NotifyResourceChange();
         }
@@ -33,6 +34,4 @@ public abstract class FunctionalWeapon : PartTemplate
     public abstract void OnFireHeld();
     public abstract void OnFirePressed();
     public abstract void OnFireReleased();
-
-    public Part GetWeaponData() => weaponData;
 }

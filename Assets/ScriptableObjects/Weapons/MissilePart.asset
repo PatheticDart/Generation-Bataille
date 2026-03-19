@@ -9,24 +9,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b230253491bf4a44bbc63c28bde415f, type: 3}
-  m_Name: VerticalMissileLauncherPart
-  m_EditorClassIdentifier: Assembly-CSharp::MissileLauncherPart
-  partName: ANF-MUR-B
-  partDescription: Small vertical missile launcher with a max lock of 8.
+  m_Script: {fileID: 11500000, guid: 12c78a3e51356a140be18fef25d00749, type: 3}
+  m_Name: MissilePart
+  m_EditorClassIdentifier: Assembly-CSharp::Rifle
+  partName: ANF-MUR
+  partDescription: Small missile launcher with a max lock of 8.
   price: 42000
   weight: 340
-  prefab: {fileID: 4420251380161534136, guid: f2a888c0196c8f7479e2b2429688c7c1, type: 3}
+  prefab: {fileID: 5154452102281366462, guid: dc0bab990e83f614f807be3c88f0271a, type: 3}
   energyDrain: 310
   allowedLocations: 6
-  isAimableBackWeapon: 1
+  ammoType: 0
   attackPower: 800
   ammo: 40
-  firingInterval: 48
   effectiveRange: 400
+  firingInterval: 48
+  ammoPrice: 130
   bulletSpeed: 500
   bulletPrefab: {fileID: 1308738950659927275, guid: 264b81a56ea4c524ca71c4f9a57f2204, type: 3}
-  ammoType: 0
-  staggerTime: 0.2
-  maxLocks: 8
-  launchTrajectory: 1
