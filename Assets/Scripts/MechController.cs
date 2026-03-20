@@ -22,7 +22,6 @@ public class MechController : MonoBehaviour
     public bool isJumping;
 
     [Header("Movement Settings")]
-    [Tooltip("If true, walking, coasting, and hard landings snap to 8-way directions. Boosting remains 360 free-form.")]
     public bool restrictTo8Directions = true;
 
     [Header("Camera & Effects")]
@@ -33,9 +32,11 @@ public class MechController : MonoBehaviour
     public bool isPerfectQuickBoosting = false;
     private float currentQBDuration = 0f;
     private float currentQBCooldown = 0f;
+    private Vector3 qbDirection;
 
-    // NEW: Made public so MechAnimator can read it!
-    public Vector3 qbDirection { get; private set; }
+    // --- ADDED: Expose the locked 4-way direction for the Animator ---
+    public Vector3 LastQBDirection => qbDirection;
+
     private Vector3 worldQBDirection;
 
     private List<GameObject> leftQBThrusters = new List<GameObject>();
@@ -221,7 +222,7 @@ public class MechController : MonoBehaviour
             angle = Mathf.Round(angle / 45f) * 45f;
             lockedBoostDirection = new Vector3(Mathf.Sin(angle * Mathf.Deg2Rad), 0f, Mathf.Cos(angle * Mathf.Deg2Rad)).normalized;
 
-            bool isWalkingStateCheck = controller.isGrounded && !wantsToBoost && !isQuickBoosting;
+            bool isWalkingStateCheck = controller.isGrounded && !wantsToBoost;
             if (restrictTo8Directions && isWalkingStateCheck)
             {
                 currentMoveInput = lockedBoostDirection * currentMoveInput.magnitude;
@@ -298,7 +299,7 @@ public class MechController : MonoBehaviour
 
         Vector3 effectiveMoveInput = currentMoveInput;
 
-        if (isDirectionalCoasting || isCoastingToBrake || isQuickBoosting)
+        if (isDirectionalCoasting || isCoastingToBrake)
         {
             effectiveMoveInput = lockedBoostDirection;
             if (effectiveMoveInput == Vector3.zero) effectiveMoveInput = Vector3.forward;
@@ -325,7 +326,7 @@ public class MechController : MonoBehaviour
         if (controller.isGrounded && effectiveMoveInput.z < -0.1f) currentWalkSpeed *= (1f - stats.backwardSpeedPenalty);
 
         float targetSpeed = canHorizontalBoost ? stats.boostHorizontalSpeed : currentWalkSpeed;
-        bool isWalkingState = controller.isGrounded && !canHorizontalBoost && !isQuickBoosting;
+        bool isWalkingState = controller.isGrounded && !canHorizontalBoost;
 
         Vector3 referenceForward;
         Vector3 referenceRight;
@@ -467,7 +468,6 @@ public class MechController : MonoBehaviour
 
         if (partSystem != null) partSystem.ToggleThrusters(energyUsedThisFrame);
 
-        // --- 11. EXPOSE ANIMATION SYNCHRONIZATION ---
         isAnimationBoosting = canHorizontalBoost || isQuickBoosting;
 
         if (isRecoveringFromLanding && impactWorldDirection.sqrMagnitude > 0.01f)

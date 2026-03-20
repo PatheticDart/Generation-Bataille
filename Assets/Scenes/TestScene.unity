@@ -68967,6 +68967,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: //Player
       objectReference: {fileID: 0}
+    - target: {fileID: 3328027176561732157, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: boostEnergyDrain
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4990922796757935852, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
