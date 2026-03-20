@@ -19,6 +19,12 @@ public class MechAnimator : MonoBehaviour
     private readonly int isBoostingHash = Animator.StringToHash("IsBoosting");
     private readonly int isMovingHash = Animator.StringToHash("IsMoving");
 
+    // --- ADDED: Quick Boost Hashes ---
+    private readonly int isQuickBoostingHash = Animator.StringToHash("IsQuickBoosting");
+    private readonly int isPerfectQuickBoostingHash = Animator.StringToHash("IsPerfectQuickBoosting");
+    private readonly int qbxHash = Animator.StringToHash("QBX"); // NEW
+    private readonly int qbyHash = Animator.StringToHash("QBY"); // NEW
+
     [Header("Animation Blending")]
     [Tooltip("How long it takes (in seconds) for the walk animation to reach full speed.")]
     public float blendSmoothTime = 0.15f;
@@ -72,5 +78,17 @@ public class MechAnimator : MonoBehaviour
         animator.SetBool(isJumpingHash, mechController.isPreparingToJump);
         animator.SetBool(isGroundedHash, characterController.isGrounded);
         animator.SetBool(hardLandingHash, mechController.isRecoveringFromLanding);
+
+        // --- 5. ADDED: QUICK BOOST ANIMATION OVERRIDES ---
+        animator.SetBool(isQuickBoostingHash, mechController.isQuickBoosting);
+        animator.SetBool(isPerfectQuickBoostingHash, mechController.isPerfectQuickBoosting);
+
+        // Feed the dash direction specifically into the QB Blend tree parameters!
+        // This isolates the Quick Boost from the standard movement so transitions work properly.
+        if (mechController.isQuickBoosting)
+        {
+            animator.SetFloat(qbxHash, mechController.LastQBDirection.x);
+            animator.SetFloat(qbyHash, mechController.LastQBDirection.z);
+        }
     }
 }

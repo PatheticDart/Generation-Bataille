@@ -12,10 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b271d1581198a740bf23cecf6ea68ef, type: 3}
   m_Name: GeneratorPart
   m_EditorClassIdentifier: Assembly-CSharp::Generator
-  prefab: {fileID: 0}
-  partName: 
-  partDescription: 
+  partName: 19-SN
+  partDescription: Balanced generator part.
   price: 0
   weight: 0
-  energyCapacity: 0
-  energyOutput: 0
+  energyCapacity: 2100
+  energyOutput: 400

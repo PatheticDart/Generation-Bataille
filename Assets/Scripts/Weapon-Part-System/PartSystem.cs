@@ -141,7 +141,7 @@ public class PartSystem : MonoBehaviour
                         currentLeftArm = extractedLeftArm.gameObject;
                         SyncPartToBone(currentLeftArm, animLeftArmBone);
                         SyncChildBone(currentLeftArm, "Lower Arm Bone Left", animLowerArmBoneLeft);
-                        
+
                         if (currentLeftArm.TryGetComponent<PartTemplate>(out PartTemplate lTemp)) lTemp.SpawnPart();
                     }
 
@@ -154,7 +154,7 @@ public class PartSystem : MonoBehaviour
                         currentRightArm = extractedRightArm.gameObject;
                         SyncPartToBone(currentRightArm, animRightArmBone);
                         SyncChildBone(currentRightArm, "Lower Arm Bone Right", animLowerArmBoneRight);
-                        
+
                         if (currentRightArm.TryGetComponent<PartTemplate>(out PartTemplate rTemp)) rTemp.SpawnPart();
                     }
 
@@ -197,14 +197,14 @@ public class PartSystem : MonoBehaviour
         Transform leftBackWepNode = FindDeepChild(currentTorso.transform, "LeftBackWeaponNode");
         if (leftBackWepNode != null && equippedParts.TryGetValue(PartType.BackL, out Part lBackPart))
         {
-            GameObject wepObj = InstantiateWeaponData(lBackPart, leftBackWepNode, true); 
+            GameObject wepObj = InstantiateWeaponData(lBackPart, leftBackWepNode, true);
             RegisterIfWeapon(PartType.BackL, wepObj, lBackPart);
         }
 
         Transform rightBackWepNode = FindDeepChild(currentTorso.transform, "RightBackWeaponNode");
         if (rightBackWepNode != null && equippedParts.TryGetValue(PartType.BackR, out Part rBackPart))
         {
-            GameObject wepObj = InstantiateWeaponData(rBackPart, rightBackWepNode, false); 
+            GameObject wepObj = InstantiateWeaponData(rBackPart, rightBackWepNode, false);
             RegisterIfWeapon(PartType.BackR, wepObj, rBackPart);
         }
 
@@ -214,7 +214,7 @@ public class PartSystem : MonoBehaviour
             if (lArmWepNode != null)
             {
                 GameObject wepObj = InstantiateWeaponData(lArmWepPart, lArmWepNode, true);
-                RegisterIfWeapon(PartType.ArmL, wepObj, lArmWepPart); 
+                RegisterIfWeapon(PartType.ArmL, wepObj, lArmWepPart);
             }
         }
 
@@ -240,7 +240,7 @@ public class PartSystem : MonoBehaviour
             obj.transform.localRotation = Quaternion.identity;
 
             if (obj.TryGetComponent<PartTemplate>(out PartTemplate temp)) temp.SpawnPart();
-            
+
             return obj;
         }
 
@@ -276,11 +276,11 @@ public class PartSystem : MonoBehaviour
                 extractedWeapon.SetParent(parent, false);
                 extractedWeapon.localPosition = Vector3.zero;
                 extractedWeapon.localRotation = Quaternion.identity;
-                
+
                 DestroyImmediate(wrapper);
 
                 GameObject finalObj = extractedWeapon.gameObject;
-                
+
                 if (finalObj.TryGetComponent<PartTemplate>(out PartTemplate temp)) temp.SpawnPart();
                 return finalObj;
             }
@@ -288,7 +288,7 @@ public class PartSystem : MonoBehaviour
             {
                 wrapper.transform.localPosition = Vector3.zero;
                 wrapper.transform.localRotation = Quaternion.identity;
-                
+
                 if (wrapper.TryGetComponent<PartTemplate>(out PartTemplate temp)) temp.SpawnPart();
                 return wrapper;
             }
@@ -296,14 +296,14 @@ public class PartSystem : MonoBehaviour
         return null;
     }
 
-    private void RegisterIfWeapon(PartType slot, GameObject spawnedObj, Part partData) 
+    private void RegisterIfWeapon(PartType slot, GameObject spawnedObj, Part partData)
     {
         if (spawnedObj == null) return;
 
         if (spawnedObj.TryGetComponent(out FunctionalWeapon weapon))
         {
             // Always initialize the weapon (sets ammo, limits, etc.) so it exists for Garage stats
-            weapon.InitializeWeapon(partData); 
+            weapon.InitializeWeapon(partData);
 
             // Only hook up to the firing systems if they actually exist in this scene!
             if (_weaponManager != null)

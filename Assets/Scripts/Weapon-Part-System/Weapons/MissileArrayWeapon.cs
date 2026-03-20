@@ -7,15 +7,14 @@ public class MissileArrayWeapon : FunctionalWeapon
 
     [Header("Missile Array Settings")]
     public List<Transform> muzzlePoints = new List<Transform>();
+    public PooledVFX muzzleFlash; 
     public LaunchTrajectory trajectory = LaunchTrajectory.Direct;
     
-    // Internal State
     private FCSLockBox _fcs;
-    private MissileLauncherPart _missileData; // Refactored: Now uses specialized MissileLauncher SO
+    private MissileLauncherPart _missileData; 
     private float _nextFireTime = 0f;
     private float _nextStaggerTime = 0f;
     
-    // Burst Tracking
     private bool _isFiringBurst = false;
     private int _currentBarrelIndex = 0;
     private int _missilesToFireThisBurst = 0;
@@ -25,66 +24,83 @@ public class MissileArrayWeapon : FunctionalWeapon
     public override void InitializeWeapon(Part data)
     {
         base.InitializeWeapon(data); 
-        
-        // 1. Cast specifically to MissileLauncher
         _missileData = data as MissileLauncherPart;
-        
         _fcs = transform.root.GetComponentInChildren<FCSLockBox>();
 
         if (_missileData != null && _missileData.bulletPrefab != null && GlobalProjectilePool.Instance != null)
         {
-            // 2. Pre-warm the pool based on the SO's prefab
             GlobalProjectilePool.Instance.PreWarm(_missileData.bulletPrefab, muzzlePoints.Count * 3);
         }
     }
 
     public override void OnFirePressed()
     {
-        // Null check against our new data container
-        if (_missileData == null || muzzlePoints.Count == 0) return;
+        // Block firing if currently reloading
+        if (isReloading || _missileData == null) return;
 
-        if (!_isFiringBurst && Time.time >= _nextFireTime && currentResource > 0)
+        // Check if the weapon has cooled down from the last shot/burst
+        if (!_isFiringBurst && Time.time >= _nextFireTime)
         {
-            int currentLocks = 1; 
-            _burstTarget = null;
-
-            if (_fcs != null && _fcs.isHardLocked)
+            if (currentResource > 0)
             {
-                currentLocks = _fcs.currentLockCount;
-                _burstTarget = _fcs.currentTarget; 
-                _fcs.ConsumeLocks(); 
+                // --- NORMAL FIRING LOGIC ---
+                int currentLocks = 1; 
+                _burstTarget = null;
+
+                if (_fcs != null && _fcs.isHardLocked)
+                {
+                    currentLocks = _fcs.currentLockCount;
+                    _burstTarget = _fcs.currentTarget; 
+                    _fcs.ConsumeLocks(); 
+                }
+
+                _missilesToFireThisBurst = Mathf.Min(currentLocks, muzzlePoints.Count, Mathf.FloorToInt(currentResource));
+
+                if (_missilesToFireThisBurst > 0)
+                {
+                    _isFiringBurst = true;
+                    _missilesFiredSoFar = 0;
+                    _currentBarrelIndex = 0;
+                    _nextStaggerTime = Time.time; 
+                }
             }
-
-            // Limit missiles by locks, available tubes, and current ammo
-            _missilesToFireThisBurst = Mathf.Min(currentLocks, muzzlePoints.Count, Mathf.FloorToInt(currentResource));
-            
-            if (_missilesToFireThisBurst > 0)
+            else
             {
-                _isFiringBurst = true;
-                _missilesFiredSoFar = 0;
-                _currentBarrelIndex = 0;
-                _nextStaggerTime = Time.time; 
+                // --- DRY FIRE LOGIC ---
+                // Apply the cooldown penalty even if nothing fired
+                _nextFireTime = Time.time + (_missileData.firingInterval / 1000f);
+                
+                // Auto-reload if we have spare ammo
+                if (currentReserveAmmo > 0)
+                {
+                    Reload();
+                }
             }
         }
     }
-
+    
     private void Update()
     {
+        // Safety Catch: Cancel the burst if a reload is triggered mid-volley
+        if (isReloading && _isFiringBurst)
+        {
+            _isFiringBurst = false;
+            _nextFireTime = Time.time + (_missileData.firingInterval / 1000f);
+            return;
+        }
+
         if (_isFiringBurst && Time.time >= _nextStaggerTime)
         {
             FireMissileFromCurrentTube();
 
             _missilesFiredSoFar++;
             _currentBarrelIndex++; 
-            
-            // 3. staggerTime is now pulled from the ScriptableObject!
             _nextStaggerTime = Time.time + _missileData.staggerTime;
 
+            // Check if the burst is finished, or if we ran out of ammo mid-burst
             if (_missilesFiredSoFar >= _missilesToFireThisBurst || currentResource <= 0)
             {
                 _isFiringBurst = false;
-                
-                // 4. Use firingInterval from the SO base class
                 _nextFireTime = Time.time + (_missileData.firingInterval / 1000f);
             }
         }
@@ -96,6 +112,8 @@ public class MissileArrayWeapon : FunctionalWeapon
 
         Transform muzzle = muzzlePoints[_currentBarrelIndex];
         
+        PlayMuzzleFlash(muzzleFlash, muzzle);
+        
         Quaternion spawnRotation = muzzle.rotation;
         if (trajectory == LaunchTrajectory.Vertical)
         {
@@ -105,7 +123,6 @@ public class MissileArrayWeapon : FunctionalWeapon
         BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(
             _missileData.bulletPrefab, muzzle.position, spawnRotation);
 
-        // 5. Setup stats using MissileLauncher's inherited data
         proj.SetupStats(_missileData.attackPower, _missileData.bulletSpeed);
         proj.SetPrefabReference(_missileData.bulletPrefab);
 

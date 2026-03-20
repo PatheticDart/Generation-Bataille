@@ -6,81 +6,94 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
     public enum FireMode { Sequential, Simultaneous }
 
     [Header("Multi-Barrel Setup")]
-    [Tooltip("Add all muzzle points in the order they should fire.")]
     public List<Transform> muzzlePoints = new List<Transform>();
-    
+    public PooledVFX muzzleFlash; 
     public FireMode fireMode = FireMode.Sequential;
 
-    private Rifle _rifleStats; 
+    private ProjectileWeaponPart _weaponStats; // Updated from Rifle
     private float _nextFireTime = 0f;
     private int _currentBarrelIndex = 0;
 
     public override void InitializeWeapon(Part data)
     {
         base.InitializeWeapon(data); 
-        _rifleStats = data as Rifle;
+        _weaponStats = data as ProjectileWeaponPart;
 
-        if (_rifleStats == null) return;
+        if (_weaponStats == null) return;
 
-        // Auto-calculate pool size
-        if (_rifleStats.bulletPrefab != null && GlobalProjectilePool.Instance != null)
+        if (_weaponStats.bulletPrefab != null && GlobalProjectilePool.Instance != null)
         {
-            float shotsPerSecond = 1000f / _rifleStats.firingInterval;
-            float maxAliveBullets = shotsPerSecond * _rifleStats.bulletPrefab.lifetime;
+            float shotsPerSecond = 1000f / _weaponStats.firingInterval;
+            float maxAliveBullets = shotsPerSecond * _weaponStats.bulletPrefab.lifetime;
             
-            // If simultaneous, we need a larger pool buffer
             int multiplier = (fireMode == FireMode.Simultaneous) ? muzzlePoints.Count : 1;
             int optimalPoolSize = (Mathf.CeilToInt(maxAliveBullets) * multiplier) + 5;
 
-            GlobalProjectilePool.Instance.PreWarm(_rifleStats.bulletPrefab, optimalPoolSize);
+            GlobalProjectilePool.Instance.PreWarm(_weaponStats.bulletPrefab, optimalPoolSize);
+        }
+    }
+
+    // --- NEW INPUT ROUTING ---
+    public override void OnFirePressed()
+    {
+        if (_weaponStats != null && _weaponStats.triggerType == WeaponTriggerType.SemiAuto)
+        {
+            TryFire();
         }
     }
 
     public override void OnFireHeld()
     {
-        if (_rifleStats == null || muzzlePoints.Count == 0) return;
-
-        if (Time.time >= _nextFireTime && currentResource > 0)
+        if (_weaponStats != null && _weaponStats.triggerType == WeaponTriggerType.FullAuto)
         {
-            if (fireMode == FireMode.Sequential)
-            {
-                FireSequential();
-            }
-            else
-            {
-                FireSimultaneous();
-            }
+            TryFire();
+        }
+    }
 
-            _nextFireTime = Time.time + (_rifleStats.firingInterval / 1000f);
+    public override void OnFireReleased() { }
+
+    // --- FIRING LOGIC ---
+    private void TryFire()
+    {
+        if (isReloading || muzzlePoints.Count == 0) return;
+
+        if (Time.time >= _nextFireTime)
+        {
+            if (currentResource > 0)
+            {
+                if (fireMode == FireMode.Sequential) FireSequential();
+                else FireSimultaneous();
+
+                _nextFireTime = Time.time + (_weaponStats.firingInterval / 1000f);
+            }
+            else if (currentReserveAmmo > 0)
+            {
+                Reload();
+            }
         }
     }
 
     private void FireSequential()
     {
-        // 1. Get current barrel
         Transform currentMuzzle = muzzlePoints[_currentBarrelIndex];
         
-        // 2. Spawn and setup bullet
+        PlayMuzzleFlash(muzzleFlash, currentMuzzle);
         SpawnBullet(currentMuzzle);
 
-        // 3. Subtract 1 ammo and notify
         currentResource--;
         NotifyResourceChange();
-
-        // 4. Increment index for next shot
         _currentBarrelIndex = (_currentBarrelIndex + 1) % muzzlePoints.Count;
     }
 
     private void FireSimultaneous()
     {
-        // 1. Fire from every barrel at once
         foreach (Transform muzzle in muzzlePoints)
         {
             if (currentResource <= 0) break;
 
+            PlayMuzzleFlash(muzzleFlash, muzzle);
             SpawnBullet(muzzle);
             
-            // 2. Subtract 1 ammo per bullet spawned
             currentResource--;
         }
 
@@ -89,15 +102,12 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
 
     private void SpawnBullet(Transform muzzle)
     {
-        if (_rifleStats.bulletPrefab == null || GlobalProjectilePool.Instance == null) return;
+        if (_weaponStats.bulletPrefab == null || GlobalProjectilePool.Instance == null) return;
 
         BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(
-            _rifleStats.bulletPrefab, muzzle.position, muzzle.rotation);
+            _weaponStats.bulletPrefab, muzzle.position, muzzle.rotation);
 
-        proj.SetupStats(_rifleStats.attackPower, _rifleStats.bulletSpeed);
-        proj.SetPrefabReference(_rifleStats.bulletPrefab);
+        proj.SetupStats(_weaponStats.attackPower, _weaponStats.bulletSpeed);
+        proj.SetPrefabReference(_weaponStats.bulletPrefab);
     }
-
-    public override void OnFirePressed() { }
-    public override void OnFireReleased() { }
 }

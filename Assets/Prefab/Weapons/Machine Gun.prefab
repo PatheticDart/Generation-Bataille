@@ -85,6 +85,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5819381501629294965, guid: e9de59653d4f98e468126cf709a1eb20, type: 3}
+      propertyPath: muzzleFlash
+      value: 
+      objectReference: {fileID: 290559836538120028, guid: 5f2bc166e68df974bb952c4ec5c43454, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -147,6 +151,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Machine Gun Left
       objectReference: {fileID: 0}
+    - target: {fileID: 3718086899982607002, guid: 8c3bcac9b580251459a95c748ff9fc0f, type: 3}
+      propertyPath: muzzleFlash
+      value: 
+      objectReference: {fileID: 290559836538120028, guid: 5f2bc166e68df974bb952c4ec5c43454, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -51,4 +51,10 @@ public class WeaponManager : MonoBehaviour
         FunctionalWeapon weapon = GetWeapon(isLeft, slotIndex);
         if (weapon != null) weapon.OnFireReleased();
     }
+
+    public void ReloadWeapon(bool isLeft, int slotIndex)
+    {
+        FunctionalWeapon weapon = GetWeapon(isLeft, slotIndex);
+        if (weapon != null) weapon.Reload();
+    }
 }

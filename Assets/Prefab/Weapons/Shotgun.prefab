@@ -85,11 +85,56 @@ PrefabInstance:
       propertyPath: m_Name
       value: Shotgun Right
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1089574026616415788, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3111345794358289759, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7812955070878176545}
   m_SourcePrefab: {fileID: 100100000, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+--- !u!4 &1038807024587722681 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7064380063155641323, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+  m_PrefabInstance: {fileID: 7810135936859444306}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5138208888992346381 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3111345794358289759, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+  m_PrefabInstance: {fileID: 7810135936859444306}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7812955070878176545
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5138208888992346381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f90362cef7945ae458053069a5071651, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MultiBarrelShotgunProjectileWeapon
+  OnPartSpawned:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPartDestroyed:
+    m_PersistentCalls:
+      m_Calls: []
+  currentResource: 0
+  maxResource: 0
+  currentReserveAmmo: 0
+  muzzlePoints:
+  - {fileID: 1038807024587722681}
+  - {fileID: 6436900858104851044}
+  muzzleFlash: {fileID: 0}
+  fireMode: 0
+--- !u!4 &6436900858104851044 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3834633082824703542, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+  m_PrefabInstance: {fileID: 7810135936859444306}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7775398684987270538 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 541820266044568024, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
@@ -147,11 +192,56 @@ PrefabInstance:
       propertyPath: m_Name
       value: Shotgun Left
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 708977486322909647, guid: 4b9133a177787e842b0414e6692ede5e, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7498971394007588889, guid: 4b9133a177787e842b0414e6692ede5e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5103571852652879752}
   m_SourcePrefab: {fileID: 100100000, guid: 4b9133a177787e842b0414e6692ede5e, type: 3}
+--- !u!4 &1099851461942969109 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8070691076085844905, guid: 4b9133a177787e842b0414e6692ede5e, type: 3}
+  m_PrefabInstance: {fileID: 9170366600800176316}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1680437592839841957 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7498971394007588889, guid: 4b9133a177787e842b0414e6692ede5e, type: 3}
+  m_PrefabInstance: {fileID: 9170366600800176316}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5103571852652879752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1680437592839841957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f90362cef7945ae458053069a5071651, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MultiBarrelShotgunProjectileWeapon
+  OnPartSpawned:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPartDestroyed:
+    m_PersistentCalls:
+      m_Calls: []
+  currentResource: 0
+  maxResource: 0
+  currentReserveAmmo: 0
+  muzzlePoints:
+  - {fileID: 1099851461942969109}
+  - {fileID: 3460031014199811208}
+  muzzleFlash: {fileID: 0}
+  fireMode: 0
+--- !u!4 &3460031014199811208 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5712763583461053492, guid: 4b9133a177787e842b0414e6692ede5e, type: 3}
+  m_PrefabInstance: {fileID: 9170366600800176316}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6176517222043351820 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3095321385161257904, guid: 4b9133a177787e842b0414e6692ede5e, type: 3}

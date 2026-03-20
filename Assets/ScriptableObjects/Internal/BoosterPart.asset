@@ -12,10 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e5359cd2b61ae745b1ce74f5c407e65, type: 3}
   m_Name: BoosterPart
   m_EditorClassIdentifier: Assembly-CSharp::Booster
-  prefab: {fileID: 0}
-  partName: 
-  partDescription: 
-  price: 0
-  weight: 0
-  boostPower: 0
-  chargeDrain: 0
+  partName: HB-PRTR
+  partDescription: A balanced booster part.
+  price: 9000
+  weight: 352
+  prefab: {fileID: 7579171410865374785, guid: 4dad9fef9088e7246afc739bed3cb276, type: 3}
+  energyDrain: 900
+  horizontalThrust: 80
+  verticalThrust: 40
+  boostEnergyDrain: 0
+  qBThrust: 150
+  qBEnergyDrain: 100
+  qBDuration: 0.1
+  qBCooldown: 0.8
