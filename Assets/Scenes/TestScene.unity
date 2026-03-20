@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: b6a3f8bca2c865243929bac258c89b96, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: a09e2e60f7cbcfb469fd9ba84e6bb618, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -68963,13 +68963,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -5157870566770040994, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1441388170710831350, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_Name
       value: //Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 3328027176561732157, guid: 80496d6bc88cde24babae56a69323157, type: 3}
-      propertyPath: boostEnergyDrain
-      value: 900
       objectReference: {fileID: 0}
     - target: {fileID: 4990922796757935852, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_AnchorMax.x
@@ -69018,6 +69018,30 @@ PrefabInstance:
     - target: {fileID: 7361038256474985031, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8663662789748078319, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8663662789748078319, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 5.3999996
+      objectReference: {fileID: 0}
+    - target: {fileID: 8663662789748078319, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -16
+      objectReference: {fileID: 0}
+    - target: {fileID: 8663662789748078319, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8663662789748078319, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8756377758456706338, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
