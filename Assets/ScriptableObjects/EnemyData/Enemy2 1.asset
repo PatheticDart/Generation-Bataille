@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d44459729e361f48b932918d4f04aa4, type: 3}
   m_Name: Enemy2 1
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
-  enemyName: Gadex
+  enemyName: G-D3X
   health: 100
   damage: 30
   description: This is a description, a description made by Gadex John S. Ignacio,
