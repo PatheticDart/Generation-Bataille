@@ -152,7 +152,16 @@ MonoBehaviour:
   enemyDamageText: {fileID: 0}
   enemyDescriptionText: {fileID: 0}
   buttonLabel: {fileID: 6258619921799421336}
+  spawnPointObject: {fileID: 0}
   spawnPoint: {fileID: 0}
+  DRankSprite: {fileID: -406399696, guid: f321cfa317dcd7a4c98eaba1bad8ad8a, type: 3}
+  CRankSprite: {fileID: 1248716271, guid: f321cfa317dcd7a4c98eaba1bad8ad8a, type: 3}
+  BRankSprite: {fileID: -1871189286, guid: f321cfa317dcd7a4c98eaba1bad8ad8a, type: 3}
+  ARankSprite: {fileID: -1382957613, guid: f321cfa317dcd7a4c98eaba1bad8ad8a, type: 3}
+  SRankSprite: {fileID: -1250545144, guid: f321cfa317dcd7a4c98eaba1bad8ad8a, type: 3}
+  SSRankSprite: {fileID: -1071580432, guid: f321cfa317dcd7a4c98eaba1bad8ad8a, type: 3}
+  SSSRankSprite: {fileID: -833297597, guid: f321cfa317dcd7a4c98eaba1bad8ad8a, type: 3}
+  rankSpriteRenderer: {fileID: 0}
 --- !u!1 &3167818258194844526
 GameObject:
   m_ObjectHideFlags: 0
