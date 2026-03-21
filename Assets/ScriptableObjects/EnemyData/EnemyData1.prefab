@@ -1,0 +1,170 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7474755267847157253
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2944972614044366879}
+  - component: {fileID: 1474967887709379409}
+  - component: {fileID: 2842011784654872814}
+  m_Layer: 0
+  m_Name: EnemyData1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2944972614044366879
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7474755267847157253}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 11.54, y: -12.71, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1883539513088270510}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1474967887709379409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7474755267847157253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f2e6d1472ef3db4fbf6ecc05f1ff4c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MechStats
+  maxEnergy: 1000
+  currentEnergy: 0
+  energyRegenRate: 150
+  depletedRegenRate: 50
+  energyIsDepleted: 0
+  turnSpeed: 5
+  walkSpeed: 15
+  boostHorizontalSpeed: 35
+  boostVerticalSpeed: 25
+  boostEnergyDrain: 200
+  jumpForce: 12
+  jumpDelay: 0.25
+  totalWeight: 30000
+  baselineWeight: 30000
+  qbThrust: 80
+  qbEnergyDrain: 150
+  qbDuration: 0.35
+  qbReloadTime: 0.8
+  walkAcceleration: 25
+  walkDeceleration: 30
+  boostAcceleration: 10
+  boostDeceleration: 15
+  backwardSpeedPenalty: 0.3
+  brakeBufferTime: 0.3
+  brakeSlideDeceleration: 5
+  baseBrakeTime: 0.4
+  maxBrakeTime: 1
+  hardLandingSlideDeceleration: 5
+  minHardLandingThreshold: -25
+  maxHardLandingThreshold: -80
+  baseHardLandingTime: 0.5
+  maxHardLandingTime: 2.5
+  airAcceleration: 5
+  airDeceleration: 1.5
+--- !u!114 &2842011784654872814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7474755267847157253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a476de0f932cf5d448f9f8ac5da642cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MechLoader
+  legParts:
+  - {fileID: 3037054784377261881, guid: 58a2558b39ee698419dee504ac9040e9, type: 3}
+  torsoParts:
+  - {fileID: 2150226367516778880, guid: a540d15f01c45824091e07da3e4031ad, type: 3}
+  headParts:
+  - {fileID: 7348662245296258834, guid: 189b873af02d7e545a720091644bfe43, type: 3}
+  armParts: []
+  boosterParts:
+  - {fileID: 7579171410865374785, guid: 4dad9fef9088e7246afc739bed3cb276, type: 3}
+  leftArmWeapons:
+  - {fileID: 4608951799912334187, guid: 25cc9e16c8242334bbf79112c374bb00, type: 3}
+  rightArmWeapons:
+  - {fileID: 3857236029142703444, guid: 8d87c34f531a7254687d263bcfc6fb0e, type: 3}
+  leftBackWeapons:
+  - {fileID: 1169094505111196653, guid: 221c6d06b7adf4747bcae0db0384c6b1, type: 3}
+  rightBackWeapons:
+  - {fileID: 2075307895133015180, guid: a351ad4b5abfd8a428e4c5379b7a4862, type: 3}
+  fcsParts: []
+  generatorParts: []
+  legsNode: {fileID: 1883539513088270510}
+  animMasterBone: {fileID: 0}
+  animTorsoMainBone: {fileID: 0}
+  animHeadBone: {fileID: 0}
+  animLeftArmBone: {fileID: 0}
+  animLowerArmBoneLeft: {fileID: 0}
+  animRightArmBone: {fileID: 0}
+  animLowerArmBoneRight: {fileID: 0}
+  animLegMainBoneLeft: {fileID: 0}
+  animLowerLegBoneLeft: {fileID: 0}
+  animFootBoneLeft: {fileID: 0}
+  animLegMainBoneRight: {fileID: 0}
+  animLowerLegBoneRight: {fileID: 0}
+  animFootBoneRight: {fileID: 0}
+  animBoosterBones: []
+  loadOnStart: 1
+  legIndex: 0
+  torsoIndex: 0
+  headIndex: 0
+  armIndex: 0
+  boosterIndex: 0
+  lArmWepIndex: 0
+  rArmWepIndex: 0
+  lBackWepIndex: 0
+  rBackWepIndex: 0
+  fcsTargetLayer: 8
+--- !u!1 &9155241686950412404
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1883539513088270510}
+  m_Layer: 0
+  m_Name: Spawn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1883539513088270510
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9155241686950412404}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 212, y: 212, z: 212}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2944972614044366879}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
