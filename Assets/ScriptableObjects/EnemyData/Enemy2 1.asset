@@ -10,10 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8d44459729e361f48b932918d4f04aa4, type: 3}
-  m_Name: Enemy2
+  m_Name: Enemy2 1
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
-  enemyName: Borus
-  health: 20
+  enemyName: Gadex
+  health: 100
   damage: 30
-  description: Borususususu
+  description: This is a description, a description made by Gadex John S. Ignacio,
+    blelelelelelele
   enemyPrefab: {fileID: 7474755267847157253, guid: 432d594bd82e913448cd8cad186411f6, type: 3}

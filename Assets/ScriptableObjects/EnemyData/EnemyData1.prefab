@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2944972614044366879}
   - component: {fileID: 1474967887709379409}
   - component: {fileID: 2842011784654872814}
+  - component: {fileID: 9002878848793862012}
   m_Layer: 0
   m_Name: EnemyData1
   m_TagString: Untagged
@@ -137,6 +138,21 @@ MonoBehaviour:
   lBackWepIndex: 0
   rBackWepIndex: 0
   fcsTargetLayer: 8
+--- !u!114 &9002878848793862012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7474755267847157253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69d366093d0a0754eb31590b7e316e08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RotateObject
+  spawnPoint: {fileID: 0}
+  rotationSpeed: 20
+  objectToRotate: {fileID: 0}
 --- !u!1 &9155241686950412404
 GameObject:
   m_ObjectHideFlags: 0

@@ -24,8 +24,8 @@ public class EnemyButton : MonoBehaviour
     {
         buttonLabel.text = enemyData.enemyName;
         enemyNameText.text = enemyData.enemyName;
-        enemyHealthText.text = "Health: " + enemyData.health;
-        enemyDamageText.text = "Damage: " + enemyData.damage;
+        enemyHealthText.text = enemyData.health.ToString();
+        enemyDamageText.text = enemyData.damage.ToString();
         enemyDescriptionText.text = enemyData.description;
         rotateObject = enemyData.enemyPrefab;
         rotateScript.objectToRotate = rotateObject;
