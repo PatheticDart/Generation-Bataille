@@ -3176,10 +3176,7 @@ MonoBehaviour:
   - {fileID: 2150226367516778880, guid: a540d15f01c45824091e07da3e4031ad, type: 3}
   headParts:
   - {fileID: 7348662245296258834, guid: 189b873af02d7e545a720091644bfe43, type: 3}
-  leftArmParts:
-  - {fileID: 8169893698953032091, guid: 24804825ee5a1b041b4e024227f60754, type: 3}
-  rightArmParts:
-  - {fileID: 4139686519054979381, guid: fdebc14e088959940ab3115f0a672800, type: 3}
+  armParts: []
   boosterParts:
   - {fileID: 7579171410865374785, guid: 4dad9fef9088e7246afc739bed3cb276, type: 3}
   leftArmWeapons:
@@ -3244,18 +3241,26 @@ MonoBehaviour:
   jumpDelay: 0.25
   totalWeight: 30000
   baselineWeight: 30000
+  qbThrust: 80
+  qbEnergyDrain: 150
+  qbDuration: 0.35
+  qbReloadTime: 0.8
   walkAcceleration: 25
   walkDeceleration: 30
   boostAcceleration: 10
   boostDeceleration: 15
   backwardSpeedPenalty: 0.3
+  brakeBufferTime: 0.3
+  brakeSlideDeceleration: 5
+  baseBrakeTime: 0.4
+  maxBrakeTime: 1
   hardLandingSlideDeceleration: 5
-  airAcceleration: 5
-  airDeceleration: 1.5
   minHardLandingThreshold: -25
   maxHardLandingThreshold: -80
   baseHardLandingTime: 0.5
   maxHardLandingTime: 2.5
+  airAcceleration: 5
+  airDeceleration: 1.5
 --- !u!1 &1271916238
 GameObject:
   m_ObjectHideFlags: 0
