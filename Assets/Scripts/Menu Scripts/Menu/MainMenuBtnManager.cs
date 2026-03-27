@@ -10,13 +10,13 @@ public class MainMenuBtnManager : MonoBehaviour
 
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void StartGame()
@@ -42,5 +42,11 @@ public class MainMenuBtnManager : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
+    }
+
+    //PLACEHOLDER
+    public void LoadArenaScene()
+    {
+        SceneManager.LoadScene(3);
     }
 }

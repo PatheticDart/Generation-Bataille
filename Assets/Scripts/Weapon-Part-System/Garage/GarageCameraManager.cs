@@ -6,41 +6,29 @@ public class GarageCameraManager : MonoBehaviour
 {
     public enum MechView
     {
-        FullBody,
-        Head,
-        Torso,
-        Arms,
-        Legs,
-        LeftArmWeapon,
-        RightArmWeapon,
-        LeftBackWeapon,
-        RightBackWeapon
+        FullBody, Head, Torso, Arms, Legs,
+        LeftArmWeapon, RightArmWeapon, LeftBackWeapon, RightBackWeapon,
+        None
     }
 
-    // CHANGED TO CLASS: This allows us to modify and save the cached values easily
     [System.Serializable]
     public class CameraSetup
     {
         public MechView viewName;
         public CinemachineCamera camera;
 
-        // Hidden cache variables to store the snapshot
         [HideInInspector] public float defaultRotation;
         [HideInInspector] public Vector3 defaultOffset;
         [HideInInspector] public float defaultRadius;
     }
 
-    [Header("Camera Roster")]
-    [Tooltip("Assign your different Cinemachine 3 cameras here.")]
+    [Header("References")]
     public CameraSetup[] cameraList;
-
-    [Header("Controller Handoff")]
-    [Tooltip("Drag the object holding your GarageViewer script here.")]
     public GarageViewer viewerController;
+    public PartSystem partSystem;
 
     void Awake()
     {
-        // 1. TAKE A SNAPSHOT: Loop through all cameras on startup and save their exact Inspector settings
         foreach (CameraSetup setup in cameraList)
         {
             if (setup.camera != null)
@@ -58,11 +46,31 @@ public class GarageCameraManager : MonoBehaviour
 
     void Start()
     {
-        // Default to the full body view on startup
         SwitchCamera(MechView.FullBody);
     }
 
-    public void SwitchCamera(MechView targetView)
+    public void SwitchCameraForPartCategory(PartType category)
+    {
+        MechView targetView = MechView.FullBody;
+        string nodeNameToTrack = "";
+
+        switch (category)
+        {
+            case PartType.Head: targetView = MechView.Head; nodeNameToTrack = "HeadNode"; break;
+            case PartType.Torso: targetView = MechView.Torso; nodeNameToTrack = "TorsoNode"; break;
+            case PartType.Arms: targetView = MechView.Arms; nodeNameToTrack = "TorsoNode"; break;
+            case PartType.Legs: targetView = MechView.Legs; nodeNameToTrack = "Pelvis"; break;
+            case PartType.ArmL: targetView = MechView.LeftArmWeapon; nodeNameToTrack = "LeftArmWeaponNode"; break;
+            case PartType.ArmR: targetView = MechView.RightArmWeapon; nodeNameToTrack = "RightArmWeaponNode"; break;
+            case PartType.BackL: targetView = MechView.LeftBackWeapon; nodeNameToTrack = "LeftBackWeaponNode"; break;
+            case PartType.BackR: targetView = MechView.RightBackWeapon; nodeNameToTrack = "RightBackWeaponNode"; break;
+            default: targetView = MechView.FullBody; break;
+        }
+
+        SwitchCamera(targetView, nodeNameToTrack);
+    }
+
+    public void SwitchCamera(MechView targetView, string nodeToTrack = "")
     {
         foreach (CameraSetup setup in cameraList)
         {
@@ -70,22 +78,35 @@ public class GarageCameraManager : MonoBehaviour
 
             if (setup.viewName == targetView)
             {
-                // 2. RESET THE CAMERA: Apply the snapshot values back to the orbiter
                 CinemachineOrbitalFollow orbiter = setup.camera.GetComponent<CinemachineOrbitalFollow>();
                 if (orbiter != null)
                 {
-                    orbiter.HorizontalAxis.Value = setup.defaultRotation;
-                    orbiter.TargetOffset = setup.defaultOffset;
-                    orbiter.Radius = setup.defaultRadius;
+                    // --- THE FIX: Check if we are ALREADY using this camera ---
+                    bool isAlreadyActive = (setup.camera.Priority == 10);
+
+                    // Only reset the player's custom rotation/zoom if we are switching to a completely new view
+                    if (!isAlreadyActive)
+                    {
+                        orbiter.HorizontalAxis.Value = setup.defaultRotation;
+                        orbiter.Radius = setup.defaultRadius;
+                    }
+
+                    // ALWAYS update the height offset to match the newly equipped part!
+                    Vector3 finalOffset = setup.defaultOffset;
+                    if (!string.IsNullOrEmpty(nodeToTrack) && partSystem != null)
+                    {
+                        Transform foundNode = PartSystem.FindDeepChild(partSystem.transform, nodeToTrack);
+                        if (foundNode != null)
+                        {
+                            float heightDiff = foundNode.position.y - partSystem.transform.position.y;
+                            finalOffset.y = heightDiff;
+                        }
+                    }
+                    orbiter.TargetOffset = finalOffset;
                 }
 
-                // 3. Boost priority so the Cinemachine Brain smoothly flies to this reset position
                 setup.camera.Priority = 10;
-                
-                if (viewerController != null)
-                {
-                    viewerController.SetActiveCamera(setup.camera);
-                }
+                if (viewerController != null) viewerController.SetActiveCamera(setup.camera);
             }
             else
             {
@@ -94,32 +115,13 @@ public class GarageCameraManager : MonoBehaviour
         }
     }
 
-    // --- NAUGHTY ATTRIBUTE BUTTONS ---
-
-    [Button("View Full Body")]
-    public void ViewFullBody() => SwitchCamera(MechView.FullBody);
-
-    [Button("View Head")]
-    public void ViewHead() => SwitchCamera(MechView.Head);
-
-    [Button("View Torso")]
-    public void ViewTorso() => SwitchCamera(MechView.Torso);
-
-    [Button("View Arms")]
-    public void ViewArms() => SwitchCamera(MechView.Arms);
-
-    [Button("View Legs")]
-    public void ViewLegs() => SwitchCamera(MechView.Legs);
-
-    [Button("View Left Arm Weapon")]
-    public void ViewLeftArmWeapon() => SwitchCamera(MechView.LeftArmWeapon);
-
-    [Button("View Right Arm Weapon")]
-    public void ViewRightArmWeapon() => SwitchCamera(MechView.RightArmWeapon);
-
-    [Button("View Left Back Weapon")]
-    public void ViewLeftBackWeapon() => SwitchCamera(MechView.LeftBackWeapon);
-
-    [Button("View Right Back Weapon")]
-    public void ViewRightBackWeapon() => SwitchCamera(MechView.RightBackWeapon);
+    [Button("View Full Body")] public void ViewFullBody() => SwitchCamera(MechView.FullBody);
+    [Button("View Head")] public void ViewHead() => SwitchCamera(MechView.Head, "HeadNode");
+    [Button("View Torso")] public void ViewTorso() => SwitchCamera(MechView.Torso, "TorsoNode");
+    [Button("View Arms")] public void ViewArms() => SwitchCamera(MechView.Arms, "TorsoNode");
+    [Button("View Legs")] public void ViewLegs() => SwitchCamera(MechView.Legs, "Pelvis");
+    [Button("View Left Arm Weapon")] public void ViewLeftArmWeapon() => SwitchCamera(MechView.LeftArmWeapon, "LeftArmWeaponNode");
+    [Button("View Right Arm Weapon")] public void ViewRightArmWeapon() => SwitchCamera(MechView.RightArmWeapon, "RightArmWeaponNode");
+    [Button("View Left Back Weapon")] public void ViewLeftBackWeapon() => SwitchCamera(MechView.LeftBackWeapon, "LeftBackWeaponNode");
+    [Button("View Right Back Weapon")] public void ViewRightBackWeapon() => SwitchCamera(MechView.RightBackWeapon, "RightBackWeaponNode");
 }

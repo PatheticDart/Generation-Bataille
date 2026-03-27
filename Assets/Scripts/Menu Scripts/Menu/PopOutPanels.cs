@@ -1,69 +1,63 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PopOutPanels : MonoBehaviour
 {
+    [Header("Main Hub")]
+    public GameObject mainHubPanel; // The main screen with Customize, Shop, Arena, etc.
+
     [Header("Pop-out Panels")]
-    public GameObject customizePanel;
-    public GameObject shopPanel;
-    public GameObject assemblyPanel;
+    public GameObject customizePopOut;
+    public GameObject shopPopOut;
+
+    [Header("Full Screen Menus")]
+    public GameObject assemblyScreen;
+    // You can add PaintScreen, ShopScreen, etc. here later!
 
     private void Start()
     {
-        // Ensure panels are hidden when the scene starts
-        if (customizePanel != null) customizePanel.SetActive(false);
-        if (shopPanel != null) shopPanel.SetActive(false);
+        // Ensure we start in a clean state
+        ReturnToMainHub();
     }
 
-    // Call this from the Customize Button's OnClick event
+    // --- POP-OUT TOGGLES ---
     public void ToggleCustomizePanel()
     {
-        if (customizePanel != null)
+        if (customizePopOut != null)
         {
-            // Toggle the state of the customize panel
-            bool isOpening = !customizePanel.activeSelf;
-            customizePanel.SetActive(isOpening);
+            bool isOpening = !customizePopOut.activeSelf;
+            customizePopOut.SetActive(isOpening);
 
-            // If we are opening the Customize panel, make sure the Shop panel is closed
-            if (isOpening && shopPanel != null)
-            {
-                shopPanel.SetActive(false);
-                assemblyPanel.SetActive(false);
-            }
+            if (isOpening && shopPopOut != null) shopPopOut.SetActive(false);
         }
     }
 
-    // Call this from the Shop Button's OnClick event
     public void ToggleShopPanel()
     {
-        if (shopPanel != null)
+        if (shopPopOut != null)
         {
-            // Toggle the state of the shop panel
-            bool isOpening = !shopPanel.activeSelf;
-            shopPanel.SetActive(isOpening);
+            bool isOpening = !shopPopOut.activeSelf;
+            shopPopOut.SetActive(isOpening);
 
-            // If we are opening the Shop panel, make sure the Customize panel is closed
-            if (isOpening && customizePanel != null)
-            {
-                customizePanel.SetActive(false);
-                assemblyPanel.SetActive(false);
-            }
+            if (isOpening && customizePopOut != null) customizePopOut.SetActive(false);
         }
     }
 
-    public void ToggleAssemblyPanel()
+    // --- SCREEN ROUTING ---
+    // Link this to the "ASSEMBLY" button inside your Customize Pop-Out
+    public void OpenAssemblyScreen()
     {
-        if (shopPanel != null)
-        {
-            // Toggle the state of the shop panel
-            bool isOpening = !shopPanel.activeSelf;
-            assemblyPanel.SetActive(isOpening);
+        mainHubPanel.SetActive(false); // Hides the hub and the pop-outs
+        assemblyScreen.SetActive(true);
+    }
 
-            if (isOpening && customizePanel != null)
-            {
-                customizePanel.SetActive(false);
-                shopPanel.SetActive(false);
-            }
-        }
+    // Link this to a "BACK" button on the Assembly screen
+    public void ReturnToMainHub()
+    {
+        assemblyScreen.SetActive(false);
+        mainHubPanel.SetActive(true);
+
+        // Hide pop-outs when returning
+        if (customizePopOut != null) customizePopOut.SetActive(false);
+        if (shopPopOut != null) shopPopOut.SetActive(false);
     }
 }
