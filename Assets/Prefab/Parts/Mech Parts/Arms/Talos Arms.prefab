@@ -1,0 +1,171 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4736254782853429846
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8871268593106131045}
+  m_Layer: 0
+  m_Name: Talos Arms
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8871268593106131045
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4736254782853429846}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7419992729147517711}
+  - {fileID: 8326122028626305478}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &5368702474875513060
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8871268593106131045}
+    m_Modifications:
+    - target: {fileID: 3139797167981556706, guid: d23b887336001d74090345191962238f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 3139797167981556706, guid: d23b887336001d74090345191962238f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 3139797167981556706, guid: d23b887336001d74090345191962238f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -270
+      objectReference: {fileID: 0}
+    - target: {fileID: 4110983454976657698, guid: d23b887336001d74090345191962238f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.009933434
+      objectReference: {fileID: 0}
+    - target: {fileID: 4110983454976657698, guid: d23b887336001d74090345191962238f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.00036197156
+      objectReference: {fileID: 0}
+    - target: {fileID: 4110983454976657698, guid: d23b887336001d74090345191962238f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.009986535
+      objectReference: {fileID: 0}
+    - target: {fileID: 4110983454976657698, guid: d23b887336001d74090345191962238f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.000000017778811
+      objectReference: {fileID: 0}
+    - target: {fileID: 4110983454976657698, guid: d23b887336001d74090345191962238f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.00000010585566
+      objectReference: {fileID: 0}
+    - target: {fileID: 4110983454976657698, guid: d23b887336001d74090345191962238f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4110983454976657698, guid: d23b887336001d74090345191962238f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4110983454976657698, guid: d23b887336001d74090345191962238f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4110983454976657698, guid: d23b887336001d74090345191962238f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4110983454976657698, guid: d23b887336001d74090345191962238f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4139686519054979381, guid: d23b887336001d74090345191962238f, type: 3}
+      propertyPath: m_Name
+      value: Talos Right Arm
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d23b887336001d74090345191962238f, type: 3}
+--- !u!4 &8326122028626305478 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4110983454976657698, guid: d23b887336001d74090345191962238f, type: 3}
+  m_PrefabInstance: {fileID: 5368702474875513060}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8146818571468266440
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8871268593106131045}
+    m_Modifications:
+    - target: {fileID: 1726651347878179015, guid: 6e749383952cfb049a30bd04d7c4aa7d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.00993341
+      objectReference: {fileID: 0}
+    - target: {fileID: 1726651347878179015, guid: 6e749383952cfb049a30bd04d7c4aa7d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.00036196783
+      objectReference: {fileID: 0}
+    - target: {fileID: 1726651347878179015, guid: 6e749383952cfb049a30bd04d7c4aa7d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.009986535
+      objectReference: {fileID: 0}
+    - target: {fileID: 1726651347878179015, guid: 6e749383952cfb049a30bd04d7c4aa7d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.00000006181724
+      objectReference: {fileID: 0}
+    - target: {fileID: 1726651347878179015, guid: 6e749383952cfb049a30bd04d7c4aa7d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.00000006181724
+      objectReference: {fileID: 0}
+    - target: {fileID: 1726651347878179015, guid: 6e749383952cfb049a30bd04d7c4aa7d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 1726651347878179015, guid: 6e749383952cfb049a30bd04d7c4aa7d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 1726651347878179015, guid: 6e749383952cfb049a30bd04d7c4aa7d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1726651347878179015, guid: 6e749383952cfb049a30bd04d7c4aa7d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1726651347878179015, guid: 6e749383952cfb049a30bd04d7c4aa7d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8169893698953032091, guid: 6e749383952cfb049a30bd04d7c4aa7d, type: 3}
+      propertyPath: m_Name
+      value: Talos Left Arm
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 6e749383952cfb049a30bd04d7c4aa7d, type: 3}
+--- !u!4 &7419992729147517711 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1726651347878179015, guid: 6e749383952cfb049a30bd04d7c4aa7d, type: 3}
+  m_PrefabInstance: {fileID: 8146818571468266440}
+  m_PrefabAsset: {fileID: 0}
