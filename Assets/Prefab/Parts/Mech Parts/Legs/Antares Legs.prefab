@@ -589,6 +589,7 @@ GameObject:
   - component: {fileID: 2965442967308938096}
   - component: {fileID: 8315495831577698242}
   - component: {fileID: -7579059378243783486}
+  - component: {fileID: 6690105816359433104}
   m_Layer: 0
   m_Name: Antares Legs
   m_TagString: Untagged
@@ -655,6 +656,33 @@ MonoBehaviour:
   OnPartDestroyed:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6690105816359433104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3037054784377261881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b3f6cd160a319546a95eeca1bcbca8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PartMaterialLoader
+  meshes:
+  - mesh: {fileID: 7223922436871250039}
+    materialLocations: 0000000001000000
+  - mesh: {fileID: 29618891681131998}
+    materialLocations: 0000000001000000
+  - mesh: {fileID: 921033065768239990}
+    materialLocations: 0000000001000000
+  - mesh: {fileID: 8705151860088729221}
+    materialLocations: 0000000001000000
+  - mesh: {fileID: 1190059751788763593}
+    materialLocations: 0000000001000000
+  - mesh: {fileID: 1695745587162846422}
+    materialLocations: 0000000001000000
+  - mesh: {fileID: 9169250338752416085}
+    materialLocations: 00000000
 --- !u!1 &3373583370412931557
 GameObject:
   m_ObjectHideFlags: 0

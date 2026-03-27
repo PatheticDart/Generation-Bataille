@@ -405,6 +405,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1086406677701424839}
   - component: {fileID: -5347162943619616129}
+  - component: {fileID: 2757679552050231284}
   m_Layer: 0
   m_Name: Antares Head
   m_TagString: Untagged
@@ -447,6 +448,21 @@ MonoBehaviour:
   OnPartDestroyed:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2757679552050231284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7348662245296258834}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b3f6cd160a319546a95eeca1bcbca8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PartMaterialLoader
+  meshes:
+  - mesh: {fileID: 1730170437755372181}
+    materialLocations: 000000000100000004000000
 --- !u!1 &7351859509037558501
 GameObject:
   m_ObjectHideFlags: 0

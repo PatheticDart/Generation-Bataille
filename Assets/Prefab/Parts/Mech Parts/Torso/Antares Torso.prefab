@@ -41,6 +41,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4829218728039971585}
   - component: {fileID: -3432753746042081860}
+  - component: {fileID: 8688829807230323282}
   m_Layer: 0
   m_Name: Antares Torso
   m_TagString: Untagged
@@ -82,6 +83,21 @@ MonoBehaviour:
   OnPartDestroyed:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8688829807230323282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2150226367516778880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b3f6cd160a319546a95eeca1bcbca8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PartMaterialLoader
+  meshes:
+  - mesh: {fileID: 3559949279272607223}
+    materialLocations: 000000000100000000000000
 --- !u!1 &2162078497523297760
 GameObject:
   m_ObjectHideFlags: 0

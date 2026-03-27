@@ -133,6 +133,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3111345794358289759, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7812955070878176545}
+    - targetCorrespondingSourceObject: {fileID: 3111345794358289759, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5548011082383480909}
   m_SourcePrefab: {fileID: 100100000, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
 --- !u!4 &1038807024587722681 stripped
 Transform:
@@ -170,6 +173,21 @@ MonoBehaviour:
   - {fileID: 6436900858104851044}
   muzzleFlash: {fileID: 0}
   fireMode: 0
+--- !u!114 &5548011082383480909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5138208888992346381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b3f6cd160a319546a95eeca1bcbca8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PartMaterialLoader
+  meshes:
+  - mesh: {fileID: 7960236518431241927}
+    materialLocations: 010000000000000002000000
 --- !u!4 &6436900858104851044 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3834633082824703542, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
@@ -178,6 +196,11 @@ Transform:
 --- !u!4 &7775398684987270538 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 541820266044568024, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+  m_PrefabInstance: {fileID: 7810135936859444306}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &7960236518431241927 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 151818027458536085, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
   m_PrefabInstance: {fileID: 7810135936859444306}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &9170366600800176316
@@ -240,6 +263,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7498971394007588889, guid: 4b9133a177787e842b0414e6692ede5e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5103571852652879752}
+    - targetCorrespondingSourceObject: {fileID: 7498971394007588889, guid: 4b9133a177787e842b0414e6692ede5e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7831625100366029123}
   m_SourcePrefab: {fileID: 100100000, guid: 4b9133a177787e842b0414e6692ede5e, type: 3}
 --- !u!4 &1099851461942969109 stripped
 Transform:
@@ -277,6 +303,26 @@ MonoBehaviour:
   - {fileID: 3460031014199811208}
   muzzleFlash: {fileID: 0}
   fireMode: 0
+--- !u!114 &7831625100366029123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1680437592839841957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b3f6cd160a319546a95eeca1bcbca8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PartMaterialLoader
+  meshes:
+  - mesh: {fileID: 2507003295341451732}
+    materialLocations: 010000000000000002000000
+--- !u!23 &2507003295341451732 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6739924780478271848, guid: 4b9133a177787e842b0414e6692ede5e, type: 3}
+  m_PrefabInstance: {fileID: 9170366600800176316}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3460031014199811208 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5712763583461053492, guid: 4b9133a177787e842b0414e6692ede5e, type: 3}
