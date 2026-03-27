@@ -8,6 +8,9 @@ public class PartSystem : MonoBehaviour
     [Tooltip("Populate this dictionary from your Garage or Save File before calling InitializeMech()")]
     public Dictionary<PartType, Part> equippedParts = new Dictionary<PartType, Part>();
 
+    [HideInInspector] public BaseMaterialSetup[] globalBaseMaterials;
+    [HideInInspector] public PlayerPaint[] currentPaintJob;
+
     [Header("Root Attachment")]
     public Transform legsNode;
 
@@ -143,6 +146,10 @@ public class PartSystem : MonoBehaviour
                         SyncChildBone(currentLeftArm, "Lower Arm Bone Left", animLowerArmBoneLeft);
 
                         if (currentLeftArm.TryGetComponent<PartTemplate>(out PartTemplate lTemp)) lTemp.SpawnPart();
+                        
+                        // Apply Paint Job
+                        PartMaterialLoader[] lLoaders = currentLeftArm.GetComponentsInChildren<PartMaterialLoader>();
+                        foreach (var loader in lLoaders) loader.AssignMaterials(currentPaintJob, globalBaseMaterials);
                     }
 
                     if (extractedRightArm != null && rightArmNode != null)
@@ -156,6 +163,10 @@ public class PartSystem : MonoBehaviour
                         SyncChildBone(currentRightArm, "Lower Arm Bone Right", animLowerArmBoneRight);
 
                         if (currentRightArm.TryGetComponent<PartTemplate>(out PartTemplate rTemp)) rTemp.SpawnPart();
+
+                        // Apply Paint Job
+                        PartMaterialLoader[] rLoaders = currentRightArm.GetComponentsInChildren<PartMaterialLoader>();
+                        foreach (var loader in rLoaders) loader.AssignMaterials(currentPaintJob, globalBaseMaterials);
                     }
 
                     DestroyImmediate(armsWrapper);
@@ -240,6 +251,10 @@ public class PartSystem : MonoBehaviour
             obj.transform.localRotation = Quaternion.identity;
 
             if (obj.TryGetComponent<PartTemplate>(out PartTemplate temp)) temp.SpawnPart();
+            
+            // Apply Paint Job
+            PartMaterialLoader[] loaders = obj.GetComponentsInChildren<PartMaterialLoader>();
+            foreach (var loader in loaders) loader.AssignMaterials(currentPaintJob, globalBaseMaterials);
 
             return obj;
         }
@@ -261,37 +276,38 @@ public class PartSystem : MonoBehaviour
                 string lowerName = child.name.ToLower();
                 if (isLeftVariant && (lowerName.Contains("left") || lowerName.Contains("_l") || lowerName.Contains("l_")))
                 {
-                    extractedWeapon = child;
-                    break;
+                    extractedWeapon = child; break;
                 }
                 else if (!isLeftVariant && (lowerName.Contains("right") || lowerName.Contains("_r") || lowerName.Contains("r_")))
                 {
-                    extractedWeapon = child;
-                    break;
+                    extractedWeapon = child; break;
                 }
             }
+
+            GameObject finalObj;
 
             if (extractedWeapon != null)
             {
                 extractedWeapon.SetParent(parent, false);
                 extractedWeapon.localPosition = Vector3.zero;
                 extractedWeapon.localRotation = Quaternion.identity;
-
                 DestroyImmediate(wrapper);
-
-                GameObject finalObj = extractedWeapon.gameObject;
-
-                if (finalObj.TryGetComponent<PartTemplate>(out PartTemplate temp)) temp.SpawnPart();
-                return finalObj;
+                finalObj = extractedWeapon.gameObject;
             }
             else
             {
                 wrapper.transform.localPosition = Vector3.zero;
                 wrapper.transform.localRotation = Quaternion.identity;
-
-                if (wrapper.TryGetComponent<PartTemplate>(out PartTemplate temp)) temp.SpawnPart();
-                return wrapper;
+                finalObj = wrapper;
             }
+
+            if (finalObj.TryGetComponent<PartTemplate>(out PartTemplate temp)) temp.SpawnPart();
+
+            // Apply Paint Job
+            PartMaterialLoader[] loaders = finalObj.GetComponentsInChildren<PartMaterialLoader>();
+            foreach (var loader in loaders) loader.AssignMaterials(currentPaintJob, globalBaseMaterials);
+
+            return finalObj;
         }
         return null;
     }
@@ -302,10 +318,8 @@ public class PartSystem : MonoBehaviour
 
         if (spawnedObj.TryGetComponent(out FunctionalWeapon weapon))
         {
-            // Always initialize the weapon (sets ammo, limits, etc.) so it exists for Garage stats
             weapon.InitializeWeapon(partData);
 
-            // Only hook up to the firing systems if they actually exist in this scene!
             if (_weaponManager != null)
             {
                 switch (slot)

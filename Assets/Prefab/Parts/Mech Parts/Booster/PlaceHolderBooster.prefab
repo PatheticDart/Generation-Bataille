@@ -11366,6 +11366,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5899279374271069873}
   - component: {fileID: 9028636108418161317}
+  - component: {fileID: -8385803015675499914}
   m_Layer: 0
   m_Name: PlaceHolderBooster
   m_TagString: Untagged
@@ -11408,3 +11409,24 @@ MonoBehaviour:
   OnPartDestroyed:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &-8385803015675499914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7579171410865374785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b3f6cd160a319546a95eeca1bcbca8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PartMaterialLoader
+  meshes:
+  - mesh: {fileID: 3260327625081752380}
+    materialLocations: 03000000
+  - mesh: {fileID: 865803418011157048}
+    materialLocations: 01000000
+  - mesh: {fileID: 4740822679574826745}
+    materialLocations: 00000000
+  - mesh: {fileID: 9097635049271987680}
+    materialLocations: 01000000

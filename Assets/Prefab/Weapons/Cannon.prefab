@@ -124,10 +124,18 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 9037127615632299642, guid: e5c962435612eb8409e7eb7364afe958, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1610905914692467225}
+    - targetCorrespondingSourceObject: {fileID: 9037127615632299642, guid: e5c962435612eb8409e7eb7364afe958, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3322048268193971751}
   m_SourcePrefab: {fileID: 100100000, guid: e5c962435612eb8409e7eb7364afe958, type: 3}
 --- !u!4 &4290278586222562553 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4517385625513628833, guid: e5c962435612eb8409e7eb7364afe958, type: 3}
+  m_PrefabInstance: {fileID: 376855336192104536}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &7188736737586683762 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7420065317551294250, guid: e5c962435612eb8409e7eb7364afe958, type: 3}
   m_PrefabInstance: {fileID: 376855336192104536}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &7841740621003860570 stripped
@@ -158,10 +166,26 @@ MonoBehaviour:
   OnPartDestroyed:
     m_PersistentCalls:
       m_Calls: []
+  currentResource: 0
+  maxResource: 0
+  currentReserveAmmo: 0
   muzzlePoint: {fileID: 4290278586222562553}
-  projectilePrefab: {fileID: 8331362034265100734, guid: 17a7957f1b799304594f0be12f86ea04, type: 3}
-  fireRate: 0.5
-  projectileSpeed: 300
+  muzzleFlash: {fileID: 0}
+--- !u!114 &3322048268193971751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8669579099650526754}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b3f6cd160a319546a95eeca1bcbca8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PartMaterialLoader
+  meshes:
+  - mesh: {fileID: 7188736737586683762}
+    materialLocations: 0000000001000000
 --- !u!1001 &2790632894675947662
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -253,6 +277,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1169094505111196653, guid: 221c6d06b7adf4747bcae0db0384c6b1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3978733167250052933}
+    - targetCorrespondingSourceObject: {fileID: 1169094505111196653, guid: 221c6d06b7adf4747bcae0db0384c6b1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9002228612606826799}
   m_SourcePrefab: {fileID: 100100000, guid: 221c6d06b7adf4747bcae0db0384c6b1, type: 3}
 --- !u!4 &492434247808939167 stripped
 Transform:
@@ -282,10 +309,31 @@ MonoBehaviour:
   OnPartDestroyed:
     m_PersistentCalls:
       m_Calls: []
+  currentResource: 0
+  maxResource: 0
+  currentReserveAmmo: 0
   muzzlePoint: {fileID: 8618808587388369118}
-  projectilePrefab: {fileID: 8331362034265100734, guid: 17a7957f1b799304594f0be12f86ea04, type: 3}
-  fireRate: 0.5
-  projectileSpeed: 300
+  muzzleFlash: {fileID: 0}
+--- !u!114 &9002228612606826799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3928023531218895715}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b3f6cd160a319546a95eeca1bcbca8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PartMaterialLoader
+  meshes:
+  - mesh: {fileID: 4922890190043435826}
+    materialLocations: 0000000001000000
+--- !u!23 &4922890190043435826 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7128018840099046332, guid: 221c6d06b7adf4747bcae0db0384c6b1, type: 3}
+  m_PrefabInstance: {fileID: 2790632894675947662}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8618808587388369118 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5847494670949591120, guid: 221c6d06b7adf4747bcae0db0384c6b1, type: 3}
