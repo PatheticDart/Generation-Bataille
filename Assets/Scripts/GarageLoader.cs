@@ -4,8 +4,6 @@ using System.Collections.Generic;
 public class GarageLoader : MonoBehaviour
 {
     // --- THE PERSISTENT LOADOUT ---
-    // Because this is static, it survives scene changes! 
-    // Your Arena scene can just read GarageLoader.ActiveLoadout to build the mech.
     public static Dictionary<PartType, Part> ActiveLoadout = new Dictionary<PartType, Part>();
 
     [Header("System Reference")]
@@ -15,8 +13,12 @@ public class GarageLoader : MonoBehaviour
     public BaseMaterialSetup[] globalBaseMaterials;
     public PlayerPaint[] globalPaintJob;
 
+    [Header("Available Patterns & Decals")]
+    [Tooltip("The UI will use these to build the Camo/Pattern selection menus.")]
+    public List<Texture2D> availableAlbedoTextures;
+    public List<Texture2D> availableEmissionTextures;
+
     [Header("Available Parts Inventory")]
-    // The UI will read these lists to generate the buttons!
     public List<HeadPart> availableHeads;
     public List<TorsoPart> availableTorsos;
     public List<ArmPart> availableArms;
@@ -33,21 +35,12 @@ public class GarageLoader : MonoBehaviour
 
     void Start()
     {
-        // If the loadout is completely empty (first time booting the game), load defaults
-        if (ActiveLoadout.Count == 0)
-        {
-            LoadDefaultMech();
-        }
-        else
-        {
-            // Otherwise, build whatever is currently saved in the static dictionary
-            RefreshVisualMech();
-        }
+        if (ActiveLoadout.Count == 0) LoadDefaultMech();
+        else RefreshVisualMech();
     }
 
     private void LoadDefaultMech()
     {
-        // Safely grabs the first item in your lists to build a starter mech
         if (availableHeads.Count > 0) ActiveLoadout[PartType.Head] = availableHeads[0];
         if (availableTorsos.Count > 0) ActiveLoadout[PartType.Torso] = availableTorsos[0];
         if (availableArms.Count > 0) ActiveLoadout[PartType.Arms] = availableArms[0];
@@ -64,14 +57,13 @@ public class GarageLoader : MonoBehaviour
         RefreshVisualMech();
     }
 
-    // The UI will call this whenever you click a part button
     public void EquipPart(PartType slot, Part newPart)
     {
         ActiveLoadout[slot] = newPart;
         RefreshVisualMech();
     }
 
-    private void RefreshVisualMech()
+    public void RefreshVisualMech()
     {
         if (partSystem == null) return;
 
@@ -80,7 +72,6 @@ public class GarageLoader : MonoBehaviour
         partSystem.globalBaseMaterials = globalBaseMaterials;
         partSystem.currentPaintJob = globalPaintJob;
 
-        // Copy our static persistent loadout into the visual PartSystem
         foreach (var kvp in ActiveLoadout)
         {
             partSystem.equippedParts.Add(kvp.Key, kvp.Value);
@@ -89,4 +80,3 @@ public class GarageLoader : MonoBehaviour
         partSystem.InitializeMech();
     }
 }
-//tite
