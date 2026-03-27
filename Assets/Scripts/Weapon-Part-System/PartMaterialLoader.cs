@@ -14,12 +14,14 @@ public class PartMaterialLoader : MonoBehaviour
     [Header("Prefab Setup")]
     public MeshMapping[] meshes;
 
+    // Cache Shader IDs
     private readonly int baseColorId = Shader.PropertyToID("_BaseColor");
     private readonly int baseMapId = Shader.PropertyToID("_BaseMap");
+    private readonly int emissionColorId = Shader.PropertyToID("_EmissionColor"); // NEW
+    private readonly int emissionMapId = Shader.PropertyToID("_EmissionMap");     // NEW
 
     private List<Material> _instancedMaterials = new List<Material>();
 
-    // Now uses the global structs directly
     public void AssignMaterials(PlayerPaint[] playerPaintJobs, BaseMaterialSetup[] baseMaterials)
     {
         CleanupMaterials();
@@ -69,11 +71,25 @@ public class PartMaterialLoader : MonoBehaviour
                         {
                             Material instancedMat = new Material(sourceMat);
                             
+                            // Apply Albedo
                             if (paint.albedoColor.a > 0 && paint.albedoColor != Color.clear)
                                 instancedMat.SetColor(baseColorId, paint.albedoColor);
                                 
                             if (paint.albedoTexture != null)
                                 instancedMat.SetTexture(baseMapId, paint.albedoTexture);
+
+                            // NEW: Apply Emission
+                            if (paint.emissionColor.a > 0 && paint.emissionColor != Color.clear && paint.emissionColor != Color.black)
+                            {
+                                instancedMat.SetColor(emissionColorId, paint.emissionColor);
+                                instancedMat.EnableKeyword("_EMISSION"); // Tell the shader to turn the light on!
+                            }
+
+                            if (paint.emissionTexture != null)
+                            {
+                                instancedMat.SetTexture(emissionMapId, paint.emissionTexture);
+                                instancedMat.EnableKeyword("_EMISSION");
+                            }
 
                             newMaterials[i] = instancedMat;
                             _instancedMaterials.Add(instancedMat);
