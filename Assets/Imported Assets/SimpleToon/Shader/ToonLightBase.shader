@@ -2,7 +2,7 @@ Shader "Lpk/LightModel/ToonLightSafe"
 {
     Properties
     {
-        _BaseMap            ("Texture", 2D)                       = "white" {}
+        _BaseMap            ("Texture", 2D)                       = "grey" {}
         _BaseColor          ("Color", Color)                      = (0.5, 0.5, 0.5, 1)
         
         [Space]
@@ -157,7 +157,7 @@ Shader "Lpk/LightModel/ToonLightSafe"
                 
                 float3 H = normalize(V + L);
                 
-                // SAFE MATH: saturate() prevents negative numbers from causing NaN explosions
+                // SAFE MATH
                 float NV = saturate(dot(N, V));
                 float NH = saturate(dot(N, H));
                 float halfLambert = dot(N, L) * 0.5 + 0.5;
@@ -165,7 +165,23 @@ Shader "Lpk/LightModel/ToonLightSafe"
                 float4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uv);
                 float4 specularMap = SAMPLE_TEXTURE2D(_SpecularMap, sampler_SpecularMap, uv);
 
-                // SAFE MATH: max() prevents dividing by exactly zero if a slider is pushed all the way down
+                // --- NEW OVERLAY BLEND LOGIC ---
+                float3 baseRGB = baseMap.rgb;
+                float3 blendRGB = _BaseColor.rgb;
+                
+                // Photoshop-style Overlay: Multiplies darks, Screens lights. 
+                // Mid-grey (0.5) becomes exactly the _BaseColor.
+                float3 overlayColor = lerp(
+                    2.0 * baseRGB * blendRGB, 
+                    1.0 - 2.0 * (1.0 - baseRGB) * (1.0 - blendRGB), 
+                    step(0.5, baseRGB)
+                );
+
+                // We use the Alpha of the _BaseColor to control "Paint Opacity"
+                // Alpha 0 = Raw Texture, Alpha 1 = Full Overlay Paint
+                float3 finalAlbedo = lerp(baseRGB, overlayColor, _BaseColor.a);
+                // -------------------------------
+
                 float safeSpecSmooth = max(0.001, _SpecularStepSmooth * 0.05);
                 float specEdge = 1.0 - (_SpecularStep * 0.05);
                 float specularNH = smoothstep(specEdge - safeSpecSmooth, specEdge + safeSpecSmooth, NH);
@@ -182,10 +198,10 @@ Shader "Lpk/LightModel/ToonLightSafe"
                 float rimEdge = 1.0 - _RimStep;
                 float rim = smoothstep(rimEdge - safeRimSmooth, rimEdge + safeRimSmooth, 0.5 - NV);
                 
-                float3 diffuse = mainLight.color * baseMap.rgb * _BaseColor.rgb * shadowNL * shadow;
-                // SAFE MATH: saturate the specular output so it can never exceed HDR limits and trigger Bloom supernovas
+                // Apply our new 'finalAlbedo' instead of the raw maps
+                float3 diffuse = mainLight.color * finalAlbedo * shadowNL * shadow;
                 float3 specular = saturate(_SpecularColor.rgb * specularMap.rgb * shadow * shadowNL * specularNH);
-                float3 ambient = rim * _RimColor.rgb + SampleSH(N) * _BaseColor.rgb * baseMap.rgb;
+                float3 ambient = rim * _RimColor.rgb + SampleSH(N) * finalAlbedo;
             
                 float3 finalColor = diffuse + ambient + specular;
                 finalColor = MixFog(finalColor, input.fogCoord);
