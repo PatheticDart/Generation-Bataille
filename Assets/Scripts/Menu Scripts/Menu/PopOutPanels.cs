@@ -47,7 +47,15 @@ public class PopOutPanels : MonoBehaviour
     public void OpenAssemblyScreen()
     {
         mainHubPanel.SetActive(false); // Hides the hub and the pop-outs
+        ToggleCustomizePanel(); // Closes the customize pop-out if it's open
         assemblyScreen.SetActive(true);
+    }
+
+    public void CloseAssemblyScreen()
+    {
+        assemblyScreen.SetActive(false);
+        ToggleCustomizePanel();
+        mainHubPanel.SetActive(true);
     }
 
     // Link this to a "BACK" button on the Assembly screen
