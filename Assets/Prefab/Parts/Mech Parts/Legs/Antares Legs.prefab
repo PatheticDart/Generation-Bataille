@@ -588,7 +588,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2965442967308938096}
   - component: {fileID: 8315495831577698242}
-  - component: {fileID: 5596948440807997462}
   - component: {fileID: -7579059378243783486}
   m_Layer: 0
   m_Name: Antares Legs
@@ -638,22 +637,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &5596948440807997462
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3037054784377261881}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fff0960ef4ea6e04eac66b4a7fd2189d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.RigBuilder
-  m_RigLayers:
-  - m_Rig: {fileID: 0}
-    m_Active: 1
-  m_Effectors: []
 --- !u!114 &-7579059378243783486
 MonoBehaviour:
   m_ObjectHideFlags: 0
