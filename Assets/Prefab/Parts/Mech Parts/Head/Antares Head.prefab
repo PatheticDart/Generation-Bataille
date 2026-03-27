@@ -463,6 +463,15 @@ MonoBehaviour:
   meshes:
   - mesh: {fileID: 1730170437755372181}
     materialLocations: 000000000100000004000000
+  lights:
+  - lightComponent: {fileID: 4102203204149493426}
+    materialLocation: 4
+  trails:
+  - trailComponent: {fileID: 3936736423960593545}
+    startLocation: 4
+    startChannel: 1
+    endLocation: 4
+    endChannel: 1
 --- !u!1 &7351859509037558501
 GameObject:
   m_ObjectHideFlags: 0

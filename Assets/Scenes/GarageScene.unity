@@ -13142,6 +13142,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 604069790586779725, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.76599026
+      objectReference: {fileID: 0}
     - target: {fileID: 1046622224372452824, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
       propertyPath: Target.TrackingTarget
       value: 
@@ -13150,6 +13154,14 @@ PrefabInstance:
       propertyPath: Target.TrackingTarget
       value: 
       objectReference: {fileID: 1776431649}
+    - target: {fileID: 1202845334571050007, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.573905
+      objectReference: {fileID: 0}
+    - target: {fileID: 1779877492828250683, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -3.4579482
+      objectReference: {fileID: 0}
     - target: {fileID: 2373151316509150058, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
       propertyPath: partSystem
       value: 
@@ -13170,10 +13182,34 @@ PrefabInstance:
       propertyPath: globalPaintJob.Array.data[0].albedoColor.r
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2373151316509150058, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
+      propertyPath: globalPaintJob.Array.data[1].albedoColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2373151316509150058, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
+      propertyPath: globalPaintJob.Array.data[1].albedoColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2373151316509150058, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
+      propertyPath: globalPaintJob.Array.data[1].albedoColor.r
+      value: 0.13832426
+      objectReference: {fileID: 0}
+    - target: {fileID: 2523572848788426876, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -3.4579482
+      objectReference: {fileID: 0}
+    - target: {fileID: 2612598439759646196, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 4.323818
+      objectReference: {fileID: 0}
     - target: {fileID: 3427776954833704222, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
       propertyPath: partSystem
       value: 
       objectReference: {fileID: 2077744745}
+    - target: {fileID: 3534097008740099460, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 4.3241863
+      objectReference: {fileID: 0}
     - target: {fileID: 3720628911721627995, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
       propertyPath: Target.TrackingTarget
       value: 
@@ -13278,6 +13314,10 @@ PrefabInstance:
       propertyPath: Target.TrackingTarget
       value: 
       objectReference: {fileID: 903224443}
+    - target: {fileID: 7784564870281911015, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.828042
+      objectReference: {fileID: 0}
     - target: {fileID: 7974875218572951677, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
       propertyPath: Target.TrackingTarget
       value: 
@@ -13286,6 +13326,10 @@ PrefabInstance:
       propertyPath: Target.TrackingTarget
       value: 
       objectReference: {fileID: 1009682347}
+    - target: {fileID: 8344778955994566730, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.8478956
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

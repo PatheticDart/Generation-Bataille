@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class PartMaterialLoader : MonoBehaviour
 {
+    // --- SETTINGS ENUMS ---
+    public enum ColorChannel { Albedo, Emission }
+
+    // --- MAPPING STRUCTS ---
     [Serializable]
     public struct MeshMapping
     {
@@ -11,103 +15,225 @@ public class PartMaterialLoader : MonoBehaviour
         public PartMaterialLocation[] materialLocations;
     }
 
-    [Header("Prefab Setup")]
+    [Serializable]
+    public struct LightMapping
+    {
+        public Light lightComponent;
+        [Tooltip("Which paint slot should control this light's color?")]
+        public PartMaterialLocation materialLocation;
+    }
+
+    [Serializable]
+    public struct TrailMapping
+    {
+        public TrailRenderer trailComponent;
+
+        [Header("Start Color")]
+        public PartMaterialLocation startLocation;
+        public ColorChannel startChannel;
+
+        [Header("End Color")]
+        public PartMaterialLocation endLocation;
+        public ColorChannel endChannel;
+    }
+
+    [Header("Prefab Setup - Meshes")]
     public MeshMapping[] meshes;
+
+    [Header("Prefab Setup - Lights")]
+    public LightMapping[] lights;
+
+    [Header("Prefab Setup - Trails")]
+    public TrailMapping[] trails;
 
     // Cache Shader IDs
     private readonly int baseColorId = Shader.PropertyToID("_BaseColor");
     private readonly int baseMapId = Shader.PropertyToID("_BaseMap");
-    private readonly int emissionColorId = Shader.PropertyToID("_EmissionColor"); // NEW
-    private readonly int emissionMapId = Shader.PropertyToID("_EmissionMap");     // NEW
+    private readonly int emissionColorId = Shader.PropertyToID("_EmissionColor"); 
+    private readonly int emissionMapId = Shader.PropertyToID("_EmissionMap");     
 
     private List<Material> _instancedMaterials = new List<Material>();
+    
+    // Cache original colors so we can revert them if paint is removed
+    private Dictionary<Light, Color> _originalLightColors = new Dictionary<Light, Color>();
+    private Dictionary<TrailRenderer, Gradient> _originalTrails = new Dictionary<TrailRenderer, Gradient>();
 
     public void AssignMaterials(PlayerPaint[] playerPaintJobs, BaseMaterialSetup[] baseMaterials)
     {
         CleanupMaterials();
 
-        if (meshes == null) return;
-
-        foreach (MeshMapping m in meshes)
+        // 1. --- HANDLE MESHES ---
+        if (meshes != null)
         {
-            if (m.mesh == null) continue;
-
-            Material[] currentMaterials = m.mesh.sharedMaterials;
-            Material[] newMaterials = new Material[currentMaterials.Length];
-
-            for (int i = 0; i < currentMaterials.Length; i++)
+            foreach (MeshMapping m in meshes)
             {
-                newMaterials[i] = currentMaterials[i]; // Fallback
+                if (m.mesh == null) continue;
 
-                if (i >= m.materialLocations.Length) continue;
+                Material[] currentMaterials = m.mesh.sharedMaterials;
+                Material[] newMaterials = new Material[currentMaterials.Length];
 
-                PartMaterialLocation myLocation = m.materialLocations[i];
-                Material sourceMat = currentMaterials[i];
-                bool hasBaseOverride = false;
-
-                // 1. Check for Global Base Material
-                if (baseMaterials != null)
+                for (int i = 0; i < currentMaterials.Length; i++)
                 {
-                    foreach (var b in baseMaterials)
+                    newMaterials[i] = currentMaterials[i]; // Fallback
+
+                    if (i >= m.materialLocations.Length) continue;
+
+                    PartMaterialLocation myLocation = m.materialLocations[i];
+                    Material sourceMat = currentMaterials[i];
+                    bool hasBaseOverride = false;
+
+                    if (baseMaterials != null)
                     {
-                        if (b.map == myLocation && b.material != null)
+                        foreach (var b in baseMaterials)
                         {
-                            sourceMat = b.material;
-                            hasBaseOverride = true;
-                            break;
+                            if (b.map == myLocation && b.material != null)
+                            {
+                                sourceMat = b.material;
+                                hasBaseOverride = true;
+                                break;
+                            }
                         }
                     }
+
+                    if (sourceMat == null) continue;
+
+                    bool playerPainted = false;
+                    if (playerPaintJobs != null)
+                    {
+                        foreach (PlayerPaint paint in playerPaintJobs)
+                        {
+                            if (paint.map == myLocation && paint.HasOverrides) 
+                            {
+                                Material instancedMat = new Material(sourceMat);
+                                
+                                if (paint.albedoColor.a > 0 && paint.albedoColor != Color.clear)
+                                    instancedMat.SetColor(baseColorId, paint.albedoColor);
+                                    
+                                if (paint.albedoTexture != null)
+                                    instancedMat.SetTexture(baseMapId, paint.albedoTexture);
+
+                                if (paint.emissionColor.a > 0 && paint.emissionColor != Color.clear && paint.emissionColor != Color.black)
+                                {
+                                    instancedMat.SetColor(emissionColorId, paint.emissionColor);
+                                    instancedMat.EnableKeyword("_EMISSION"); 
+                                }
+
+                                if (paint.emissionTexture != null)
+                                {
+                                    instancedMat.SetTexture(emissionMapId, paint.emissionTexture);
+                                    instancedMat.EnableKeyword("_EMISSION");
+                                }
+
+                                newMaterials[i] = instancedMat;
+                                _instancedMaterials.Add(instancedMat);
+                                playerPainted = true;
+                                break; 
+                            }
+                        }
+                    }
+
+                    if (!playerPainted && hasBaseOverride)
+                    {
+                        newMaterials[i] = sourceMat;
+                    }
                 }
+                m.mesh.materials = newMaterials;
+            }
+        }
 
-                if (sourceMat == null) continue;
+        // 2. --- HANDLE LIGHTS ---
+        if (lights != null)
+        {
+            foreach (LightMapping lMap in lights)
+            {
+                if (lMap.lightComponent == null) continue;
 
-                // 2. Check for Player Customization
-                bool playerPainted = false;
+                if (!_originalLightColors.ContainsKey(lMap.lightComponent))
+                    _originalLightColors[lMap.lightComponent] = lMap.lightComponent.color;
+
+                Color finalLightColor = _originalLightColors[lMap.lightComponent];
+
                 if (playerPaintJobs != null)
                 {
                     foreach (PlayerPaint paint in playerPaintJobs)
                     {
-                        if (paint.map == myLocation && paint.HasOverrides) 
+                        if (paint.map == lMap.materialLocation && paint.HasOverrides)
                         {
-                            Material instancedMat = new Material(sourceMat);
-                            
-                            // Apply Albedo
-                            if (paint.albedoColor.a > 0 && paint.albedoColor != Color.clear)
-                                instancedMat.SetColor(baseColorId, paint.albedoColor);
-                                
-                            if (paint.albedoTexture != null)
-                                instancedMat.SetTexture(baseMapId, paint.albedoTexture);
-
-                            // NEW: Apply Emission
                             if (paint.emissionColor.a > 0 && paint.emissionColor != Color.clear && paint.emissionColor != Color.black)
                             {
-                                instancedMat.SetColor(emissionColorId, paint.emissionColor);
-                                instancedMat.EnableKeyword("_EMISSION"); // Tell the shader to turn the light on!
+                                float maxColorComponent = Mathf.Max(paint.emissionColor.r, paint.emissionColor.g, paint.emissionColor.b);
+                                finalLightColor = maxColorComponent > 1f ? paint.emissionColor / maxColorComponent : paint.emissionColor;
                             }
-
-                            if (paint.emissionTexture != null)
+                            else if (paint.albedoColor.a > 0 && paint.albedoColor != Color.clear)
                             {
-                                instancedMat.SetTexture(emissionMapId, paint.emissionTexture);
-                                instancedMat.EnableKeyword("_EMISSION");
+                                finalLightColor = paint.albedoColor;
                             }
-
-                            newMaterials[i] = instancedMat;
-                            _instancedMaterials.Add(instancedMat);
-                            playerPainted = true;
                             break; 
                         }
                     }
                 }
-
-                // 3. Fallback
-                if (!playerPainted && hasBaseOverride)
-                {
-                    newMaterials[i] = sourceMat;
-                }
+                lMap.lightComponent.color = finalLightColor;
             }
-            
-            m.mesh.materials = newMaterials;
         }
+
+        // 3. --- NEW: HANDLE TRAILS ---
+        if (trails != null)
+        {
+            foreach (TrailMapping tMap in trails)
+            {
+                if (tMap.trailComponent == null) continue;
+
+                // Cache original gradient to preserve alphas
+                if (!_originalTrails.ContainsKey(tMap.trailComponent))
+                {
+                    // Gradients are reference types, so we must clone it, not just assign it
+                    Gradient clone = new Gradient();
+                    clone.SetKeys(tMap.trailComponent.colorGradient.colorKeys, tMap.trailComponent.colorGradient.alphaKeys);
+                    _originalTrails[tMap.trailComponent] = clone;
+                }
+
+                Gradient origGrad = _originalTrails[tMap.trailComponent];
+                
+                // Extract the colors using our helper function
+                Color startColor = GetColorForChannel(playerPaintJobs, tMap.startLocation, tMap.startChannel, origGrad.colorKeys[0].color);
+                Color endColor = GetColorForChannel(playerPaintJobs, tMap.endLocation, tMap.endChannel, origGrad.colorKeys[origGrad.colorKeys.Length - 1].color);
+
+                // Build a new gradient combining the custom colors with the original transparency
+                Gradient newGrad = new Gradient();
+                newGrad.SetKeys(
+                    new GradientColorKey[] { new GradientColorKey(startColor, 0f), new GradientColorKey(endColor, 1f) },
+                    origGrad.alphaKeys // Preserve the original fade-out!
+                );
+
+                tMap.trailComponent.colorGradient = newGrad;
+            }
+        }
+    }
+
+    // Helper method to dig the exact color we want out of the Paint Job
+    private Color GetColorForChannel(PlayerPaint[] paintJobs, PartMaterialLocation targetLoc, ColorChannel targetChannel, Color fallbackColor)
+    {
+        if (paintJobs == null) return fallbackColor;
+
+        foreach (PlayerPaint paint in paintJobs)
+        {
+            if (paint.map == targetLoc && paint.HasOverrides)
+            {
+                if (targetChannel == ColorChannel.Emission && paint.emissionColor.a > 0 && paint.emissionColor != Color.clear && paint.emissionColor != Color.black)
+                {
+                    return paint.emissionColor;
+                }
+                
+                if (targetChannel == ColorChannel.Albedo && paint.albedoColor.a > 0 && paint.albedoColor != Color.clear)
+                {
+                    return paint.albedoColor;
+                }
+
+                // Smart Fallback: If they asked for Emission but only painted Albedo, just use Albedo so it doesn't break
+                if (paint.albedoColor.a > 0 && paint.albedoColor != Color.clear) return paint.albedoColor;
+            }
+        }
+        return fallbackColor;
     }
 
     private void CleanupMaterials()

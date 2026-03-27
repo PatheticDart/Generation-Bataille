@@ -95,16 +95,16 @@ public class MechCardManager : MonoBehaviour
         // --- FILE MANAGER: SAVING ---
         string filePath = "";
 
-#if UNITY_EDITOR
-        // Opens the OS Save Dialog in the Editor
-        string defaultName = $"MechCard_{DateTime.Now.ToString("yyyyMMdd_HHmmss")}";
-        filePath = EditorUtility.SaveFilePanel("Save Mech Card", "", defaultName, "png");
-        if (string.IsNullOrEmpty(filePath)) return; // User canceled the save dialog
-#else
-        // Silent fallback for built games
-        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-        filePath = Path.Combine(_defaultSaveDirectory, $"MechCard_{timestamp}.png");
-#endif
+        #if UNITY_EDITOR
+                // Opens the OS Save Dialog in the Editor
+                string defaultName = $"MechCard_{DateTime.Now.ToString("yyyyMMdd_HHmmss")}";
+                filePath = EditorUtility.SaveFilePanel("Save Mech Card", "", defaultName, "png");
+                if (string.IsNullOrEmpty(filePath)) return; // User canceled the save dialog
+        #else
+                // Silent fallback for built games
+                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                filePath = Path.Combine(_defaultSaveDirectory, $"MechCard_{timestamp}.png");
+        #endif
 
         try
         {

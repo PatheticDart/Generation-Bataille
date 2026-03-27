@@ -1113,6 +1113,7 @@ GameObject:
   - component: {fileID: 2965442967308938096}
   - component: {fileID: 8315495831577698242}
   - component: {fileID: -7579059378243783486}
+  - component: {fileID: 6293428076846704069}
   m_Layer: 0
   m_Name: Talos Legs
   m_TagString: Untagged
@@ -1180,6 +1181,33 @@ MonoBehaviour:
   OnPartDestroyed:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6293428076846704069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3037054784377261881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b3f6cd160a319546a95eeca1bcbca8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PartMaterialLoader
+  meshes:
+  - mesh: {fileID: 3727944395213471289}
+    materialLocations: 0000000001000000
+  - mesh: {fileID: 1041442576819813838}
+    materialLocations: 0000000001000000
+  - mesh: {fileID: 9004315667896239691}
+    materialLocations: 0100000000000000
+  - mesh: {fileID: 3144643510082461016}
+    materialLocations: 0100000000000000
+  - mesh: {fileID: 4438196381101564821}
+    materialLocations: 0000000001000000
+  - mesh: {fileID: 1820133278282625442}
+    materialLocations: 0000000001000000
+  - mesh: {fileID: 706111273821104838}
+    materialLocations: 0100000000000000
 --- !u!1 &3373583370412931557
 GameObject:
   m_ObjectHideFlags: 0
