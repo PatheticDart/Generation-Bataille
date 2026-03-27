@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54e261294cc399143a30b9498957ea11, type: 3}
   m_Name: ArmPart
   m_EditorClassIdentifier: Assembly-CSharp::ArmPart
-  partName: 
+  partName: SGT-ANTARES
   partDescription: 
-  price: 0
+  price: 12000
   weight: 0
   prefab: {fileID: 4736254782853429846, guid: 2e2d8fef3acc7e5419ad6b5182e88e56, type: 3}
   energyDrain: 0
