@@ -5,6 +5,7 @@ public class BasicProjectileWeapon : FunctionalWeapon
     [Header("Weapon Setup")]
     public Transform muzzlePoint;
     public PooledVFX muzzleFlash; 
+    public bool spawnFlashAsChild;
 
     private ProjectileWeaponPart _weaponStats; // Updated from Rifle
     private float _nextFireTime = 0f;
@@ -72,7 +73,7 @@ public class BasicProjectileWeapon : FunctionalWeapon
         currentResource--;
         NotifyResourceChange();
 
-        PlayMuzzleFlash(muzzleFlash, muzzlePoint);
+        PlayMuzzleFlash(muzzleFlash, muzzlePoint, spawnFlashAsChild);
 
         BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(
             _weaponStats.bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);

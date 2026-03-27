@@ -9,6 +9,7 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
     public List<Transform> muzzlePoints = new List<Transform>();
     public PooledVFX muzzleFlash; 
     public FireMode fireMode = FireMode.Sequential;
+    public bool spawnFlashAsChild;
 
     private ProjectileWeaponPart _weaponStats; // Updated from Rifle
     private float _nextFireTime = 0f;
@@ -77,7 +78,7 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
     {
         Transform currentMuzzle = muzzlePoints[_currentBarrelIndex];
         
-        PlayMuzzleFlash(muzzleFlash, currentMuzzle);
+        PlayMuzzleFlash(muzzleFlash, currentMuzzle, spawnFlashAsChild);
         SpawnBullet(currentMuzzle);
 
         currentResource--;
@@ -91,7 +92,7 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
         {
             if (currentResource <= 0) break;
 
-            PlayMuzzleFlash(muzzleFlash, muzzle);
+            PlayMuzzleFlash(muzzleFlash, muzzle, spawnFlashAsChild);
             SpawnBullet(muzzle);
             
             currentResource--;

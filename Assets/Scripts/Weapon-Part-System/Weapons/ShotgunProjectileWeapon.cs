@@ -5,6 +5,7 @@ public class ShotgunProjectileWeapon : FunctionalWeapon
     [Header("Weapon Setup")]
     public Transform muzzlePoint;
     public PooledVFX muzzleFlash;
+    public bool spawnFlashAsChild;
 
     private ShotgunPart _shotgunStats; 
     private float _nextFireTime = 0f;
@@ -80,7 +81,7 @@ public class ShotgunProjectileWeapon : FunctionalWeapon
         currentResource--;
         NotifyResourceChange();
 
-        PlayMuzzleFlash(muzzleFlash, muzzlePoint);
+        PlayMuzzleFlash(muzzleFlash, muzzlePoint, spawnFlashAsChild);
 
         // Divide the base attack power by the number of pellets. 
         // A full meatshot connecting all pellets does exactly the SO's damage value.

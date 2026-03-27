@@ -82,11 +82,13 @@ public abstract class FunctionalWeapon : PartTemplate
         NotifyResourceChange();
     }
 
-    protected void PlayMuzzleFlash(PooledVFX flashPrefab, Transform spawnLocation)
+    protected void PlayMuzzleFlash(PooledVFX flashPrefab, Transform spawnLocation, bool spawnFlashAsChild)
     {
         if (flashPrefab != null && GlobalVFXPool.Instance != null && spawnLocation != null)
         {
-            GlobalVFXPool.Instance.Spawn(flashPrefab, spawnLocation.position, spawnLocation.rotation);
+            var p = GlobalVFXPool.Instance.Spawn(flashPrefab, spawnLocation.position, spawnLocation.rotation);
+
+            if (spawnFlashAsChild) p.transform.parent = spawnLocation;
         }
     }
 

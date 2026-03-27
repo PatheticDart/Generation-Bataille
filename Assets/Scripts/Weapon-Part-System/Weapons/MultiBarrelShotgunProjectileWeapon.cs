@@ -9,6 +9,7 @@ public class MultiBarrelShotgunProjectileWeapon : FunctionalWeapon
     public List<Transform> muzzlePoints = new List<Transform>();
     public PooledVFX muzzleFlash; 
     public FireMode fireMode = FireMode.Sequential;
+    public bool spawnFlashAsChild;
 
     private ShotgunPart _shotgunStats; 
     private float _nextFireTime = 0f;
@@ -83,7 +84,7 @@ public class MultiBarrelShotgunProjectileWeapon : FunctionalWeapon
     {
         Transform currentMuzzle = muzzlePoints[_currentBarrelIndex];
         
-        PlayMuzzleFlash(muzzleFlash, currentMuzzle);
+        PlayMuzzleFlash(muzzleFlash, currentMuzzle, spawnFlashAsChild);
         SpawnShotgunBlast(currentMuzzle);
 
         // Subtract 1 ammo for the single barrel fired
@@ -99,7 +100,7 @@ public class MultiBarrelShotgunProjectileWeapon : FunctionalWeapon
         {
             if (currentResource <= 0) break;
 
-            PlayMuzzleFlash(muzzleFlash, muzzle);
+            PlayMuzzleFlash(muzzleFlash, muzzle, spawnFlashAsChild);
             SpawnShotgunBlast(muzzle);
             
             // Subtract 1 ammo for EVERY barrel fired in the blast

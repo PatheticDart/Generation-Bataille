@@ -8,6 +8,8 @@ public class MissileArrayWeapon : FunctionalWeapon
     [Header("Missile Array Settings")]
     public List<Transform> muzzlePoints = new List<Transform>();
     public PooledVFX muzzleFlash; 
+    public bool spawnFlashAsChild;
+
     public LaunchTrajectory trajectory = LaunchTrajectory.Direct;
     
     private FCSLockBox _fcs;
@@ -112,7 +114,7 @@ public class MissileArrayWeapon : FunctionalWeapon
 
         Transform muzzle = muzzlePoints[_currentBarrelIndex];
         
-        PlayMuzzleFlash(muzzleFlash, muzzle);
+        PlayMuzzleFlash(muzzleFlash, muzzle, spawnFlashAsChild);
         
         Quaternion spawnRotation = muzzle.rotation;
         if (trajectory == LaunchTrajectory.Vertical)
