@@ -85,6 +85,46 @@ PrefabInstance:
       propertyPath: m_Name
       value: Shotgun Right
       objectReference: {fileID: 0}
+    - target: {fileID: 3834633082824703542, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 3834633082824703542, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 3834633082824703542, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3834633082824703542, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3834633082824703542, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 7064380063155641323, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 7064380063155641323, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 7064380063155641323, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7064380063155641323, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7064380063155641323, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 90
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 1089574026616415788, guid: 61da6cf9e3c51454985d9bca4e3caf70, type: 3}
     m_RemovedGameObjects: []

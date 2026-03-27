@@ -53327,6 +53327,10 @@ PrefabInstance:
       value: //Player
       objectReference: {fileID: 0}
     - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
+      propertyPath: armsPart
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f9fbdac92749f64d8271b21d4b957fe, type: 2}
+    - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: headPart
       value: 
       objectReference: {fileID: 11400000, guid: 98efda7a953f62f498d6ab09332e1353, type: 2}
@@ -53337,7 +53341,7 @@ PrefabInstance:
     - target: {fileID: 1493543110352625134, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: torsoPart
       value: 
-      objectReference: {fileID: 11400000, guid: 195905ff58a71ab4ba69ee55e47e8f72, type: 2}
+      objectReference: {fileID: 11400000, guid: 7d1850266530ef14487205653895dc65, type: 2}
     - target: {fileID: 1967896886241751968, guid: 80496d6bc88cde24babae56a69323157, type: 3}
       propertyPath: m_IsActive
       value: 0
