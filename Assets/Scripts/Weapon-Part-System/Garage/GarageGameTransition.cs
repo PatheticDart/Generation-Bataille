@@ -46,10 +46,15 @@ public class GarageGameTransition : MonoBehaviour
     [Button("Test Launch Sequence (Goes to test scene)")]
     public void BeginLaunchSequence()
     {
-        StartCoroutine(LaunchSequenceRoutine());
+        StartCoroutine(LaunchSequenceRoutine(gameplaySceneName));
     }
 
-    private IEnumerator LaunchSequenceRoutine()
+    public void BeginLaunchSequence(string sceneName)
+    {
+        StartCoroutine(LaunchSequenceRoutine(sceneName));
+    }
+
+    private IEnumerator LaunchSequenceRoutine(string sceneName)
     {
         // 1. Block raycasts so the player can't double-click the deploy button
         if (whiteScreen != null) whiteScreen.blocksRaycasts = true;
@@ -112,6 +117,6 @@ public class GarageGameTransition : MonoBehaviour
         }
 
         // 6. Load the next scene
-        SceneManager.LoadScene(gameplaySceneName);
+        SceneManager.LoadScene(sceneName);
     }
 }

@@ -13154,6 +13154,22 @@ PrefabInstance:
       propertyPath: partSystem
       value: 
       objectReference: {fileID: 2077744745}
+    - target: {fileID: 2373151316509150058, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
+      propertyPath: globalPaintJob.Array.data[0].albedoColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2373151316509150058, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
+      propertyPath: globalPaintJob.Array.data[0].albedoColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2373151316509150058, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
+      propertyPath: globalPaintJob.Array.data[0].albedoColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2373151316509150058, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
+      propertyPath: globalPaintJob.Array.data[0].albedoColor.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3427776954833704222, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
       propertyPath: partSystem
       value: 
@@ -13224,31 +13240,31 @@ PrefabInstance:
       objectReference: {fileID: 163388766}
     - target: {fileID: 6391484305099766278, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -4.923264
+      value: 0.000002617486
       objectReference: {fileID: 0}
     - target: {fileID: 6391484305099766278, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.8478956
+      value: -0.35492802
       objectReference: {fileID: 0}
     - target: {fileID: 6391484305099766278, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 3.9688463
+      value: 6.2314143
       objectReference: {fileID: 0}
     - target: {fileID: 6391484305099766278, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.9426172
+      value: 0.98836154
       objectReference: {fileID: 0}
     - target: {fileID: 6391484305099766278, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.14508264
+      value: 0.15212335
       objectReference: {fileID: 0}
     - target: {fileID: 6391484305099766278, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.297206
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6391484305099766278, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.04574438
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6655645062244188678, guid: 5d14dde6cc60ae845980667d922a9023, type: 3}
       propertyPath: Target.TrackingTarget
