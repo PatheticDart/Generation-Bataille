@@ -6,20 +6,20 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/GarageScene.unity
+    guid: 0912a1f2e603d694a9f0b3ab90e9ee4e
+  - enabled: 1
+    path: Assets/Scenes/Stages/1 - Empty Stage.unity
+    guid: a5be8426e655712498ad7a1e9e045a63
+  - enabled: 1
+    path: Assets/Scenes/TestScene.unity
+    guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
     path: Assets/Scenes/MenuScene/TitleScreen.unity
     guid: 6c961efbdac8c3847a27a40eba029f0c
   - enabled: 1
     path: Assets/Scenes/MenuScene/MenuScene.unity
     guid: d377c38d5adc15b43a686b3c2db44c32
-  - enabled: 1
-    path: Assets/Scenes/GarageScene.unity
-    guid: 0912a1f2e603d694a9f0b3ab90e9ee4e
-  - enabled: 1
-    path: Assets/Scenes/TestScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
-    path: Assets/Scenes/Stages/1 - Empty Stage.unity
-    guid: a5be8426e655712498ad7a1e9e045a63
   - enabled: 1
     path: Assets/Scenes/Stages/2 - Burried City.unity
     guid: 5da5956878313de42be2df1cb2b30c73
