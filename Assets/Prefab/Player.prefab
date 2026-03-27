@@ -4554,20 +4554,30 @@ MonoBehaviour:
     material: {fileID: 2100000, guid: 0eea8a76db9550f41b57e63bba120548, type: 2}
   globalPaintJob:
   - map: 0
-    albedoColor: {r: 0.45910463, g: 0.47750694, b: 0.5377358, a: 1}
-    albedoTexture: {fileID: 0}
+    albedoColor: {r: 0.3490566, g: 0, b: 0.07221869, a: 1}
+    albedoTexture: {fileID: 2800000, guid: 043f21d4f5e0a7747ad2b637a369501c, type: 3}
+    emissionColor: {r: 0, g: 0, b: 0, a: 0}
+    emissionTexture: {fileID: 0}
   - map: 1
-    albedoColor: {r: 0.26415092, g: 0.26415092, b: 0.26415092, a: 1}
+    albedoColor: {r: 0.2830189, g: 0.21830468, b: 0.21493416, a: 1}
     albedoTexture: {fileID: 0}
+    emissionColor: {r: 0, g: 0, b: 0, a: 0}
+    emissionTexture: {fileID: 0}
   - map: 2
-    albedoColor: {r: 0.7264151, g: 0, b: 0.124070115, a: 1}
+    albedoColor: {r: 0.9137255, g: 0, b: 0.08648741, a: 1}
     albedoTexture: {fileID: 0}
+    emissionColor: {r: 0, g: 0, b: 0, a: 0}
+    emissionTexture: {fileID: 0}
   - map: 3
     albedoColor: {r: 1, g: 0.5408696, b: 0, a: 1}
     albedoTexture: {fileID: 0}
+    emissionColor: {r: 0, g: 0, b: 0, a: 0}
+    emissionTexture: {fileID: 0}
   - map: 4
     albedoColor: {r: 1, g: 0, b: 0.17297316, a: 1}
     albedoTexture: {fileID: 0}
+    emissionColor: {r: 4.5412045, g: 0, b: 0, a: 1}
+    emissionTexture: {fileID: 0}
   headPart: {fileID: 11400000, guid: fe8f5ec60a5f70d4282481dfe2c1234b, type: 2}
   torsoPart: {fileID: 11400000, guid: 195905ff58a71ab4ba69ee55e47e8f72, type: 2}
   armsPart: {fileID: 11400000, guid: 356e7e35596178c4cbdf8dce34909bb4, type: 2}
