@@ -8,10 +8,13 @@ public class PopOutPanels : MonoBehaviour
     [Header("Pop-out Panels")]
     public GameObject customizePopOut;
     public GameObject shopPopOut;
+    public GameObject arenaPopOut; // --- NEW: Added Arena Pop-Out Reference ---
 
     [Header("Full Screen Menus")]
     public GameObject assemblyScreen;
     public GameObject paintScreen; // --- NEW: Added Paint Screen Reference ---
+    public GameObject arenaScreen; // --- NEW: Added Arena Screen Reference ---
+
 
     private void Start()
     {
@@ -42,6 +45,15 @@ public class PopOutPanels : MonoBehaviour
         }
     }
 
+    public void ToggleArenaPanel()
+    {
+       if (arenaPopOut != null)
+       {
+            bool isOpening = !arenaPopOut.activeSelf;
+            arenaPopOut.SetActive(isOpening);
+       }
+    }
+
     // --- SCREEN ROUTING ---
 
     // Link this to the "ASSEMBLY" button inside your Customize Pop-Out
@@ -63,6 +75,21 @@ public class PopOutPanels : MonoBehaviour
         // Re-open the customize pop-out when backing out
         if (customizePopOut != null && !customizePopOut.activeSelf) ToggleCustomizePanel();
 
+        mainHubPanel.SetActive(true);
+    }
+
+    public void OpenArenaScreen()
+    {
+        mainHubPanel.SetActive(false);
+        if (arenaPopOut != null) arenaScreen.SetActive(true);
+        if (arenaPopOut != null && arenaPopOut.activeSelf) ToggleArenaPanel(); // Safety catch
+        if (customizePopOut != null && customizePopOut.activeSelf) ToggleCustomizePanel(); // Safety catch
+        if (shopPopOut != null && shopPopOut.activeSelf) ToggleShopPanel(); // Safety catch
+    }
+
+    public void CloseArenaScreen()
+    {
+        if (arenaScreen != null) arenaScreen.SetActive(false);
         mainHubPanel.SetActive(true);
     }
 
@@ -97,11 +124,13 @@ public class PopOutPanels : MonoBehaviour
     {
         if (assemblyScreen != null) assemblyScreen.SetActive(false);
         if (paintScreen != null) paintScreen.SetActive(false); // --- NEW: Hide paint screen ---
+        if (arenaScreen != null) arenaScreen.SetActive(false); // --- NEW: Hide arena screen ---
 
         mainHubPanel.SetActive(true);
 
         // Hide pop-outs when returning
         if (customizePopOut != null) customizePopOut.SetActive(false);
         if (shopPopOut != null) shopPopOut.SetActive(false);
+        if (arenaPopOut != null) arenaPopOut.SetActive(false);
     }
 }

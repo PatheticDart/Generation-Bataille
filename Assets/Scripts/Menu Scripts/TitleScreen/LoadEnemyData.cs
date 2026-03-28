@@ -15,6 +15,7 @@ public class LoadEnemyData : MonoBehaviour
     public Sprite DRankSprite, CRankSprite, BRankSprite, ARankSprite, SRankSprite, SSRankSprite, SSSRankSprite;
     public Image rankSpriteRenderer;
     public GameObject rankSpriteObject;
+    public GameObject arenaEnterBtn;
 
     void Start()
     {
@@ -22,7 +23,10 @@ public class LoadEnemyData : MonoBehaviour
         {
             buttonLabel.text = enemyData.enemyName;
         }
-        rankSpriteObject.SetActive(false);
+        if (rankSpriteObject != null)
+        {
+            rankSpriteObject.SetActive(false);
+        }
     }
 
     void Update()
@@ -32,7 +36,13 @@ public class LoadEnemyData : MonoBehaviour
 
     public void LoadData()
     {
-        rankSpriteObject.SetActive(true);
+        if (arenaEnterBtn != null)
+        {
+            arenaEnterBtn.SetActive(true);
+        }
+        if (rankSpriteObject != null){
+            rankSpriteObject.SetActive(true);
+        }
         if (enemyData == null)
         {
             Debug.LogError($"LoadEnemyData: enemyData is not assigned on '{gameObject.name}'", this);
@@ -75,6 +85,11 @@ public class LoadEnemyData : MonoBehaviour
             }
         }
 
+        if (rankSpriteRenderer == null)
+        {
+            Debug.LogError($"LoadEnemyData: rankSpriteRenderer is not assigned on '{gameObject.name}'", this);
+            return;
+        }
         LoadRank(enemyData.rank);
     }
     

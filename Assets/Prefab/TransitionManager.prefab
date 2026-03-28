@@ -46,11 +46,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d0d3a7bdafb78f478d3c20b2951d0a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GarageGameTransition
+  transitionVirtualCamera: {fileID: 0}
+  targetOrbitHorizontal: 180
+  targetOrbitVertical: 10
   bAndWVolume: {fileID: 7715856023091331018}
   whiteScreen: {fileID: 8541498885277027136}
-  lutFadeInDuration: 1.5
+  lutAndRotationDuration: 1.5
   whiteFadeInDuration: 1
-  gameplaySceneName: GameplayScene
+  gameplaySceneIndex: 1
 --- !u!1 &1736772113460291515
 GameObject:
   m_ObjectHideFlags: 0
