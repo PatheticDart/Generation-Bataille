@@ -98,12 +98,20 @@ PrefabInstance:
       value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 5396846255677963612, guid: 25cc9e16c8242334bbf79112c374bb00, type: 3}
+      propertyPath: muzzleFlash
+      value: 
+      objectReference: {fileID: 290559836538120028, guid: 5f2bc166e68df974bb952c4ec5c43454, type: 3}
+    - target: {fileID: 5396846255677963612, guid: 25cc9e16c8242334bbf79112c374bb00, type: 3}
       propertyPath: projectileSpeed
       value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 5396846255677963612, guid: 25cc9e16c8242334bbf79112c374bb00, type: 3}
       propertyPath: projectilePrefab
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5396846255677963612, guid: 25cc9e16c8242334bbf79112c374bb00, type: 3}
+      propertyPath: spawnFlashAsChild
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7982167368190329064, guid: 25cc9e16c8242334bbf79112c374bb00, type: 3}
       propertyPath: m_LocalPosition.y
@@ -171,6 +179,8 @@ MonoBehaviour:
   meshes:
   - mesh: {fileID: 1925064428019233899}
     materialLocations: 00000000010000000200000004000000
+  lights: []
+  trails: []
 --- !u!1001 &5434873505853500200
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -304,7 +314,8 @@ MonoBehaviour:
   maxResource: 0
   currentReserveAmmo: 0
   muzzlePoint: {fileID: 857808499567954254}
-  muzzleFlash: {fileID: 0}
+  muzzleFlash: {fileID: 290559836538120028, guid: 5f2bc166e68df974bb952c4ec5c43454, type: 3}
+  spawnFlashAsChild: 1
 --- !u!114 &5001391691662106091
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -320,3 +331,5 @@ MonoBehaviour:
   meshes:
   - mesh: {fileID: 645268044329348045}
     materialLocations: 00000000010000000200000004000000
+  lights: []
+  trails: []

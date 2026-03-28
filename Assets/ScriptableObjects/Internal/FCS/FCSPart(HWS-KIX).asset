@@ -10,18 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2c0589a10c1634f40bd2d936ca1db35e, type: 3}
-  m_Name: FCSPart
+  m_Name: FCSPart(HWS-KIX)
   m_EditorClassIdentifier: Assembly-CSharp::FCSPart
   partName: HWS-KIX
   partDescription: A well-balanced FCS.
-  price: 8000
-  weight: 0
-  lockSize: {x: 0, y: 0}
+  price: 9500
+  weight: 12
+  lockSize: {x: 45, y: 30}
   targetingType: 0
-  maximumLock: 0
-  lockTime: 0
-  maxCapture: {x: 0, y: 0}
-  averageCapture: {x: 0, y: 0}
-  maxLockRange: {x: 0, y: 0}
-  avgLockRange: {x: 0, y: 0}
-  precision: 0
+  maximumLock: 6
+  lockSpeed: 1
+  missileLockTime: 2
+  maxLockRange: 300
+  precision: 10

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c0589a10c1634f40bd2d936ca1db35e, type: 3}
+  m_Name: FCSPart(PUR-103)
+  m_EditorClassIdentifier: Assembly-CSharp::FCSPart
+  partName: PUR-103
+  partDescription: Quick lock-on speed. Suitable for close-range combat
+  price: 15300
+  weight: 12
+  lockSize: {x: 80, y: 50}
+  targetingType: 0
+  maximumLock: 2
+  lockSpeed: 0.3
+  missileLockTime: 1
+  maxLockRange: 120
+  precision: 10

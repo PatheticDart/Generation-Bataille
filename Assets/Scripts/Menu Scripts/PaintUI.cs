@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.Collections; // NEW: Required for Coroutines
 
 public class PaintUI : MonoBehaviour
 {
@@ -25,12 +26,30 @@ public class PaintUI : MonoBehaviour
             backupPaintJob[i] = garageLoader.globalPaintJob[i];
         }
 
-        if (fcp != null) fcp.onColorChange.AddListener(OnColorDragged);
+        // --- THE FIX: Wait 1 frame before setting the FCP color to avoid its startup glitch ---
+        StartCoroutine(DelayedSetup());
+    }
+
+    private IEnumerator DelayedSetup()
+    {
+        // Yielding null tells Unity to wait until the next frame
+        yield return null; 
+
+        // Now that the FCP is fully awake and done throwing its default red color around, we update it
         UpdateCategoryDisplay();
+
+        // Attach the listener AFTER the delay so we don't accidentally save the default red to the mech
+        if (fcp != null)
+        {
+            fcp.onColorChange.RemoveListener(OnColorDragged); // Safety clear
+            fcp.onColorChange.AddListener(OnColorDragged);
+        }
     }
 
     void OnDisable()
     {
+        // Clean up our coroutines and listeners when the panel closes
+        StopAllCoroutines();
         if (fcp != null) fcp.onColorChange.RemoveListener(OnColorDragged);
     }
 
@@ -87,7 +106,6 @@ public class PaintUI : MonoBehaviour
 
     public void SaveColors()
     {
-        // Colors are already saved in the global array; the MechCardManager can capture them directly.
         gameObject.SetActive(false);
     }
 

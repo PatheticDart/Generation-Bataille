@@ -15,13 +15,13 @@ MonoBehaviour:
   partName: RTG-BURNER
   partDescription: A balanced booster part.
   price: 9000
-  weight: 352
+  weight: 210
   prefab: {fileID: 7579171410865374785, guid: 4dad9fef9088e7246afc739bed3cb276, type: 3}
-  energyDrain: 900
+  energyDrain: 24
   horizontalThrust: 80
   verticalThrust: 40
-  boostEnergyDrain: 0
+  boostEnergyDrain: 4456
   qBThrust: 150
-  qBEnergyDrain: 100
+  qBEnergyDrain: 6100
   qBDuration: 0.1
   qBCooldown: 0.8

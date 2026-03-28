@@ -10,11 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2b271d1581198a740bf23cecf6ea68ef, type: 3}
-  m_Name: GeneratorPart(THUNDER-BTL)
+  m_Name: GeneratorPart(19-SN)
   m_EditorClassIdentifier: Assembly-CSharp::Generator
-  partName: THUNDER-BTL
-  partDescription: Capacity-focused generator.
-  price: 0
-  weight: 0
-  energyCapacity: 4100
-  energyOutput: 210
+  partName: 19-SN
+  partDescription: Balanced generator part.
+  price: 26000
+  weight: 302
+  energyCapacity: 28500
+  energyOutput: 6200
+  energyEmergencyRecoveryRate: 3100

@@ -428,10 +428,12 @@ MonoBehaviour:
   OnPartDestroyed:
     m_PersistentCalls:
       m_Calls: []
+  currentResource: 0
+  maxResource: 0
+  currentReserveAmmo: 0
   muzzlePoint: {fileID: 5641253967569523571}
-  projectilePrefab: {fileID: 8331362034265100734, guid: 17a7957f1b799304594f0be12f86ea04, type: 3}
-  fireRate: 0.2
-  projectileSpeed: 100
+  muzzleFlash: {fileID: 0}
+  spawnFlashAsChild: 1
 --- !u!1 &7269923928023270356
 GameObject:
   m_ObjectHideFlags: 0

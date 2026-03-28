@@ -7,16 +7,16 @@ public class MissileArrayWeapon : FunctionalWeapon
 
     [Header("Missile Array Settings")]
     public List<Transform> muzzlePoints = new List<Transform>();
-    public PooledVFX muzzleFlash; 
+    public PooledVFX muzzleFlash;
     public bool spawnFlashAsChild;
 
     public LaunchTrajectory trajectory = LaunchTrajectory.Direct;
-    
+
     private FCSLockBox _fcs;
-    private MissileLauncherPart _missileData; 
+    private MissileLauncherPart _missileData;
     private float _nextFireTime = 0f;
     private float _nextStaggerTime = 0f;
-    
+
     private bool _isFiringBurst = false;
     private int _currentBarrelIndex = 0;
     private int _missilesToFireThisBurst = 0;
@@ -25,7 +25,7 @@ public class MissileArrayWeapon : FunctionalWeapon
 
     public override void InitializeWeapon(Part data)
     {
-        base.InitializeWeapon(data); 
+        base.InitializeWeapon(data);
         _missileData = data as MissileLauncherPart;
         _fcs = transform.root.GetComponentInChildren<FCSLockBox>();
 
@@ -37,23 +37,20 @@ public class MissileArrayWeapon : FunctionalWeapon
 
     public override void OnFirePressed()
     {
-        // Block firing if currently reloading
         if (isReloading || _missileData == null) return;
 
-        // Check if the weapon has cooled down from the last shot/burst
         if (!_isFiringBurst && Time.time >= _nextFireTime)
         {
             if (currentResource > 0)
             {
-                // --- NORMAL FIRING LOGIC ---
-                int currentLocks = 1; 
+                int currentLocks = 1;
                 _burstTarget = null;
 
                 if (_fcs != null && _fcs.isHardLocked)
                 {
                     currentLocks = _fcs.currentLockCount;
-                    _burstTarget = _fcs.currentTarget; 
-                    _fcs.ConsumeLocks(); 
+                    _burstTarget = _fcs.currentTarget;
+                    _fcs.ConsumeLocks();
                 }
 
                 _missilesToFireThisBurst = Mathf.Min(currentLocks, muzzlePoints.Count, Mathf.FloorToInt(currentResource));
@@ -63,27 +60,19 @@ public class MissileArrayWeapon : FunctionalWeapon
                     _isFiringBurst = true;
                     _missilesFiredSoFar = 0;
                     _currentBarrelIndex = 0;
-                    _nextStaggerTime = Time.time; 
+                    _nextStaggerTime = Time.time;
                 }
             }
             else
             {
-                // --- DRY FIRE LOGIC ---
-                // Apply the cooldown penalty even if nothing fired
                 _nextFireTime = Time.time + (_missileData.firingInterval / 1000f);
-                
-                // Auto-reload if we have spare ammo
-                if (currentReserveAmmo > 0)
-                {
-                    Reload();
-                }
+                if (currentReserveAmmo > 0) Reload();
             }
         }
     }
-    
+
     private void Update()
     {
-        // Safety Catch: Cancel the burst if a reload is triggered mid-volley
         if (isReloading && _isFiringBurst)
         {
             _isFiringBurst = false;
@@ -96,10 +85,9 @@ public class MissileArrayWeapon : FunctionalWeapon
             FireMissileFromCurrentTube();
 
             _missilesFiredSoFar++;
-            _currentBarrelIndex++; 
+            _currentBarrelIndex++;
             _nextStaggerTime = Time.time + _missileData.staggerTime;
 
-            // Check if the burst is finished, or if we ran out of ammo mid-burst
             if (_missilesFiredSoFar >= _missilesToFireThisBurst || currentResource <= 0)
             {
                 _isFiringBurst = false;
@@ -113,9 +101,9 @@ public class MissileArrayWeapon : FunctionalWeapon
         if (_missileData == null) return;
 
         Transform muzzle = muzzlePoints[_currentBarrelIndex];
-        
+
         PlayMuzzleFlash(muzzleFlash, muzzle, spawnFlashAsChild);
-        
+
         Quaternion spawnRotation = muzzle.rotation;
         if (trajectory == LaunchTrajectory.Vertical)
         {
@@ -125,7 +113,8 @@ public class MissileArrayWeapon : FunctionalWeapon
         BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(
             _missileData.bulletPrefab, muzzle.position, spawnRotation);
 
-        proj.SetupStats(_missileData.attackPower, _missileData.bulletSpeed);
+        // --- FIXED: Pass the shooterLayer ---
+        proj.SetupStats(_missileData.attackPower, _missileData.bulletSpeed, shooterLayer);
         proj.SetPrefabReference(_missileData.bulletPrefab);
 
         if (proj is HomingMissile homingMissile)
@@ -138,5 +127,5 @@ public class MissileArrayWeapon : FunctionalWeapon
     }
 
     public override void OnFireHeld() { }
-    public override void OnFireReleased() { } 
+    public override void OnFireReleased() { }
 }

@@ -14,17 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LegPart
   partName: SGTL-ANTARES
   partDescription: 
-  price: 0
-  weight: 0
+  price: 15000
+  weight: 1912
   prefab: {fileID: 3037054784377261881, guid: 58a2558b39ee698419dee504ac9040e9, type: 3}
-  energyDrain: 0
-  armorPoints: 0
-  shellDef: 0
-  energyDef: 0
-  movingEnergyDrain: 0
-  maxLegWeight: 0
-  movingAbility: 0
-  turningAbility: 0
-  landingStability: 0
-  defenseStability: 0
-  jumpPerformance: 0
+  energyDrain: 612
+  armorPoints: 3089
+  shellDef: 489
+  energyDef: 435
+  movingEnergyDrain: 1900
+  maxLegWeight: 4968
+  movingAbility: 45
+  turningAbility: 2
+  landingStability: 1003
+  defenseStability: 873
+  jumpPerformance: 40

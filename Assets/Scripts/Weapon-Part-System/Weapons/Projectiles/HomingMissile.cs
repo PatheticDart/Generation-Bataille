@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class HomingMissile : BaseProjectile
 {
@@ -9,17 +10,17 @@ public class HomingMissile : BaseProjectile
     public float maxTurnSpeed = 180f;
 
     [Header("Explosion & Collision")]
-    public LayerMask hitMask = ~0; 
+    public LayerMask hitMask = ~0;
     public float explosionRadius = 8f;
     public float explosionForce = 1000f;
 
     private Transform _target;
     private float _timeAlive;
-    private float _flightSpeed = 100f; 
+    private float _flightSpeed = 100f;
 
     protected override void OnEnable()
     {
-        base.OnEnable(); 
+        base.OnEnable();
         _timeAlive = 0f;
     }
 
@@ -28,16 +29,17 @@ public class HomingMissile : BaseProjectile
         _target = target;
     }
 
-    public override void SetupStats(float newDamage, float newSpeed)
+    // --- NEW: Update signature to accept shooter layer ---
+    public override void SetupStats(float newDamage, float newSpeed, int sourceLayer)
     {
-        base.SetupStats(newDamage, newSpeed);
-        _flightSpeed = newSpeed; 
+        base.SetupStats(newDamage, newSpeed, sourceLayer);
+        _flightSpeed = newSpeed;
     }
 
     protected override void Update()
     {
-        if (isReturning) return; 
-        base.Update(); 
+        if (isReturning) return;
+        base.Update();
 
         _timeAlive += Time.deltaTime;
         float curveProgress = Mathf.Clamp01(_timeAlive / curveDuration);
@@ -49,17 +51,16 @@ public class HomingMissile : BaseProjectile
         {
             Vector3 directionToTarget = (_target.position - transform.position).normalized;
             Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
-            
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, currentTurnSpeed * Time.deltaTime);
         }
 
         float moveDistance = currentSpeed * Time.deltaTime;
-        
+
         if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, moveDistance, hitMask))
         {
-            transform.position = hit.point; 
-            Detonate(hit.normal); // Pass the normal here to align the explosion!
-            return; 
+            transform.position = hit.point;
+            Detonate(hit.normal);
+            return;
         }
 
         transform.position += transform.forward * moveDistance;
@@ -69,19 +70,31 @@ public class HomingMissile : BaseProjectile
 
     private void Detonate(Vector3 hitNormal)
     {
-        if (isReturning) return; 
+        if (isReturning) return;
 
-        SpawnImpactEffect(transform.position, hitNormal); // Spawn universal VFX
+        SpawnImpactEffect(transform.position, hitNormal);
 
         Collider[] caughtInBlast = Physics.OverlapSphere(transform.position, explosionRadius);
+        HashSet<MechStats> alreadyDamagedMechs = new HashSet<MechStats>();
+
         foreach (Collider col in caughtInBlast)
         {
+            if (col.gameObject.layer == shooterLayer) continue;
+
+            MechStats enemyStats = col.GetComponentInParent<MechStats>();
+            if (enemyStats != null && !alreadyDamagedMechs.Contains(enemyStats))
+            {
+                enemyStats.currentArmorPoints -= (int)damage;
+                if (enemyStats.currentArmorPoints < 0) enemyStats.currentArmorPoints = 0;
+                alreadyDamagedMechs.Add(enemyStats);
+            }
+
             if (col.TryGetComponent(out Rigidbody targetRb))
             {
                 targetRb.AddExplosionForce(explosionForce, transform.position, explosionRadius);
             }
         }
 
-        InitiateReturn(); 
+        InitiateReturn();
     }
 }

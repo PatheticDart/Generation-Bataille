@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TorsoPart
   partName: DYNT-TALOS
   partDescription: 
-  price: 0
-  weight: 0
+  price: 46000
+  weight: 1500
   prefab: {fileID: 2150226367516778880, guid: 586669c4f22bd134d854f0a1ce166933, type: 3}
-  energyDrain: 0
-  armorPoints: 0
-  shellDef: 0
-  energyDef: 0
-  maxArmWeight: 0
+  energyDrain: 720
+  armorPoints: 2900
+  shellDef: 699
+  energyDef: 589
+  maxArmWeight: 4100

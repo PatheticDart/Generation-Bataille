@@ -200,7 +200,10 @@ MonoBehaviour:
       m_Calls: []
   currentResource: 0
   maxResource: 0
+  currentReserveAmmo: 0
   muzzlePoint: {fileID: 7022451057575298218}
+  muzzleFlash: {fileID: 0}
+  spawnFlashAsChild: 1
 --- !u!1 &3886212739766268005
 GameObject:
   m_ObjectHideFlags: 0

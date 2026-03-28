@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54e261294cc399143a30b9498957ea11, type: 3}
   m_Name: AntaresArmPart
   m_EditorClassIdentifier: Assembly-CSharp::ArmPart
-  partName: SGT-ANTARES
+  partName: SGTA-ANTARES
   partDescription: 
   price: 12000
-  weight: 0
+  weight: 1241
   prefab: {fileID: 4736254782853429846, guid: 2e2d8fef3acc7e5419ad6b5182e88e56, type: 3}
-  energyDrain: 0
-  armorPoints: 0
-  shellDef: 0
-  energyDef: 0
-  recoilControl: 0
+  energyDrain: 1032
+  armorPoints: 1320
+  shellDef: 320
+  energyDef: 296
+  recoilControl: 280

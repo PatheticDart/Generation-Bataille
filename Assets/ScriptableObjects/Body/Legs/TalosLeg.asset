@@ -14,17 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LegPart
   partName: DYNL-TALOS
   partDescription: 
-  price: 0
-  weight: 0
+  price: 21000
+  weight: 2812
   prefab: {fileID: 3037054784377261881, guid: 7fb801a70d3000c4a9a45bc4a154c5fa, type: 3}
-  energyDrain: 0
-  armorPoints: 0
-  shellDef: 0
-  energyDef: 0
-  movingEnergyDrain: 0
-  maxLegWeight: 0
-  movingAbility: 0
-  turningAbility: 0
-  landingStability: 0
-  defenseStability: 0
-  jumpPerformance: 0
+  energyDrain: 685
+  armorPoints: 3610
+  shellDef: 713
+  energyDef: 403
+  movingEnergyDrain: 2006
+  maxLegWeight: 7100
+  movingAbility: 23
+  turningAbility: 3
+  landingStability: 1996
+  defenseStability: 1653
+  jumpPerformance: 27

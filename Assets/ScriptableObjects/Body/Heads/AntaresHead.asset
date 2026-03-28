@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 78f00d33dd50c5b418b863960a55c259, type: 3}
-  m_Name: TalosHead
+  m_Name: AntaresHead
   m_EditorClassIdentifier: Assembly-CSharp::HeadPart
-  partName: DYNH-TALOS
+  partName: SGTH-ANTARES
   partDescription: 
-  price: 16000
-  weight: 4500
-  prefab: {fileID: 7348662245296258834, guid: 9092a9e206b576241b5129e29ede4d01, type: 3}
-  energyDrain: 215
-  armorPoints: 1000
-  shellDef: 160
-  energyDef: 120
-  lockOnTimeMultiplier: 0.8
+  price: 9000
+  weight: 120
+  prefab: {fileID: 7348662245296258834, guid: 189b873af02d7e545a720091644bfe43, type: 3}
+  energyDrain: 365
+  armorPoints: 800
+  shellDef: 130
+  energyDef: 140
+  lockOnTimeMultiplier: 1
   radarPollRate: 0.5
   radarScale: 1

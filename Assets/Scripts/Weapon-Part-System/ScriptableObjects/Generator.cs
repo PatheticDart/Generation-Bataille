@@ -6,4 +6,5 @@ public class Generator : Part
     [Header("Unique Stats")]
     public int energyCapacity;
     public int energyOutput;
+    public int energyEmergencyRecoveryRate;
 }

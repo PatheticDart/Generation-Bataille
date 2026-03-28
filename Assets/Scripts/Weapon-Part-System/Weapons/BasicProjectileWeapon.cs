@@ -4,15 +4,15 @@ public class BasicProjectileWeapon : FunctionalWeapon
 {
     [Header("Weapon Setup")]
     public Transform muzzlePoint;
-    public PooledVFX muzzleFlash; 
+    public PooledVFX muzzleFlash;
     public bool spawnFlashAsChild;
 
-    private ProjectileWeaponPart _weaponStats; // Updated from Rifle
+    private ProjectileWeaponPart _weaponStats;
     private float _nextFireTime = 0f;
 
     public override void InitializeWeapon(Part data)
     {
-        base.InitializeWeapon(data); 
+        base.InitializeWeapon(data);
         _weaponStats = data as ProjectileWeaponPart;
 
         if (_weaponStats == null) return;
@@ -27,26 +27,18 @@ public class BasicProjectileWeapon : FunctionalWeapon
         }
     }
 
-    // --- NEW INPUT ROUTING ---
     public override void OnFirePressed()
     {
-        if (_weaponStats != null && _weaponStats.triggerType == WeaponTriggerType.SemiAuto)
-        {
-            TryFire();
-        }
+        if (_weaponStats != null && _weaponStats.triggerType == WeaponTriggerType.SemiAuto) TryFire();
     }
 
     public override void OnFireHeld()
     {
-        if (_weaponStats != null && _weaponStats.triggerType == WeaponTriggerType.FullAuto)
-        {
-            TryFire();
-        }
+        if (_weaponStats != null && _weaponStats.triggerType == WeaponTriggerType.FullAuto) TryFire();
     }
 
     public override void OnFireReleased() { }
 
-    // --- FIRING LOGIC ---
     private void TryFire()
     {
         if (isReloading) return;
@@ -58,7 +50,6 @@ public class BasicProjectileWeapon : FunctionalWeapon
                 Fire();
                 _nextFireTime = Time.time + (_weaponStats.firingInterval / 1000f);
             }
-            // Auto-Reload if empty
             else if (currentReserveAmmo > 0)
             {
                 Reload();
@@ -78,7 +69,8 @@ public class BasicProjectileWeapon : FunctionalWeapon
         BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(
             _weaponStats.bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
 
-        proj.SetupStats(_weaponStats.attackPower, _weaponStats.bulletSpeed);
+        // --- FIXED: Pass the shooterLayer ---
+        proj.SetupStats(_weaponStats.attackPower, _weaponStats.bulletSpeed, shooterLayer);
         proj.SetPrefabReference(_weaponStats.bulletPrefab);
     }
 }

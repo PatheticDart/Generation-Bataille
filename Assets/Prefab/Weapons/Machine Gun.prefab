@@ -89,6 +89,10 @@ PrefabInstance:
       propertyPath: muzzleFlash
       value: 
       objectReference: {fileID: 290559836538120028, guid: 5f2bc166e68df974bb952c4ec5c43454, type: 3}
+    - target: {fileID: 5819381501629294965, guid: e9de59653d4f98e468126cf709a1eb20, type: 3}
+      propertyPath: spawnFlashAsChild
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -117,6 +121,8 @@ MonoBehaviour:
   meshes:
   - mesh: {fileID: 6998865436861792348}
     materialLocations: 01000000000000000200000003000000
+  lights: []
+  trails: []
 --- !u!4 &4943558162255203937 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 498607610502857311, guid: e9de59653d4f98e468126cf709a1eb20, type: 3}
@@ -183,6 +189,10 @@ PrefabInstance:
       propertyPath: muzzleFlash
       value: 
       objectReference: {fileID: 290559836538120028, guid: 5f2bc166e68df974bb952c4ec5c43454, type: 3}
+    - target: {fileID: 3718086899982607002, guid: 8c3bcac9b580251459a95c748ff9fc0f, type: 3}
+      propertyPath: spawnFlashAsChild
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -221,3 +231,5 @@ MonoBehaviour:
   meshes:
   - mesh: {fileID: 282435813352487803}
     materialLocations: 01000000000000000200000003000000
+  lights: []
+  trails: []

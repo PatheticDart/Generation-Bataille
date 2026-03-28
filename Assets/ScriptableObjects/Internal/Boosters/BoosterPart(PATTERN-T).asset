@@ -13,15 +13,15 @@ MonoBehaviour:
   m_Name: BoosterPart(PATTERN-T)
   m_EditorClassIdentifier: Assembly-CSharp::Booster
   partName: PATTERN-T
-  partDescription: A balanced booster part.
-  price: 9000
-  weight: 352
+  partDescription: High-output booster part.
+  price: 15300
+  weight: 253
   prefab: {fileID: 7579171410865374785, guid: 27532c9459d8fef4cb141cadd26a5a6c, type: 3}
-  energyDrain: 900
-  horizontalThrust: 80
-  verticalThrust: 40
-  boostEnergyDrain: 0
-  qBThrust: 150
-  qBEnergyDrain: 100
+  energyDrain: 24
+  horizontalThrust: 120
+  verticalThrust: 68
+  boostEnergyDrain: 5680
+  qBThrust: 210
+  qBEnergyDrain: 9100
   qBDuration: 0.1
-  qBCooldown: 0.8
+  qBCooldown: 0.5

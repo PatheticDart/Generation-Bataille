@@ -2,7 +2,11 @@ using UnityEngine;
 
 public class MechStats : MonoBehaviour
 {
-    [Header("Armor & Energy")]
+    [Header("Health / AP")]
+    public int totalArmorPoints;
+    public int currentArmorPoints;
+
+    [Header("Energy")]
     public float maxEnergy = 1000f;
     public float currentEnergy;
     public float energyRegenRate = 150f;

@@ -27,7 +27,6 @@ public class MultiBarrelShotgunProjectileWeapon : FunctionalWeapon
             float shotsPerSecond = 1000f / _shotgunStats.firingInterval;
             float maxAliveShots = shotsPerSecond * _shotgunStats.bulletPrefab.lifetime;
             
-            // Pool needs to account for both the number of barrels firing at once AND the pellets per barrel!
             int multiplier = (fireMode == FireMode.Simultaneous) ? muzzlePoints.Count : 1;
             int optimalPoolSize = Mathf.CeilToInt(maxAliveShots * _shotgunStats.pelletCount * multiplier) + (_shotgunStats.pelletCount * 2);
 
@@ -35,26 +34,18 @@ public class MultiBarrelShotgunProjectileWeapon : FunctionalWeapon
         }
     }
 
-    // --- INPUT ROUTING ---
     public override void OnFirePressed()
     {
-        if (_shotgunStats != null && _shotgunStats.triggerType == WeaponTriggerType.SemiAuto)
-        {
-            TryFire();
-        }
+        if (_shotgunStats != null && _shotgunStats.triggerType == WeaponTriggerType.SemiAuto) TryFire();
     }
 
     public override void OnFireHeld()
     {
-        if (_shotgunStats != null && _shotgunStats.triggerType == WeaponTriggerType.FullAuto)
-        {
-            TryFire();
-        }
+        if (_shotgunStats != null && _shotgunStats.triggerType == WeaponTriggerType.FullAuto) TryFire();
     }
 
     public override void OnFireReleased() { }
 
-    // --- FIRING LOGIC ---
     private void TryFire()
     {
         if (isReloading || muzzlePoints.Count == 0 || _shotgunStats == null) return;
@@ -70,12 +61,8 @@ public class MultiBarrelShotgunProjectileWeapon : FunctionalWeapon
             }
             else
             {
-                // Dry Fire Cooldown Penalty
                 _nextFireTime = Time.time + (_shotgunStats.firingInterval / 1000f);
-                if (currentReserveAmmo > 0)
-                {
-                    Reload();
-                }
+                if (currentReserveAmmo > 0) Reload();
             }
         }
     }
@@ -87,7 +74,6 @@ public class MultiBarrelShotgunProjectileWeapon : FunctionalWeapon
         PlayMuzzleFlash(muzzleFlash, currentMuzzle, spawnFlashAsChild);
         SpawnShotgunBlast(currentMuzzle);
 
-        // Subtract 1 ammo for the single barrel fired
         currentResource--;
         NotifyResourceChange();
         
@@ -103,7 +89,6 @@ public class MultiBarrelShotgunProjectileWeapon : FunctionalWeapon
             PlayMuzzleFlash(muzzleFlash, muzzle, spawnFlashAsChild);
             SpawnShotgunBlast(muzzle);
             
-            // Subtract 1 ammo for EVERY barrel fired in the blast
             currentResource--;
         }
 
@@ -112,7 +97,6 @@ public class MultiBarrelShotgunProjectileWeapon : FunctionalWeapon
 
     private void SpawnShotgunBlast(Transform muzzle)
     {
-        // Divide base damage by pellet count so a full connection does exact SO damage
         float pelletDamage = (float)_shotgunStats.attackPower / _shotgunStats.pelletCount;
 
         for (int i = 0; i < _shotgunStats.pelletCount; i++)
@@ -133,7 +117,8 @@ public class MultiBarrelShotgunProjectileWeapon : FunctionalWeapon
         BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(
             _shotgunStats.bulletPrefab, position, rotation);
 
-        proj.SetupStats(damage, _shotgunStats.bulletSpeed);
+        // --- FIXED: Pass the shooterLayer ---
+        proj.SetupStats(damage, _shotgunStats.bulletSpeed, shooterLayer);
         proj.SetPrefabReference(_shotgunStats.bulletPrefab);
     }
 }

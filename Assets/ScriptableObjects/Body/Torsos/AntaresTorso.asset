@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TorsoPart
   partName: SGTT-ANTARES
   partDescription: 
-  price: 0
-  weight: 0
+  price: 25700
+  weight: 1100
   prefab: {fileID: 2150226367516778880, guid: a540d15f01c45824091e07da3e4031ad, type: 3}
-  energyDrain: 0
-  armorPoints: 0
-  shellDef: 0
-  energyDef: 0
-  maxArmWeight: 0
+  energyDrain: 1017
+  armorPoints: 3100
+  shellDef: 565
+  energyDef: 601
+  maxArmWeight: 3600

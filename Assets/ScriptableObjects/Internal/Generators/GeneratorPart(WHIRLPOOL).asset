@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Generator
   partName: WHIRLPOOL
   partDescription: Generator focused on output.
-  price: 0
-  weight: 0
-  energyCapacity: 1200
-  energyOutput: 790
+  price: 34000
+  weight: 320
+  energyCapacity: 17500
+  energyOutput: 9000
+  energyEmergencyRecoveryRate: 1950

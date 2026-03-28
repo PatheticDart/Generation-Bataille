@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArmPart
   partName: DYNA-TALOS
   partDescription: 
-  price: 12000
-  weight: 0
+  price: 19600
+  weight: 1790
   prefab: {fileID: 4736254782853429846, guid: ace90698efb4de549bbf9d83c809eabd, type: 3}
-  energyDrain: 0
-  armorPoints: 0
-  shellDef: 0
-  energyDef: 0
-  recoilControl: 0
+  energyDrain: 1462
+  armorPoints: 1817
+  shellDef: 530
+  energyDef: 398
+  recoilControl: 340

@@ -7,17 +7,17 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
 
     [Header("Multi-Barrel Setup")]
     public List<Transform> muzzlePoints = new List<Transform>();
-    public PooledVFX muzzleFlash; 
+    public PooledVFX muzzleFlash;
     public FireMode fireMode = FireMode.Sequential;
     public bool spawnFlashAsChild;
 
-    private ProjectileWeaponPart _weaponStats; // Updated from Rifle
+    private ProjectileWeaponPart _weaponStats;
     private float _nextFireTime = 0f;
     private int _currentBarrelIndex = 0;
 
     public override void InitializeWeapon(Part data)
     {
-        base.InitializeWeapon(data); 
+        base.InitializeWeapon(data);
         _weaponStats = data as ProjectileWeaponPart;
 
         if (_weaponStats == null) return;
@@ -26,7 +26,7 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
         {
             float shotsPerSecond = 1000f / _weaponStats.firingInterval;
             float maxAliveBullets = shotsPerSecond * _weaponStats.bulletPrefab.lifetime;
-            
+
             int multiplier = (fireMode == FireMode.Simultaneous) ? muzzlePoints.Count : 1;
             int optimalPoolSize = (Mathf.CeilToInt(maxAliveBullets) * multiplier) + 5;
 
@@ -34,26 +34,18 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
         }
     }
 
-    // --- NEW INPUT ROUTING ---
     public override void OnFirePressed()
     {
-        if (_weaponStats != null && _weaponStats.triggerType == WeaponTriggerType.SemiAuto)
-        {
-            TryFire();
-        }
+        if (_weaponStats != null && _weaponStats.triggerType == WeaponTriggerType.SemiAuto) TryFire();
     }
 
     public override void OnFireHeld()
     {
-        if (_weaponStats != null && _weaponStats.triggerType == WeaponTriggerType.FullAuto)
-        {
-            TryFire();
-        }
+        if (_weaponStats != null && _weaponStats.triggerType == WeaponTriggerType.FullAuto) TryFire();
     }
 
     public override void OnFireReleased() { }
 
-    // --- FIRING LOGIC ---
     private void TryFire()
     {
         if (isReloading || muzzlePoints.Count == 0) return;
@@ -77,7 +69,7 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
     private void FireSequential()
     {
         Transform currentMuzzle = muzzlePoints[_currentBarrelIndex];
-        
+
         PlayMuzzleFlash(muzzleFlash, currentMuzzle, spawnFlashAsChild);
         SpawnBullet(currentMuzzle);
 
@@ -94,7 +86,7 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
 
             PlayMuzzleFlash(muzzleFlash, muzzle, spawnFlashAsChild);
             SpawnBullet(muzzle);
-            
+
             currentResource--;
         }
 
@@ -108,7 +100,8 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
         BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(
             _weaponStats.bulletPrefab, muzzle.position, muzzle.rotation);
 
-        proj.SetupStats(_weaponStats.attackPower, _weaponStats.bulletSpeed);
+        // --- FIXED: Pass the shooterLayer ---
+        proj.SetupStats(_weaponStats.attackPower, _weaponStats.bulletSpeed, shooterLayer);
         proj.SetPrefabReference(_weaponStats.bulletPrefab);
     }
 }
