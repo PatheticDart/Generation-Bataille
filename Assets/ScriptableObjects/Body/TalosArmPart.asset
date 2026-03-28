@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54e261294cc399143a30b9498957ea11, type: 3}
   m_Name: TalosArmPart
   m_EditorClassIdentifier: Assembly-CSharp::ArmPart
-  partName: SGTA-ANTARES
+  partName: DYNA-TALOS
   partDescription: 
   price: 12000
   weight: 0

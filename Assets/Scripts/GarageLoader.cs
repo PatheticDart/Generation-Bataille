@@ -11,10 +11,11 @@ public class GarageLoader : MonoBehaviour
 
     [Header("Master Base Materials")]
     public BaseMaterialSetup[] globalBaseMaterials;
+
+    // Kept exactly as requested so MechCardManager can access it normally
     public PlayerPaint[] globalPaintJob;
 
     [Header("Available Patterns & Decals")]
-    [Tooltip("The UI will use these to build the Camo/Pattern selection menus.")]
     public List<Texture2D> availableAlbedoTextures;
     public List<Texture2D> availableEmissionTextures;
 
@@ -68,7 +69,6 @@ public class GarageLoader : MonoBehaviour
         if (partSystem == null) return;
 
         partSystem.equippedParts.Clear();
-
         partSystem.globalBaseMaterials = globalBaseMaterials;
         partSystem.currentPaintJob = globalPaintJob;
 
@@ -78,5 +78,43 @@ public class GarageLoader : MonoBehaviour
         }
 
         partSystem.InitializeMech();
+        FastApplyPaintToMech();
+    }
+
+    public void FastApplyPaintToMech()
+    {
+        if (partSystem == null) return;
+
+        partSystem.currentPaintJob = globalPaintJob;
+        Renderer[] allRenderers = partSystem.GetComponentsInChildren<Renderer>();
+
+        foreach (Renderer rend in allRenderers)
+        {
+            Material[] mats = rend.materials;
+
+            for (int i = 0; i < mats.Length; i++)
+            {
+                if (i < globalPaintJob.Length)
+                {
+                    // --- THE BUG FIX: Force Inspector Colors to be 100% Solid ---
+                    Color safeAlbedo = globalPaintJob[i].albedoColor;
+                    safeAlbedo.a = 1f;
+
+                    Color safeEmission = globalPaintJob[i].emissionColor;
+                    safeEmission.a = 1f;
+
+                    if (i == 4)
+                    {
+                        mats[i].SetColor("_EmissionColor", safeEmission);
+                    }
+                    else
+                    {
+                        mats[i].SetColor("_Color", safeAlbedo);
+                        mats[i].SetColor("_BaseColor", safeAlbedo);
+                    }
+                }
+            }
+            rend.materials = mats;
+        }
     }
 }

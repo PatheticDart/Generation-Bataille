@@ -1136,6 +1136,7 @@ GameObject:
   - component: {fileID: 5667183914433240669}
   - component: {fileID: 2373151316509150058}
   - component: {fileID: 7173920421151748999}
+  - component: {fileID: 2567741845224248785}
   m_Layer: 0
   m_Name: GarageManager
   m_TagString: Untagged
@@ -1151,7 +1152,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7056067556135386156}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 10.54, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1344,12 +1345,12 @@ MonoBehaviour:
     material: {fileID: 2100000, guid: 0eea8a76db9550f41b57e63bba120548, type: 2}
   globalPaintJob:
   - map: 0
-    albedoColor: {r: 0, g: 0, b: 0, a: 0}
+    albedoColor: {r: 1, g: 0, b: 0.04867935, a: 1}
     albedoTexture: {fileID: 0}
     emissionColor: {r: 0, g: 0, b: 0, a: 0}
     emissionTexture: {fileID: 0}
   - map: 1
-    albedoColor: {r: 0, g: 0, b: 0, a: 0}
+    albedoColor: {r: 0.13832426, g: 1, b: 0, a: 0}
     albedoTexture: {fileID: 0}
     emissionColor: {r: 0, g: 0, b: 0, a: 0}
     emissionTexture: {fileID: 0}
@@ -1384,8 +1385,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f3dc03589331be143989088c3c117b03, type: 2}
   availableBoosters:
   - {fileID: 11400000, guid: 1c8d2caafb3720747b479e3ddd849fe0, type: 2}
+  - {fileID: 11400000, guid: 2c770737123d062479e6fd9ac69f1601, type: 2}
   availableGenerators:
   - {fileID: 11400000, guid: e9b2c84c5a524024aa244a613764a137, type: 2}
+  - {fileID: 11400000, guid: 9c2ef2d4398725f4eb1d81dae3beddef, type: 2}
+  - {fileID: 11400000, guid: 854d4e2340fd9174e9ebe42d9baa92f0, type: 2}
   availableFCS:
   - {fileID: 11400000, guid: fb6366968963ba64d88bb76b136b9171, type: 2}
   availableLeftArmWeapons:
@@ -1421,6 +1425,19 @@ MonoBehaviour:
   garageLoader: {fileID: 2373151316509150058}
   snapshotCamera: {fileID: 7597334173726718511}
   resolution: {x: 828, y: 1159}
+--- !u!114 &2567741845224248785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7056067556135386156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c572bb5e303619d43a92f619918b6020, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  garageLoader: {fileID: 2373151316509150058}
 --- !u!1 &7654993465380752614
 GameObject:
   m_ObjectHideFlags: 0
@@ -2062,8 +2079,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8365750763002893324}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.15212339, y: 0, z: 0, w: 0.98836154}
-  m_LocalPosition: {x: 0.000002617486, y: 2.652131, z: -3.3057556}
+  m_LocalRotation: {x: 0.15212335, y: 0, z: 0, w: 0.98836154}
+  m_LocalPosition: {x: 0.000002617486, y: -0.35492802, z: 6.2314143}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

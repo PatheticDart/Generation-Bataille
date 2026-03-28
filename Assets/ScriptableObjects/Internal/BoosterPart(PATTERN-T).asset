@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e5359cd2b61ae745b1ce74f5c407e65, type: 3}
-  m_Name: BoosterPart
+  m_Name: BoosterPart(PATTERN-T)
   m_EditorClassIdentifier: Assembly-CSharp::Booster
-  partName: HB-PRTR
+  partName: PATTERN-T
   partDescription: A balanced booster part.
   price: 9000
   weight: 352
-  prefab: {fileID: 7579171410865374785, guid: 4dad9fef9088e7246afc739bed3cb276, type: 3}
+  prefab: {fileID: 7579171410865374785, guid: 27532c9459d8fef4cb141cadd26a5a6c, type: 3}
   energyDrain: 900
   horizontalThrust: 80
   verticalThrust: 40

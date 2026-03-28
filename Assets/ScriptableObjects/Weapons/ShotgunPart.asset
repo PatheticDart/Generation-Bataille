@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c5ad3de22e9d1245b22cd48a60eea55, type: 3}
   m_Name: ShotgunPart
   m_EditorClassIdentifier: Assembly-CSharp::ShotgunPart
-  partName: XLR-012 Taurus
+  partName: THR-ONE
   partDescription: A medium-range rifle, good all-rounder. Favored by Bataille rookies.
   price: 16000
   weight: 250

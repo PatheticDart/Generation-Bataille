@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3ff72a4b09f22b4cbe75c1c7dbac3bf, type: 3}
   m_Name: AntaresTorso
   m_EditorClassIdentifier: Assembly-CSharp::TorsoPart
-  partName: 
+  partName: SGTT-ANTARES
   partDescription: 
   price: 0
   weight: 0

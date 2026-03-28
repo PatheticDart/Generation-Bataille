@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5ce852a0fff29b4cb55694b70a13e85, type: 3}
   m_Name: TalosLeg
   m_EditorClassIdentifier: Assembly-CSharp::LegPart
-  partName: 
+  partName: DYNL-TALOS
   partDescription: 
   price: 0
   weight: 0

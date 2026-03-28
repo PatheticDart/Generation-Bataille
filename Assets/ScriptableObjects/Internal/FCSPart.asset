@@ -12,10 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c0589a10c1634f40bd2d936ca1db35e, type: 3}
   m_Name: FCSPart
   m_EditorClassIdentifier: Assembly-CSharp::FCSPart
-  prefab: {fileID: 0}
-  partName: 
-  partDescription: 
-  price: 0
+  partName: HWS-KIX
+  partDescription: A well-balanced FCS.
+  price: 8000
   weight: 0
   lockSize: {x: 0, y: 0}
   targetingType: 0

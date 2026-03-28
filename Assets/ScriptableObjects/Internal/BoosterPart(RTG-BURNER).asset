@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e5359cd2b61ae745b1ce74f5c407e65, type: 3}
+  m_Name: BoosterPart(RTG-BURNER)
+  m_EditorClassIdentifier: Assembly-CSharp::Booster
+  partName: RTG-BURNER
+  partDescription: A balanced booster part.
+  price: 9000
+  weight: 352
+  prefab: {fileID: 7579171410865374785, guid: 4dad9fef9088e7246afc739bed3cb276, type: 3}
+  energyDrain: 900
+  horizontalThrust: 80
+  verticalThrust: 40
+  boostEnergyDrain: 0
+  qBThrust: 150
+  qBEnergyDrain: 100
+  qBDuration: 0.1
+  qBCooldown: 0.8

@@ -11,7 +11,7 @@ public class PopOutPanels : MonoBehaviour
 
     [Header("Full Screen Menus")]
     public GameObject assemblyScreen;
-    // You can add PaintScreen, ShopScreen, etc. here later!
+    public GameObject paintScreen; // --- NEW: Added Paint Screen Reference ---
 
     private void Start()
     {
@@ -43,25 +43,61 @@ public class PopOutPanels : MonoBehaviour
     }
 
     // --- SCREEN ROUTING ---
+
     // Link this to the "ASSEMBLY" button inside your Customize Pop-Out
     public void OpenAssemblyScreen()
     {
-        mainHubPanel.SetActive(false); // Hides the hub and the pop-outs
-        ToggleCustomizePanel(); // Closes the customize pop-out if it's open
+        mainHubPanel.SetActive(false);
+
+        // Safely close the pop-out only if it is currently open
+        if (customizePopOut != null && customizePopOut.activeSelf) ToggleCustomizePanel();
+
+        if (paintScreen != null) paintScreen.SetActive(false); // Safety catch
         assemblyScreen.SetActive(true);
     }
 
     public void CloseAssemblyScreen()
     {
         assemblyScreen.SetActive(false);
-        ToggleCustomizePanel();
+
+        // Re-open the customize pop-out when backing out
+        if (customizePopOut != null && !customizePopOut.activeSelf) ToggleCustomizePanel();
+
         mainHubPanel.SetActive(true);
     }
 
-    // Link this to a "BACK" button on the Assembly screen
+    // --- NEW: PAINT SCREEN ROUTING ---
+
+    // Link this to the "PAINT" button inside your Customize Pop-Out
+    public void OpenPaintScreen()
+    {
+        mainHubPanel.SetActive(false);
+
+        // Safely close the pop-out only if it is currently open
+        if (customizePopOut != null && customizePopOut.activeSelf) ToggleCustomizePanel();
+
+        if (assemblyScreen != null) assemblyScreen.SetActive(false); // Safety catch
+        paintScreen.SetActive(true);
+    }
+
+    public void ClosePaintScreen()
+    {
+        paintScreen.SetActive(false);
+
+        // Re-open the customize pop-out when backing out
+        if (customizePopOut != null && !customizePopOut.activeSelf) ToggleCustomizePanel();
+
+        mainHubPanel.SetActive(true);
+    }
+
+    // --- MASTER RESET ---
+
+    // Link this to a hard "BACK" button if you want to bypass the pop-out and just go straight to the hub
     public void ReturnToMainHub()
     {
-        assemblyScreen.SetActive(false);
+        if (assemblyScreen != null) assemblyScreen.SetActive(false);
+        if (paintScreen != null) paintScreen.SetActive(false); // --- NEW: Hide paint screen ---
+
         mainHubPanel.SetActive(true);
 
         // Hide pop-outs when returning
