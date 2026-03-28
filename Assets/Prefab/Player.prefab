@@ -2940,7 +2940,7 @@ CharacterController:
   m_Height: 15.41277
   m_Radius: 5
   m_SlopeLimit: 45
-  m_StepOffset: 0.3
+  m_StepOffset: 2
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 6.605027, z: 0}
@@ -3014,6 +3014,8 @@ MonoBehaviour:
   cameraEffects: {fileID: 7960159375031588431}
   isQuickBoosting: 0
   isPerfectQuickBoosting: 0
+  stickToGroundForce: 200
+  stickRayLength: 5
   thrusterBufferTime: 0.1
   bunnyHopWindow: 0.1
   boostToJumpDelay: 0.2
@@ -3192,6 +3194,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArenaMechLoader
   partSystem: {fileID: 3298013329077157459}
   mechStats: {fileID: 3328027176561732157}
+  globalBaseMaterials: []
 --- !u!1 &1476357850905161724
 GameObject:
   m_ObjectHideFlags: 0

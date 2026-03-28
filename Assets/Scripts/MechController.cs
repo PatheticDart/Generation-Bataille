@@ -57,6 +57,10 @@ public class MechController : MonoBehaviour
 
     private Vector3 lastActiveMoveInput;
 
+    [Header("Slope Handling")]
+    public float stickToGroundForce = 40f; 
+    public float stickRayLength = 1.5f;
+
     [Header("Buffers & Timings")]
     public float thrusterBufferTime = 0.1f;
     private float lastMoveInputTime = -10f;
@@ -438,6 +442,22 @@ public class MechController : MonoBehaviour
         if (energyUsedThisFrame) stats.ConsumeEnergy(stats.boostEnergyDrain * Time.deltaTime);
 
         Vector3 finalMove = new Vector3(currentHorizontalVelocity.x, verticalVelocity, currentHorizontalVelocity.z);
+
+        // --- STICK TO GROUND LOGIC ---
+        // Only apply if grounded, not currently jumping, and not moving upwards
+        if (controller.isGrounded && verticalVelocity <= 0f && !isPreparingToJump)
+        {
+            Vector3 rayOrigin = transform.position + controller.center;
+            float rayDist = (controller.height / 2f) + stickRayLength;
+
+            // If the ground is falling away beneath us, force the mech down
+            if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, rayDist))
+            {
+                finalMove.y -= stickToGroundForce;
+            }
+        }
+        // ------------------------------
+
         bool wasGroundedBeforeMove = controller.isGrounded;
         controller.Move(finalMove * Time.deltaTime);
 
