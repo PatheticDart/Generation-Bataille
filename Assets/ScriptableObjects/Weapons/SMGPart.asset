@@ -15,12 +15,12 @@ MonoBehaviour:
   partName: P7S-SHARD
   partDescription: A medium-range rifle, good all-rounder. Favored by Bataille rookies.
   price: 16000
-  weight: 500
+  weight: 432
   prefab: {fileID: 4309120590859779937, guid: 40a7513705137cf42994a0b590b8229f, type: 3}
   energyDrain: 2
   allowedLocations: 24
   isAimableBackWeapon: 0
-  attackPower: 20
+  attackPower: 6
   ammo: 560
   magSize: -1
   reloadTime: 2

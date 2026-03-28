@@ -3191,7 +3191,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArenaMechLoader
   partSystem: {fileID: 3298013329077157459}
-  mechStats: {fileID: 0}
+  mechStats: {fileID: 3328027176561732157}
 --- !u!1 &1476357850905161724
 GameObject:
   m_ObjectHideFlags: 0
@@ -8483,7 +8483,7 @@ GameObject:
   - component: {fileID: 4614215019558950140}
   m_Layer: 6
   m_Name: TargetObject
-  m_TagString: Untagged
+  m_TagString: TargetObject
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

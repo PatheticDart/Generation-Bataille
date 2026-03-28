@@ -13,7 +13,7 @@ public class FCSLockBox : MonoBehaviour
     public float lockSpeed = 1.5f;
     [Tooltip("Maximum tracking speed in degrees per second. Try 180 to 300 for a snappy feel.")]
     public float fcsTurnRate = 180f;
-    
+
     // --- NEW MULTI-LOCK STATS ---
     [Tooltip("Maximum number of targets/missiles the FCS can lock onto at once.")]
     public int maxMultiLocks = 6;
@@ -54,9 +54,8 @@ public class FCSLockBox : MonoBehaviour
     public Transform currentTarget { get; private set; }
     public bool isSoftLocked { get; private set; }
     public bool isHardLocked { get; private set; }
-    
-    // --- NEW PUBLIC PROPERTY ---
-    public int currentLockCount { get; private set; } 
+
+    public int currentLockCount { get; private set; }
     private float currentLockTimer = 0f;
 
     void Start()
@@ -81,10 +80,8 @@ public class FCSLockBox : MonoBehaviour
         if (isPlayer) UpdateUI();
     }
 
-    // --- NEW METHOD FOR WEAPONS TO CALL ---
     public void ConsumeLocks()
     {
-        // Resets the lock count back to 0 so the FCS has to start acquiring them again
         currentLockCount = 0;
         currentLockTimer = 0f;
         isHardLocked = false;
@@ -103,6 +100,8 @@ public class FCSLockBox : MonoBehaviour
     {
         Vector3 origin = (isPlayer && mainCamera != null) ? mainCamera.transform.position : transform.position;
         float oversizedPhysicsRadius = fcsRange * 1.5f;
+
+        // This already filters out everything EXCEPT the target layer (e.g., the enemy team)
         Collider[] potentialTargets = Physics.OverlapSphere(origin, oversizedPhysicsRadius, targetLayer);
 
         Transform bestTarget = null;
@@ -110,6 +109,9 @@ public class FCSLockBox : MonoBehaviour
 
         foreach (Collider col in potentialTargets)
         {
+            // --- THE FIX: Filter out everything that isn't explicitly tagged as the target center ---
+            if (!col.CompareTag("TargetObject")) continue;
+
             Transform targetTransform = col.transform;
             Vector3 distanceOrigin = (aimMaster != null) ? aimMaster.position : transform.position;
             float distanceToTarget = Vector3.Distance(distanceOrigin, targetTransform.position);
@@ -149,17 +151,13 @@ public class FCSLockBox : MonoBehaviour
             else
             {
                 currentLockTimer += Time.deltaTime;
-                
-                // --- MULTI-LOCK ACCUMULATION LOGIC ---
-                if (currentLockTimer >= lockSpeed) 
+
+                if (currentLockTimer >= lockSpeed)
                 {
                     isHardLocked = true;
-                    
-                    // Calculate how many subsequent locks we've earned based on the interval
+
                     float extraTime = currentLockTimer - lockSpeed;
                     currentLockCount = 1 + Mathf.FloorToInt(extraTime / multiLockInterval);
-                    
-                    // Cap it at the FCS max
                     currentLockCount = Mathf.Clamp(currentLockCount, 1, maxMultiLocks);
                 }
             }

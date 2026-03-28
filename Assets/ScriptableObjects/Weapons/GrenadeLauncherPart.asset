@@ -21,8 +21,8 @@ MonoBehaviour:
   energyDrain: 8
   allowedLocations: 6
   isAimableBackWeapon: 1
-  attackPower: 4200
-  ammo: 30
+  attackPower: 719
+  ammo: 12
   magSize: -1
   reloadTime: 2
   triggerType: 1

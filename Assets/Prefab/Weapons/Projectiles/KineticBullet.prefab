@@ -206,4 +206,4 @@ MonoBehaviour:
   gravityMultiplier: 1
   hitMask:
     serializedVersion: 2
-    m_Bits: 14336
+    m_Bits: 8384

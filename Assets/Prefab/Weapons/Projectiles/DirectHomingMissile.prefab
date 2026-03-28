@@ -280,6 +280,6 @@ MonoBehaviour:
   maxTurnSpeed: 180
   hitMask:
     serializedVersion: 2
-    m_Bits: 10240
+    m_Bits: 8384
   explosionRadius: 8
   explosionForce: 1000

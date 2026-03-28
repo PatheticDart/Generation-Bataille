@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class ArenaMechLoader : MonoBehaviour
 {
-    // The static messenger
     public static PlayerPaint[] TransitPaintJob;
 
     [Header("System References")]
@@ -12,8 +11,6 @@ public class ArenaMechLoader : MonoBehaviour
     void Start()
     {
         if (partSystem == null) return;
-
-        // Auto-grab the MechStats if you forget to assign it in the inspector
         if (mechStats == null) mechStats = partSystem.GetComponent<MechStats>();
 
         int calculatedTotalAP = 0;
@@ -26,8 +23,6 @@ public class ArenaMechLoader : MonoBehaviour
             {
                 partSystem.equippedParts.Add(kvp.Key, kvp.Value);
 
-                // Check if this part is a BodyPart (Head, Torso, Arms, Legs). 
-                // If it is, add its armor value to our total!
                 if (kvp.Value is BodyPart bodyPart)
                 {
                     calculatedTotalAP += bodyPart.armorPoints;
@@ -38,13 +33,15 @@ public class ArenaMechLoader : MonoBehaviour
         // 2. Inject Health Stats
         if (mechStats != null)
         {
-            // Set both the max cap and the current health to the calculated total
             mechStats.totalArmorPoints = calculatedTotalAP;
             mechStats.currentArmorPoints = calculatedTotalAP;
         }
 
         // 3. Build the physical mech geometry
         partSystem.InitializeMech();
+
+        // --- NEW: DYNAMIC TARGET CENTERING ---
+        CenterTargetObject();
 
         // 4. Load and Apply Paint
         if (TransitPaintJob != null && TransitPaintJob.Length > 0)
@@ -59,7 +56,6 @@ public class ArenaMechLoader : MonoBehaviour
                 {
                     if (i < TransitPaintJob.Length)
                     {
-                        // Force Inspector Colors to be 100% Solid to prevent invisible textures
                         Color safeAlbedo = TransitPaintJob[i].albedoColor;
                         safeAlbedo.a = 1f;
 
@@ -78,6 +74,41 @@ public class ArenaMechLoader : MonoBehaviour
                     }
                 }
                 rend.materials = mats;
+            }
+        }
+    }
+
+    private void CenterTargetObject()
+    {
+        Transform targetObj = null;
+
+        // Find the TargetObject wherever it spawned in the hierarchy
+        Transform[] allTransforms = partSystem.GetComponentsInChildren<Transform>();
+        foreach (Transform t in allTransforms)
+        {
+            if (t.name == "TargetObject")
+            {
+                targetObj = t;
+                break;
+            }
+        }
+
+        if (targetObj != null)
+        {
+            // Find all the dynamic hitboxes we just generated
+            MeshCollider[] hitboxes = partSystem.GetComponentsInChildren<MeshCollider>();
+
+            if (hitboxes.Length > 0)
+            {
+                // Create a bounding box that encapsulates every single mech part
+                Bounds combinedBounds = hitboxes[0].bounds;
+                for (int i = 1; i < hitboxes.Length; i++)
+                {
+                    combinedBounds.Encapsulate(hitboxes[i].bounds);
+                }
+
+                // Snap the TargetObject to the true physical center of the assembled mech!
+                targetObj.position = combinedBounds.center;
             }
         }
     }

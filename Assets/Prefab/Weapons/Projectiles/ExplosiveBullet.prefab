@@ -206,6 +206,6 @@ MonoBehaviour:
   gravityMultiplier: 3
   hitMask:
     serializedVersion: 2
-    m_Bits: 10240
+    m_Bits: 8384
   explosionRadius: 5
   explosionForce: 500

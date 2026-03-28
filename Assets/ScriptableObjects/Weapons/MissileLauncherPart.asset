@@ -19,7 +19,7 @@ MonoBehaviour:
   prefab: {fileID: 5154452102281366462, guid: dc0bab990e83f614f807be3c88f0271a, type: 3}
   energyDrain: 310
   allowedLocations: 6
-  isAimableBackWeapon: 1
+  isAimableBackWeapon: 0
   attackPower: 800
   ammo: 40
   magSize: 8
