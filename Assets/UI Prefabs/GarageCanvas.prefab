@@ -9327,7 +9327,6 @@ RectTransform:
   m_Children:
   - {fileID: 6724460323020674126}
   - {fileID: 3838399870825446361}
-  - {fileID: 781775895989603364}
   m_Father: {fileID: 7185679450960694266}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -9807,7 +9806,7 @@ GameObject:
   - component: {fileID: 5149525113415643240}
   - component: {fileID: 8529875982360484256}
   m_Layer: 5
-  m_Name: Map
+  m_Name: MapSelection
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9828,11 +9827,11 @@ RectTransform:
   - {fileID: 5967150650766096006}
   - {fileID: 70537538865400989}
   - {fileID: 5152167060928683264}
-  m_Father: {fileID: 4849313568531564888}
+  m_Father: {fileID: 5047109101615538032}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 590.8675}
+  m_AnchoredPosition: {x: -25, y: 135.86755}
   m_SizeDelta: {x: 1920, y: 258.1325}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &52814160673004834
@@ -10301,7 +10300,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 7711053592943944789, guid: 439ce82eea46d07419a391f144ebfb1f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 781775895989603364}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 439ce82eea46d07419a391f144ebfb1f, type: 3}
 --- !u!114 &810243299408278756 stripped

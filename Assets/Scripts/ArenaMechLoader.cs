@@ -8,6 +8,10 @@ public class ArenaMechLoader : MonoBehaviour
     public PartSystem partSystem;
     public MechStats mechStats;
 
+    // --- THE FIX: Add the master material array so the shaders match the garage! ---
+    [Header("Master Base Materials")]
+    public BaseMaterialSetup[] globalBaseMaterials;
+
     void Start()
     {
         if (partSystem == null) return;
@@ -37,10 +41,15 @@ public class ArenaMechLoader : MonoBehaviour
             mechStats.currentArmorPoints = calculatedTotalAP;
         }
 
+        // --- THE FIX: Standardize the materials before building! ---
+        if (globalBaseMaterials != null && globalBaseMaterials.Length > 0)
+        {
+            partSystem.globalBaseMaterials = globalBaseMaterials;
+        }
+
         // 3. Build the physical mech geometry
         partSystem.InitializeMech();
 
-        // --- NEW: DYNAMIC TARGET CENTERING ---
         CenterTargetObject();
 
         // 4. Load and Apply Paint
@@ -81,8 +90,6 @@ public class ArenaMechLoader : MonoBehaviour
     private void CenterTargetObject()
     {
         Transform targetObj = null;
-
-        // Find the TargetObject wherever it spawned in the hierarchy
         Transform[] allTransforms = partSystem.GetComponentsInChildren<Transform>();
         foreach (Transform t in allTransforms)
         {
@@ -95,19 +102,15 @@ public class ArenaMechLoader : MonoBehaviour
 
         if (targetObj != null)
         {
-            // Find all the dynamic hitboxes we just generated
             MeshCollider[] hitboxes = partSystem.GetComponentsInChildren<MeshCollider>();
 
             if (hitboxes.Length > 0)
             {
-                // Create a bounding box that encapsulates every single mech part
                 Bounds combinedBounds = hitboxes[0].bounds;
                 for (int i = 1; i < hitboxes.Length; i++)
                 {
                     combinedBounds.Encapsulate(hitboxes[i].bounds);
                 }
-
-                // Snap the TargetObject to the true physical center of the assembled mech!
                 targetObj.position = combinedBounds.center;
             }
         }

@@ -2989,7 +2989,7 @@ MonoBehaviour:
   minHardLandingThreshold: -80
   maxHardLandingThreshold: -220
   baseHardLandingTime: 0.25
-  maxHardLandingTime: 2.5
+  maxHardLandingTime: 2
   airAcceleration: 150
   airDeceleration: 15
 --- !u!114 &1607095534319946367

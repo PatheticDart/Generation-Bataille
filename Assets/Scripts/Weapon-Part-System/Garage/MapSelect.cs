@@ -7,12 +7,12 @@ public class MapSelect : MonoBehaviour
     public GarageGameTransition gameTransition;
     public Sprite colosseumSprite, buriedCitySprite, testSceneSprite;
     public Image mapPreviewRenderer;
-    
+
     public void TESTSCENE()
     {
         if (gameTransition != null)
         {
-            setIndex(0);
+            setIndex(3);
             if (mapPreviewRenderer != null) mapPreviewRenderer.sprite = testSceneSprite;
         }
     }
