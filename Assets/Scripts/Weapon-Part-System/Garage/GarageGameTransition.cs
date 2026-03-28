@@ -24,7 +24,7 @@ public class GarageGameTransition : MonoBehaviour
     [Tooltip("How long it takes for the camera to orbit AND the color to drain.")]
     public float lutAndRotationDuration = 1.5f;
     public float whiteFadeInDuration = 1.0f;
-    public string gameplaySceneName = "GameplayScene";
+    public int gameplaySceneIndex = 1; // Assuming "GameplayScene" is the second scene in your build settings
 
     private CinemachineOrbitalFollow _orbitalFollow;
 
@@ -46,15 +46,15 @@ public class GarageGameTransition : MonoBehaviour
     [Button("Test Launch Sequence (Goes to test scene)")]
     public void BeginLaunchSequence()
     {
-        StartCoroutine(LaunchSequenceRoutine(gameplaySceneName));
+        StartCoroutine(LaunchSequenceRoutine(gameplaySceneIndex));
     }
 
-    public void BeginLaunchSequence(string sceneName)
+    public void BeginLaunchSequence(int sceneIndex)
     {
-        StartCoroutine(LaunchSequenceRoutine(sceneName));
+        StartCoroutine(LaunchSequenceRoutine(sceneIndex));
     }
 
-    private IEnumerator LaunchSequenceRoutine(string sceneName)
+    private IEnumerator LaunchSequenceRoutine(int sceneIndex)
     {
         // 1. Block raycasts so the player can't double-click the deploy button
         if (whiteScreen != null) whiteScreen.blocksRaycasts = true;
@@ -117,6 +117,6 @@ public class GarageGameTransition : MonoBehaviour
         }
 
         // 6. Load the next scene
-        SceneManager.LoadScene(sceneName);
+        SceneManager.LoadScene(sceneIndex);
     }
 }

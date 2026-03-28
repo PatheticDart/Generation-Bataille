@@ -8,6 +8,7 @@ public class PopOutPanels : MonoBehaviour
     [Header("Pop-out Panels")]
     public GameObject customizePopOut;
     public GameObject shopPopOut;
+    public GameObject arenaPopOut; // --- NEW: Added Arena Pop-Out Reference ---
 
     [Header("Full Screen Menus")]
     public GameObject assemblyScreen;
@@ -46,10 +47,10 @@ public class PopOutPanels : MonoBehaviour
 
     public void ToggleArenaPanel()
     {
-       if (arenaScreen != null)
+       if (arenaPopOut != null)
        {
-            bool isOpening = !arenaScreen.activeSelf;
-            arenaScreen.SetActive(isOpening);
+            bool isOpening = !arenaPopOut.activeSelf;
+            arenaPopOut.SetActive(isOpening);
        }
     }
 
@@ -80,7 +81,8 @@ public class PopOutPanels : MonoBehaviour
     public void OpenArenaScreen()
     {
         mainHubPanel.SetActive(false);
-        if (arenaScreen != null) arenaScreen.SetActive(true);
+        if (arenaPopOut != null) arenaScreen.SetActive(true);
+        if (arenaPopOut != null && arenaPopOut.activeSelf) ToggleArenaPanel(); // Safety catch
         if (customizePopOut != null && customizePopOut.activeSelf) ToggleCustomizePanel(); // Safety catch
         if (shopPopOut != null && shopPopOut.activeSelf) ToggleShopPanel(); // Safety catch
     }
@@ -129,5 +131,6 @@ public class PopOutPanels : MonoBehaviour
         // Hide pop-outs when returning
         if (customizePopOut != null) customizePopOut.SetActive(false);
         if (shopPopOut != null) shopPopOut.SetActive(false);
+        if (arenaPopOut != null) arenaPopOut.SetActive(false);
     }
 }
