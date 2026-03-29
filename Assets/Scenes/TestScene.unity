@@ -42464,78 +42464,6 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 379611640}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: leftWeaponConditions.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: rightWeaponConditions.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: leftWeaponConditions.Array.data[0].maxActiveRange
-      value: 200
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: leftWeaponConditions.Array.data[0].maxAttackRange
-      value: 200
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: leftWeaponConditions.Array.data[1].maxActiveRange
-      value: 400
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: leftWeaponConditions.Array.data[1].maxAttackRange
-      value: 400
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: leftWeaponConditions.Array.data[1].minActiveRange
-      value: 200
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: leftWeaponConditions.Array.data[1].minAttackRange
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: leftWeaponConditions.Array.data[1].installLocation
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: rightWeaponConditions.Array.data[0].maxActiveRange
-      value: 200
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: rightWeaponConditions.Array.data[0].maxAttackRange
-      value: 200
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: rightWeaponConditions.Array.data[0].minActiveRange
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: rightWeaponConditions.Array.data[1].maxActiveRange
-      value: 400
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: rightWeaponConditions.Array.data[1].maxAttackRange
-      value: 400
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: rightWeaponConditions.Array.data[1].minActiveRange
-      value: 200
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: rightWeaponConditions.Array.data[1].minAttackRange
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: rightWeaponConditions.Array.data[1].installLocation
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 3210146008105607959, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -42547,10 +42475,6 @@ PrefabInstance:
     - target: {fileID: 7372188128696635075, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
       propertyPath: m_Name
       value: Enemy
-      objectReference: {fileID: 0}
-    - target: {fileID: 7461561516836153805, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
-      propertyPath: targetLayer.m_Bits
-      value: 64
       objectReference: {fileID: 0}
     - target: {fileID: 7668759303162337958, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
       propertyPath: m_Mesh
