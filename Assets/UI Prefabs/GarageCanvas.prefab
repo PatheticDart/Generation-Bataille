@@ -229,6 +229,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapSelect
   gameTransition: {fileID: 0}
+  arenaEnterBtn: {fileID: 0}
   colosseumSprite: {fileID: 21300000, guid: 3ae5011a7d5976342a697ee26696729e, type: 3}
   buriedCitySprite: {fileID: 21300000, guid: e71185eefdf2c1a4f93e55ade4242db4, type: 3}
   testSceneSprite: {fileID: 21300000, guid: 8c9530b5c626672498a34b8f25d0e9e5, type: 3}
@@ -3737,8 +3738,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LoadEnemyData
   enemyData: {fileID: 11400000, guid: 3735458f835bd13458c478dd47786f40, type: 2}
   enemyNameText: {fileID: 3781871512350256844}
-  enemyHealthText: {fileID: 0}
-  enemyDamageText: {fileID: 0}
   enemyDescriptionText: {fileID: 4669737182143759455}
   buttonLabel: {fileID: 1658920148579869830}
   spawnPointObject: {fileID: 6027353069285686019}
@@ -3753,6 +3752,8 @@ MonoBehaviour:
   rankSpriteRenderer: {fileID: 0}
   rankSpriteObject: {fileID: 0}
   arenaEnterBtn: {fileID: 6433511476085866006}
+  mapSelected: 0
+  transitionManager: {fileID: 0}
 --- !u!1 &2551395896446855921
 GameObject:
   m_ObjectHideFlags: 0
@@ -5547,6 +5548,8 @@ GameObject:
   - component: {fileID: 806027901353739615}
   - component: {fileID: 6751817432538144015}
   - component: {fileID: 4825016067948757658}
+  - component: {fileID: 4912839457132326070}
+  - component: {fileID: 614551237023450555}
   m_Layer: 5
   m_Name: GarageCanvas
   m_TagString: Untagged
@@ -5657,6 +5660,117 @@ MonoBehaviour:
   opponentSelectPanel: {fileID: 0}
   mainMenuPanel: {fileID: 0}
   settingsPanel: {fileID: 0}
+--- !u!82 &4912839457132326070
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3817824015697857780}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: -2054865166030498616, guid: 5bb976a6c5288814e8b32bd9602e0d28, type: 2}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 46687bf0131bc76439beee293866f10a, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 0.6
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &614551237023450555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3817824015697857780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac3575e3080b09d4c8724b89f0bb8f83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  clickSound: {fileID: 8300000, guid: 46687bf0131bc76439beee293866f10a, type: 3}
+  sfxMixerGroup: {fileID: -2054865166030498616, guid: 5bb976a6c5288814e8b32bd9602e0d28, type: 2}
 --- !u!1 &3989278201638306952
 GameObject:
   m_ObjectHideFlags: 0
@@ -6154,8 +6268,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LoadEnemyData
   enemyData: {fileID: 11400000, guid: fe9bdb868f2951e409b7e0e734f2be31, type: 2}
   enemyNameText: {fileID: 3781871512350256844}
-  enemyHealthText: {fileID: 0}
-  enemyDamageText: {fileID: 0}
   enemyDescriptionText: {fileID: 4669737182143759455}
   buttonLabel: {fileID: 2359867521008782151}
   spawnPointObject: {fileID: 6027353069285686019}
@@ -6170,6 +6282,8 @@ MonoBehaviour:
   rankSpriteRenderer: {fileID: 0}
   rankSpriteObject: {fileID: 0}
   arenaEnterBtn: {fileID: 6433511476085866006}
+  mapSelected: 0
+  transitionManager: {fileID: 0}
 --- !u!1 &4356246071837691280
 GameObject:
   m_ObjectHideFlags: 0
@@ -7518,6 +7632,7 @@ MonoBehaviour:
   enemyDamageText: {fileID: 0}
   enemyDescriptionText: {fileID: 4669737182143759455}
   defaultDescription: Select your Opponent
+  transitionManager: {fileID: 0}
 --- !u!1 &4917469364309386717
 GameObject:
   m_ObjectHideFlags: 0
@@ -13497,8 +13612,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LoadEnemyData
   enemyData: {fileID: 11400000, guid: bd8af10008f74194c9b8b6a16ddd3d27, type: 2}
   enemyNameText: {fileID: 3781871512350256844}
-  enemyHealthText: {fileID: 0}
-  enemyDamageText: {fileID: 0}
   enemyDescriptionText: {fileID: 4669737182143759455}
   buttonLabel: {fileID: 1916452026339537655}
   spawnPointObject: {fileID: 6027353069285686019}
@@ -13513,6 +13626,8 @@ MonoBehaviour:
   rankSpriteRenderer: {fileID: 0}
   rankSpriteObject: {fileID: 0}
   arenaEnterBtn: {fileID: 6433511476085866006}
+  mapSelected: 0
+  transitionManager: {fileID: 0}
 --- !u!1 &8755427685002906626
 GameObject:
   m_ObjectHideFlags: 0

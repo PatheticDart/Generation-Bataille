@@ -144,8 +144,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a143a01e6a115114f99d94d00bc2130d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VolumeSlider
-  volumeSlider: {fileID: 5583572875166551003}
-  volumeValueText: {fileID: 8505950084547663889}
+  masterVolumeValueText: {fileID: 0}
+  sfxVolumeValueText: {fileID: 0}
+  bgmVolumeValueText: {fileID: 0}
+  audioMixer: {fileID: 0}
+  masterSlider: {fileID: 0}
+  sfxSlider: {fileID: 0}
+  bgmSlider: {fileID: 0}
 --- !u!1 &132510269037910175
 GameObject:
   m_ObjectHideFlags: 0
@@ -1030,6 +1035,7 @@ GameObject:
   - component: {fileID: 2418126673687274439}
   - component: {fileID: 3122507517068639097}
   - component: {fileID: 7846476185885327770}
+  - component: {fileID: 1200436415791687448}
   m_Layer: 0
   m_Name: Animation Skeleton
   m_TagString: Untagged
@@ -1105,6 +1111,104 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MechAnimationEvents
   cameraEffects: {fileID: 7960159375031588431}
+  footstepSound: {fileID: 8300000, guid: 48d8750dc1be5004299ea9784b95ca85, type: 3}
+--- !u!82 &1200436415791687448
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 539658214635020523}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: -2054865166030498616, guid: 5bb976a6c5288814e8b32bd9602e0d28, type: 2}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 48d8750dc1be5004299ea9784b95ca85, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &556107087333100707
 GameObject:
   m_ObjectHideFlags: 0
@@ -3089,8 +3193,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a143a01e6a115114f99d94d00bc2130d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VolumeSlider
-  volumeSlider: {fileID: 3089135387272749015}
-  volumeValueText: {fileID: 1827633957923942590}
+  masterVolumeValueText: {fileID: 0}
+  sfxVolumeValueText: {fileID: 0}
+  bgmVolumeValueText: {fileID: 0}
+  audioMixer: {fileID: 0}
+  masterSlider: {fileID: 0}
+  sfxSlider: {fileID: 0}
+  bgmSlider: {fileID: 0}
 --- !u!1 &1441388170710831350
 GameObject:
   m_ObjectHideFlags: 0
@@ -3283,6 +3392,8 @@ MonoBehaviour:
   characterController: {fileID: 2730814866030396684}
   animator: {fileID: 2418126673687274439}
   blendSmoothTime: 0.15
+  qbBlendTimeX: 0.05
+  qbBlendTimeY: 0.05
 --- !u!114 &7114393932837201338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5969,8 +6080,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a143a01e6a115114f99d94d00bc2130d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VolumeSlider
-  volumeSlider: {fileID: 103990443829422187}
-  volumeValueText: {fileID: 2546816479370078462}
+  masterVolumeValueText: {fileID: 0}
+  sfxVolumeValueText: {fileID: 0}
+  bgmVolumeValueText: {fileID: 0}
+  audioMixer: {fileID: 0}
+  masterSlider: {fileID: 0}
+  sfxSlider: {fileID: 0}
+  bgmSlider: {fileID: 0}
 --- !u!1 &2875537506835183869
 GameObject:
   m_ObjectHideFlags: 0
@@ -7885,8 +8001,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3892685215485691324}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 7.5, z: -16}
+  m_LocalRotation: {x: 0.15212339, y: 0, z: 0, w: 0.98836154}
+  m_LocalPosition: {x: 0.000002617486, y: 2.652131, z: -3.3057556}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -11060,9 +11176,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79702a7c9472b6f4481c74339434ea74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OptionsManager
-  generalPanel: {fileID: 0}
   volumePanel: {fileID: 6377431552697617298}
   controlTypePanel: {fileID: 0}
+  playerBrain: {fileID: 0}
+  controlTypeDropdown: {fileID: 0}
 --- !u!114 &3206713409721873103
 MonoBehaviour:
   m_ObjectHideFlags: 0
