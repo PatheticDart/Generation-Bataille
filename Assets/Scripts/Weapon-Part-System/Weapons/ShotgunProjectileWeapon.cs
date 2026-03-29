@@ -5,6 +5,7 @@ public class ShotgunProjectileWeapon : FunctionalWeapon
     [Header("Weapon Setup")]
     public Transform muzzlePoint;
     public PooledVFX muzzleFlash;
+    public AudioClip shootSFX; // --- NEW: Sound Effect ---
     public bool spawnFlashAsChild;
 
     private ShotgunPart _shotgunStats;
@@ -64,7 +65,8 @@ public class ShotgunProjectileWeapon : FunctionalWeapon
         currentResource--;
         NotifyResourceChange();
 
-        PlayMuzzleFlash(muzzleFlash, muzzlePoint, spawnFlashAsChild);
+        // --- FIXED: Updated to PlayMuzzleEffects ---
+        PlayMuzzleEffects(muzzleFlash, shootSFX, muzzlePoint, spawnFlashAsChild);
 
         float pelletDamage = (float)_shotgunStats.attackPower / _shotgunStats.pelletCount;
 
@@ -86,7 +88,6 @@ public class ShotgunProjectileWeapon : FunctionalWeapon
         BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(
             _shotgunStats.bulletPrefab, position, rotation);
 
-        // --- FIXED: Pass the shooterLayer ---
         proj.SetupStats(damage, _shotgunStats.bulletSpeed, shooterLayer);
         proj.SetPrefabReference(_shotgunStats.bulletPrefab);
     }

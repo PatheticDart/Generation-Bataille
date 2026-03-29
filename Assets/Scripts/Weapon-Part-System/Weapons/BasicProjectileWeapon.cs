@@ -5,6 +5,7 @@ public class BasicProjectileWeapon : FunctionalWeapon
     [Header("Weapon Setup")]
     public Transform muzzlePoint;
     public PooledVFX muzzleFlash;
+    public AudioClip shootSFX; // --- NEW: Sound Effect ---
     public bool spawnFlashAsChild;
 
     private ProjectileWeaponPart _weaponStats;
@@ -64,12 +65,12 @@ public class BasicProjectileWeapon : FunctionalWeapon
         currentResource--;
         NotifyResourceChange();
 
-        PlayMuzzleFlash(muzzleFlash, muzzlePoint, spawnFlashAsChild);
+        // --- FIXED: Updated to PlayMuzzleEffects ---
+        PlayMuzzleEffects(muzzleFlash, shootSFX, muzzlePoint, spawnFlashAsChild);
 
         BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(
             _weaponStats.bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
 
-        // --- FIXED: Pass the shooterLayer ---
         proj.SetupStats(_weaponStats.attackPower, _weaponStats.bulletSpeed, shooterLayer);
         proj.SetPrefabReference(_weaponStats.bulletPrefab);
     }

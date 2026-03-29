@@ -165,7 +165,14 @@ public class MatchManager : MonoBehaviour
 
     private void RewardPlayerCredits()
     {
-        int rewardAmount = 20000;
+        // Default fallback just in case testing without an active enemy
+        int rewardAmount = 5000;
+
+        // Read the custom bounty from the active enemy!
+        if (EnemyDataSO.ActiveEnemy != null)
+        {
+            rewardAmount = EnemyDataSO.ActiveEnemy.rewardCredits;
+        }
 
         if (PlayerInventoryManager.Instance != null)
         {

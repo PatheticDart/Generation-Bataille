@@ -17,8 +17,10 @@ public abstract class FunctionalWeapon : PartTemplate
     protected int weaponMagSize = -1;
     protected float weaponReloadTime = 0f;
 
-    // --- NEW: Cache the team layer ---
     protected int shooterLayer;
+
+    // --- NEW: AudioSource reference for shooting SFX ---
+    protected AudioSource weaponAudioSource;
 
     public event Action<float, float> OnResourceChanged;
     public event Action<float> OnReserveAmmoChanged;
@@ -27,9 +29,17 @@ public abstract class FunctionalWeapon : PartTemplate
     {
         weaponData = data;
 
-        // --- NEW: Automatically find the team layer from the parent MechStats! ---
         MechStats stats = GetComponentInParent<MechStats>();
         shooterLayer = stats != null ? stats.gameObject.layer : gameObject.layer;
+
+        // --- NEW: Grab the AudioSource, or create one if it doesn't exist ---
+        weaponAudioSource = GetComponent<AudioSource>();
+        if (weaponAudioSource == null)
+        {
+            weaponAudioSource = gameObject.AddComponent<AudioSource>();
+            weaponAudioSource.spatialBlend = 1.0f; // Force 3D sound
+            weaponAudioSource.playOnAwake = false;
+        }
 
         if (data is ProjectileWeaponPart projPart)
         {
@@ -80,12 +90,21 @@ public abstract class FunctionalWeapon : PartTemplate
         NotifyResourceChange();
     }
 
-    protected void PlayMuzzleFlash(PooledVFX flashPrefab, Transform spawnLocation, bool spawnFlashAsChild)
+    // --- UPDATED: Renamed to PlayMuzzleEffects and added AudioClip parameter ---
+    protected void PlayMuzzleEffects(PooledVFX flashPrefab, AudioClip shootSFX, Transform spawnLocation, bool spawnFlashAsChild)
     {
+        // 1. Play the Visuals
         if (flashPrefab != null && GlobalVFXPool.Instance != null && spawnLocation != null)
         {
             var p = GlobalVFXPool.Instance.Spawn(flashPrefab, spawnLocation.position, spawnLocation.rotation);
             if (spawnFlashAsChild) p.transform.parent = spawnLocation;
+        }
+
+        // 2. Play the Sound Effect
+        if (shootSFX != null && weaponAudioSource != null)
+        {
+            // PlayOneShot allows multiple rapid-fire sounds to overlap naturally
+            weaponAudioSource.PlayOneShot(shootSFX);
         }
     }
 

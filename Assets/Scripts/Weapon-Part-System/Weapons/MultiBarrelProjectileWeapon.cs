@@ -8,6 +8,7 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
     [Header("Multi-Barrel Setup")]
     public List<Transform> muzzlePoints = new List<Transform>();
     public PooledVFX muzzleFlash;
+    public AudioClip shootSFX; // --- NEW: Sound Effect ---
     public FireMode fireMode = FireMode.Sequential;
     public bool spawnFlashAsChild;
 
@@ -70,7 +71,8 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
     {
         Transform currentMuzzle = muzzlePoints[_currentBarrelIndex];
 
-        PlayMuzzleFlash(muzzleFlash, currentMuzzle, spawnFlashAsChild);
+        // --- FIXED: Updated to PlayMuzzleEffects ---
+        PlayMuzzleEffects(muzzleFlash, shootSFX, currentMuzzle, spawnFlashAsChild);
         SpawnBullet(currentMuzzle);
 
         currentResource--;
@@ -84,7 +86,8 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
         {
             if (currentResource <= 0) break;
 
-            PlayMuzzleFlash(muzzleFlash, muzzle, spawnFlashAsChild);
+            // --- FIXED: Updated to PlayMuzzleEffects ---
+            PlayMuzzleEffects(muzzleFlash, shootSFX, muzzle, spawnFlashAsChild);
             SpawnBullet(muzzle);
 
             currentResource--;
@@ -100,7 +103,6 @@ public class MultiBarrelProjectileWeapon : FunctionalWeapon
         BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(
             _weaponStats.bulletPrefab, muzzle.position, muzzle.rotation);
 
-        // --- FIXED: Pass the shooterLayer ---
         proj.SetupStats(_weaponStats.attackPower, _weaponStats.bulletSpeed, shooterLayer);
         proj.SetPrefabReference(_weaponStats.bulletPrefab);
     }

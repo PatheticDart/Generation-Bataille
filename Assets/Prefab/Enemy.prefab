@@ -11953,6 +11953,7 @@ GameObject:
   - component: {fileID: 2211785142535381215}
   - component: {fileID: 1842556275923502651}
   - component: {fileID: 2378307291731604742}
+  - component: {fileID: 6616214609824608946}
   m_Layer: 7
   m_Name: Enemy
   m_TagString: Untagged
@@ -12219,7 +12220,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7372188128696635075}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4e699a593aae0242ac364a0af912e17, type: 3}
   m_Name: 
@@ -12325,6 +12326,29 @@ MonoBehaviour:
   maxObstacleJumpHeight: 12
   standardJumpHeight: 3
   energyEfficiency: 80
+--- !u!114 &6616214609824608946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7372188128696635075}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f054af51eb43b464e8a9768ab08f29ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  globalBaseMaterials:
+  - map: 0
+    material: {fileID: 2100000, guid: 790a98ff0c7d9d74183d4dd8b93c84e7, type: 2}
+  - map: 1
+    material: {fileID: 2100000, guid: 5596eddb18cd0654eb4d9ed3bc189e15, type: 2}
+  - map: 2
+    material: {fileID: 2100000, guid: b36ce978ff218a343a34a3f770cbc479, type: 2}
+  - map: 3
+    material: {fileID: 2100000, guid: d5ae22ebb1b5e464e8694cd0cd804edd, type: 2}
+  - map: 4
+    material: {fileID: 2100000, guid: 0eea8a76db9550f41b57e63bba120548, type: 2}
 --- !u!1 &7394416300720093152
 GameObject:
   m_ObjectHideFlags: 0

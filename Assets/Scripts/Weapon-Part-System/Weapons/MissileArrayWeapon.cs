@@ -8,6 +8,7 @@ public class MissileArrayWeapon : FunctionalWeapon
     [Header("Missile Array Settings")]
     public List<Transform> muzzlePoints = new List<Transform>();
     public PooledVFX muzzleFlash;
+    public AudioClip shootSFX; // --- NEW: Sound Effect ---
     public bool spawnFlashAsChild;
 
     public LaunchTrajectory trajectory = LaunchTrajectory.Direct;
@@ -17,9 +18,8 @@ public class MissileArrayWeapon : FunctionalWeapon
     private float _nextFireTime = 0f;
     private float _nextStaggerTime = 0f;
 
-    // --- NEW: Exposed so the FCS knows when to pause lock accumulation ---
     public bool IsFiringBurst { get; private set; } = false;
-    
+
     private int _currentBarrelIndex = 0;
     private int _missilesToFireThisBurst = 0;
     private int _missilesFiredSoFar = 0;
@@ -52,7 +52,7 @@ public class MissileArrayWeapon : FunctionalWeapon
                 {
                     bool isLeftWeapon = transform.parent.name.Contains("Left");
                     currentLocks = _fcs.GetMissileLocks(isLeftWeapon, _missileData.maxLocks);
-                    
+
                     _burstTarget = _fcs.currentTarget;
                     _fcs.ConsumeMissileLocks(isLeftWeapon);
                 }
@@ -106,7 +106,8 @@ public class MissileArrayWeapon : FunctionalWeapon
 
         Transform muzzle = muzzlePoints[_currentBarrelIndex];
 
-        PlayMuzzleFlash(muzzleFlash, muzzle, spawnFlashAsChild);
+        // --- FIXED: Updated to PlayMuzzleEffects ---
+        PlayMuzzleEffects(muzzleFlash, shootSFX, muzzle, spawnFlashAsChild);
 
         Quaternion spawnRotation = muzzle.rotation;
         if (trajectory == LaunchTrajectory.Vertical)

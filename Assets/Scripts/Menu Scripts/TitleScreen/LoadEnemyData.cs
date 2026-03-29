@@ -41,6 +41,10 @@ public class LoadEnemyData : MonoBehaviour
     public void LoadData()
     {
         transitionManager.enemySelected = true;
+
+        // --- NEW: Save this enemy as the globally active opponent for the next scene! ---
+        EnemyDataSO.ActiveEnemy = this.enemyData;
+
         if (arenaEnterBtn != null && mapSelected == true)
         {
             arenaEnterBtn.SetActive(true);
