@@ -114,7 +114,16 @@ public class PartMaterialLoader : MonoBehaviour
 
                                 if (paint.emissionColor.a > 0 && paint.emissionColor != Color.clear && paint.emissionColor != Color.black)
                                 {
-                                    instancedMat.SetColor(emissionColorId, paint.emissionColor);
+                                    // 1. Get the base color (normalize to 0-1 range)
+                                    float maxRGB = Mathf.Max(paint.emissionColor.r, paint.emissionColor.g, paint.emissionColor.b);
+                                    Color baseColor = paint.emissionColor;
+                                    
+                                    if (maxRGB > 0) baseColor = paint.emissionColor / maxRGB;
+
+                                    // 2. Apply hardcoded intensity (2^4 = 16)
+                                    Color finalHDRColor = baseColor * GarageLoader.EMISSIONFACTOR; 
+
+                                    instancedMat.SetColor(emissionColorId, finalHDRColor);
                                     instancedMat.EnableKeyword("_EMISSION"); 
                                 }
 

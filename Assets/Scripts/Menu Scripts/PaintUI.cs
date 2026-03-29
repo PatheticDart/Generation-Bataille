@@ -68,41 +68,56 @@ public class PaintUI : MonoBehaviour
     }
 
     private void UpdateCategoryDisplay()
+{
+    // 1. Block the listener while we reset the UI values
+    isSwitchingCategory = true;
+
+    if (categoryTitleText != null) 
+        categoryTitleText.text = categoryNames[currentCategoryIndex];
+
+    if (garageLoader != null && garageLoader.globalPaintJob != null && currentCategoryIndex < garageLoader.globalPaintJob.Length)
     {
-        isSwitchingCategory = true;
+        Color colorToShow;
 
-        if (categoryTitleText != null) categoryTitleText.text = categoryNames[currentCategoryIndex];
+        // If index 4 is GLOW, grab the emission color
+        if (currentCategoryIndex == 4) 
+            colorToShow = garageLoader.globalPaintJob[currentCategoryIndex].emissionColor;
+        else 
+            colorToShow = garageLoader.globalPaintJob[currentCategoryIndex].albedoColor;
 
-        if (garageLoader != null && garageLoader.globalPaintJob != null && currentCategoryIndex < garageLoader.globalPaintJob.Length)
+        colorToShow.a = 1f;
+
+        if (fcp != null)
         {
-            Color colorToShow = Color.white;
-
-            if (currentCategoryIndex == 4) colorToShow = garageLoader.globalPaintJob[currentCategoryIndex].emissionColor;
-            else colorToShow = garageLoader.globalPaintJob[currentCategoryIndex].albedoColor;
-
-            // Force Alpha to 1 so the FCP UI doesn't show a broken checkerboard
-            colorToShow.a = 1f;
-
-            if (fcp != null) fcp.color = colorToShow;
-        }
-
-        isSwitchingCategory = false;
-    }
-
-    private void OnColorDragged(Color newColor)
-    {
-        if (isSwitchingCategory || garageLoader == null || garageLoader.globalPaintJob == null) return;
-
-        newColor.a = 1f; // Ensure colors drawn onto the mech are solid
-
-        if (currentCategoryIndex < garageLoader.globalPaintJob.Length)
-        {
-            if (currentCategoryIndex == 4) garageLoader.globalPaintJob[currentCategoryIndex].emissionColor = newColor;
-            else garageLoader.globalPaintJob[currentCategoryIndex].albedoColor = newColor;
-
-            garageLoader.FastApplyPaintToMech();
+            fcp.SetColor(colorToShow); // Some FCP versions prefer SetColor over .color
+            fcp.color = colorToShow;
         }
     }
+
+    // 2. Unblock the listener so the user can start dragging
+    isSwitchingCategory = false;
+}
+
+private void OnColorDragged(Color newColor)
+{
+    // If we are currently in the middle of a category swap, ignore the event
+    if (isSwitchingCategory) return;
+    if (garageLoader == null || garageLoader.globalPaintJob == null) return;
+
+    newColor.a = 1f; 
+
+    if (currentCategoryIndex < garageLoader.globalPaintJob.Length)
+    {
+        // Update the DATA
+        if (currentCategoryIndex == 4) 
+            garageLoader.globalPaintJob[currentCategoryIndex].emissionColor = newColor;
+        else 
+            garageLoader.globalPaintJob[currentCategoryIndex].albedoColor = newColor;
+
+        // Force the VISUAL update
+        garageLoader.FastApplyPaintToMech();
+    }
+}
 
     public void SaveColors()
     {

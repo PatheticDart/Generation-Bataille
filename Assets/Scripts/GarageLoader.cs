@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 public class GarageLoader : MonoBehaviour
 {
+    public const float EMISSIONFACTOR = 32f;
+
     public static Dictionary<PartType, Part> ActiveLoadout = new Dictionary<PartType, Part>();
 
     [Header("System Reference")]
@@ -151,9 +153,14 @@ public class GarageLoader : MonoBehaviour
                     Color safeEmission = globalPaintJob[i].emissionColor;
                     safeEmission.a = 1f;
 
-                    if (i == 4)
+                    if (i == 4) // Assuming index 4 is your emission slot
                     {
-                        mats[i].SetColor("_EmissionColor", safeEmission);
+                        float maxRGB = Mathf.Max(safeEmission.r, safeEmission.g, safeEmission.b);
+                        Color baseColor = safeEmission;
+                        if (maxRGB > 0) baseColor = safeEmission / maxRGB;
+
+                        // Force intensity 4
+                        mats[i].SetColor("_EmissionColor", baseColor * EMISSIONFACTOR);
                     }
                     else
                     {
