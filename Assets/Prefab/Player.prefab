@@ -144,8 +144,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a143a01e6a115114f99d94d00bc2130d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VolumeSlider
-  volumeSlider: {fileID: 5583572875166551003}
-  volumeValueText: {fileID: 8505950084547663889}
+  masterVolumeValueText: {fileID: 0}
+  sfxVolumeValueText: {fileID: 0}
+  bgmVolumeValueText: {fileID: 0}
+  audioMixer: {fileID: 0}
+  masterSlider: {fileID: 0}
+  sfxSlider: {fileID: 0}
+  bgmSlider: {fileID: 0}
 --- !u!1 &132510269037910175
 GameObject:
   m_ObjectHideFlags: 0
@@ -3089,8 +3094,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a143a01e6a115114f99d94d00bc2130d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VolumeSlider
-  volumeSlider: {fileID: 3089135387272749015}
-  volumeValueText: {fileID: 1827633957923942590}
+  masterVolumeValueText: {fileID: 0}
+  sfxVolumeValueText: {fileID: 0}
+  bgmVolumeValueText: {fileID: 0}
+  audioMixer: {fileID: 0}
+  masterSlider: {fileID: 0}
+  sfxSlider: {fileID: 0}
+  bgmSlider: {fileID: 0}
 --- !u!1 &1441388170710831350
 GameObject:
   m_ObjectHideFlags: 0
@@ -3134,6 +3144,7 @@ Transform:
   - {fileID: 1411259970099680075}
   - {fileID: 3369438313961492974}
   - {fileID: 6556462518341565522}
+  - {fileID: 5884329695146612082}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!143 &2730814866030396684
@@ -3283,6 +3294,8 @@ MonoBehaviour:
   characterController: {fileID: 2730814866030396684}
   animator: {fileID: 2418126673687274439}
   blendSmoothTime: 0.15
+  qbBlendTimeX: 0.05
+  qbBlendTimeY: 0.05
 --- !u!114 &7114393932837201338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5969,8 +5982,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a143a01e6a115114f99d94d00bc2130d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VolumeSlider
-  volumeSlider: {fileID: 103990443829422187}
-  volumeValueText: {fileID: 2546816479370078462}
+  masterVolumeValueText: {fileID: 0}
+  sfxVolumeValueText: {fileID: 0}
+  bgmVolumeValueText: {fileID: 0}
+  audioMixer: {fileID: 0}
+  masterSlider: {fileID: 0}
+  sfxSlider: {fileID: 0}
+  bgmSlider: {fileID: 0}
 --- !u!1 &2875537506835183869
 GameObject:
   m_ObjectHideFlags: 0
@@ -7885,8 +7903,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3892685215485691324}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 7.5, z: -16}
+  m_LocalRotation: {x: 0.15212339, y: 0, z: 0, w: 0.98836154}
+  m_LocalPosition: {x: 0.000002617486, y: 2.652131, z: -3.3057556}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -11060,9 +11078,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79702a7c9472b6f4481c74339434ea74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OptionsManager
-  generalPanel: {fileID: 0}
   volumePanel: {fileID: 6377431552697617298}
   controlTypePanel: {fileID: 0}
+  playerBrain: {fileID: 0}
+  controlTypeDropdown: {fileID: 0}
 --- !u!114 &3206713409721873103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17756,3 +17775,65 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1001 &6273532437679500150
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7361038256474985031}
+    m_Modifications:
+    - target: {fileID: 482237149410542840, guid: 74998990dda9c984fa874940c7858e72, type: 3}
+      propertyPath: m_Name
+      value: MechStartupSequenceManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 484495594387799556, guid: 74998990dda9c984fa874940c7858e72, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1023.41956
+      objectReference: {fileID: 0}
+    - target: {fileID: 484495594387799556, guid: 74998990dda9c984fa874940c7858e72, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1373.196
+      objectReference: {fileID: 0}
+    - target: {fileID: 484495594387799556, guid: 74998990dda9c984fa874940c7858e72, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 484495594387799556, guid: 74998990dda9c984fa874940c7858e72, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 484495594387799556, guid: 74998990dda9c984fa874940c7858e72, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 484495594387799556, guid: 74998990dda9c984fa874940c7858e72, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 484495594387799556, guid: 74998990dda9c984fa874940c7858e72, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 484495594387799556, guid: 74998990dda9c984fa874940c7858e72, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 484495594387799556, guid: 74998990dda9c984fa874940c7858e72, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 484495594387799556, guid: 74998990dda9c984fa874940c7858e72, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 74998990dda9c984fa874940c7858e72, type: 3}
+--- !u!4 &5884329695146612082 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 484495594387799556, guid: 74998990dda9c984fa874940c7858e72, type: 3}
+  m_PrefabInstance: {fileID: 6273532437679500150}
+  m_PrefabAsset: {fileID: 0}
