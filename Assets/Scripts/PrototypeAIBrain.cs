@@ -55,7 +55,7 @@ public class PrototypeAIBrain : MonoBehaviour
     [Header("Weapon Systems")]
     public MechWeaponManager mechWeaponManager;
     public WeaponManager weaponManager;
-    public FCSLockBox fcsLockBox; // --- NEW: FCS Link for Missiles ---
+    public FCSLockBox fcsLockBox;
 
     [Tooltip("How long the AI waits to fire after a weapon swap finishes, allowing the rig to aim.")]
     public float postSwapAimDelay = 0.5f;
@@ -145,7 +145,7 @@ public class PrototypeAIBrain : MonoBehaviour
 
         if (mechWeaponManager == null) mechWeaponManager = GetComponent<MechWeaponManager>();
         if (weaponManager == null) weaponManager = GetComponent<WeaponManager>();
-        if (fcsLockBox == null) fcsLockBox = GetComponent<FCSLockBox>(); // Auto-assign FCS
+        if (fcsLockBox == null) fcsLockBox = GetComponent<FCSLockBox>();
 
         if (mechWeaponManager != null)
         {
@@ -209,7 +209,6 @@ public class PrototypeAIBrain : MonoBehaviour
         EvaluateWeaponConditions();
     }
 
-    // --- UPDATED: Now checks Reserve Ammo so reloading doesn't trigger a forced swap! ---
     private bool HasAmmo(bool isLeft, int slot)
     {
         if (weaponManager == null) return false;
@@ -219,7 +218,6 @@ public class PrototypeAIBrain : MonoBehaviour
         return wep.maxResource == 0f || wep.currentResource > 0f || wep.currentReserveAmmo > 0f;
     }
 
-    // --- NEW: Asks the FCS if the missile barrage is fully locked and ready ---
     private bool IsMissileReadyToFire(bool isLeft, int slot)
     {
         if (weaponManager == null || fcsLockBox == null) return true;
@@ -233,11 +231,10 @@ public class PrototypeAIBrain : MonoBehaviour
             int ammoLeftInMag = Mathf.FloorToInt(wep.currentResource);
             int desiredLocks = Mathf.Min(missileData.maxLocks, ammoLeftInMag);
 
-            // Wait until locks match the desired amount, and ensure we have at least 1 lock
             return currentLocks >= desiredLocks && currentLocks > 0;
         }
 
-        return true; // Not a missile launcher, standard firing applies
+        return true;
     }
 
     private bool IsInAttackRange(bool isLeft, WeaponConditionSlot slot, float distance)
@@ -270,14 +267,14 @@ public class PrototypeAIBrain : MonoBehaviour
         {
             if (!mechWeaponManager.leftArmActive && !mechWeaponManager.IsLeftTransitioning)
                 mechWeaponManager.SendMessage("ToggleLeftWeapon", SendMessageOptions.DontRequireReceiver);
-            else if (mechWeaponManager.leftArmActive && hasLineOfSight && leftAimReadyTimer <= 0f && IsInAttackRange(true, WeaponConditionSlot.Arm, distanceToTarget))
+            else if (mechWeaponManager.leftArmActive && !mechWeaponManager.IsLeftTransitioning && hasLineOfSight && leftAimReadyTimer <= 0f && IsInAttackRange(true, WeaponConditionSlot.Arm, distanceToTarget))
                 if (IsMissileReadyToFire(true, 0)) wantsToFireLeft = true;
         }
         else if (!armAmmoL && backAmmoL)
         {
             if (mechWeaponManager.leftArmActive && !mechWeaponManager.IsLeftTransitioning)
                 mechWeaponManager.SendMessage("ToggleLeftWeapon", SendMessageOptions.DontRequireReceiver);
-            else if (!mechWeaponManager.leftArmActive && hasLineOfSight && leftAimReadyTimer <= 0f && IsInAttackRange(true, WeaponConditionSlot.Back, distanceToTarget))
+            else if (!mechWeaponManager.leftArmActive && !mechWeaponManager.IsLeftTransitioning && hasLineOfSight && leftAimReadyTimer <= 0f && IsInAttackRange(true, WeaponConditionSlot.Back, distanceToTarget))
                 if (IsMissileReadyToFire(true, 1)) wantsToFireLeft = true;
         }
         else if (armAmmoL && backAmmoL)
@@ -296,7 +293,8 @@ public class PrototypeAIBrain : MonoBehaviour
                     }
                     else if (distanceToTarget >= chip.minAttackRange && distanceToTarget <= chip.maxAttackRange)
                     {
-                        if (hasLineOfSight && leftAimReadyTimer <= 0f && IsMissileReadyToFire(true, slot))
+                        // THE FIX: Must not be transitioning to evaluate a trigger pull
+                        if (!mechWeaponManager.IsLeftTransitioning && hasLineOfSight && leftAimReadyTimer <= 0f && IsMissileReadyToFire(true, slot))
                             wantsToFireLeft = true;
                     }
                     break;
@@ -315,14 +313,14 @@ public class PrototypeAIBrain : MonoBehaviour
         {
             if (!mechWeaponManager.rightArmActive && !mechWeaponManager.IsRightTransitioning)
                 mechWeaponManager.SendMessage("ToggleRightWeapon", SendMessageOptions.DontRequireReceiver);
-            else if (mechWeaponManager.rightArmActive && hasLineOfSight && rightAimReadyTimer <= 0f && IsInAttackRange(false, WeaponConditionSlot.Arm, distanceToTarget))
+            else if (mechWeaponManager.rightArmActive && !mechWeaponManager.IsRightTransitioning && hasLineOfSight && rightAimReadyTimer <= 0f && IsInAttackRange(false, WeaponConditionSlot.Arm, distanceToTarget))
                 if (IsMissileReadyToFire(false, 0)) wantsToFireRight = true;
         }
         else if (!armAmmoR && backAmmoR)
         {
             if (mechWeaponManager.rightArmActive && !mechWeaponManager.IsRightTransitioning)
                 mechWeaponManager.SendMessage("ToggleRightWeapon", SendMessageOptions.DontRequireReceiver);
-            else if (!mechWeaponManager.rightArmActive && hasLineOfSight && rightAimReadyTimer <= 0f && IsInAttackRange(false, WeaponConditionSlot.Back, distanceToTarget))
+            else if (!mechWeaponManager.rightArmActive && !mechWeaponManager.IsRightTransitioning && hasLineOfSight && rightAimReadyTimer <= 0f && IsInAttackRange(false, WeaponConditionSlot.Back, distanceToTarget))
                 if (IsMissileReadyToFire(false, 1)) wantsToFireRight = true;
         }
         else if (armAmmoR && backAmmoR)
@@ -341,7 +339,8 @@ public class PrototypeAIBrain : MonoBehaviour
                     }
                     else if (distanceToTarget >= chip.minAttackRange && distanceToTarget <= chip.maxAttackRange)
                     {
-                        if (hasLineOfSight && rightAimReadyTimer <= 0f && IsMissileReadyToFire(false, slot))
+                        // THE FIX: Must not be transitioning to evaluate a trigger pull
+                        if (!mechWeaponManager.IsRightTransitioning && hasLineOfSight && rightAimReadyTimer <= 0f && IsMissileReadyToFire(false, slot))
                             wantsToFireRight = true;
                     }
                     break;
@@ -355,6 +354,11 @@ public class PrototypeAIBrain : MonoBehaviour
 
     private void ProcessWeaponFiring(bool isLeft, bool shouldFire)
     {
+        // THE MASTER KILL SWITCH: Absolutely forbid pulling the trigger if the rig is moving
+        // This prevents the AI from shooting a gun that is physically pointing up during stow animations
+        if (isLeft && mechWeaponManager.IsLeftTransitioning) shouldFire = false;
+        if (!isLeft && mechWeaponManager.IsRightTransitioning) shouldFire = false;
+
         int activeSlot = isLeft ? mechWeaponManager.ActiveLeftSlot : mechWeaponManager.ActiveRightSlot;
         bool wasFiring = isLeft ? wasFiringLeft : wasFiringRight;
 
