@@ -4,6 +4,7 @@ using UnityEngine;
 // --- ENUMS & CLASSES FOR THE CHIP SYSTEM ---
 public enum MovementActionType { Range, MoveForward }
 public enum ApproachActionType { Boosting, Flying }
+public enum WeaponConditionSlot { Arm, Back }
 
 [System.Serializable]
 public class MovementChip
@@ -25,12 +26,35 @@ public class MovementChip
     public float angleUncertainty = 5f;
 }
 
+[System.Serializable]
+public class WeaponConditionChip
+{
+    [Tooltip("Which slot this chip controls (The list it is placed in determines Left vs Right).")]
+    public WeaponConditionSlot installLocation = WeaponConditionSlot.Arm;
+
+    [Header("Firing Conditions")]
+    [Tooltip("Fires when target distance is GREATER than or equal to this (meters).")]
+    public float minAttackRange = 0f;
+    [Tooltip("Fires when target distance is LESS than or equal to this (meters).")]
+    public float maxAttackRange = 150f;
+
+    [Header("Active/Equip Conditions")]
+    [Tooltip("Swaps to this weapon when target distance is GREATER than or equal to this (meters).")]
+    public float minActiveRange = 0f;
+    [Tooltip("Swaps to this weapon when target distance is LESS than or equal to this (meters).")]
+    public float maxActiveRange = 200f;
+}
+
 [RequireComponent(typeof(MechController))]
 public class PrototypeAIBrain : MonoBehaviour
 {
     private MechController controller;
     private CharacterController charController;
     private MechStats stats;
+
+    [Header("Weapon Systems")]
+    public MechWeaponManager mechWeaponManager;
+    public WeaponManager weaponManager;
 
     [Header("Aiming & Vision")]
     public Transform cameraPivot;
@@ -60,6 +84,12 @@ public class PrototypeAIBrain : MonoBehaviour
 
     [Header("Movement Order (Chip System)")]
     public List<MovementChip> movementOrderList = new List<MovementChip>();
+
+    [Header("Left Weapon Conditions (Chip System)")]
+    public List<WeaponConditionChip> leftWeaponConditions = new List<WeaponConditionChip>();
+
+    [Header("Right Weapon Conditions (Chip System)")]
+    public List<WeaponConditionChip> rightWeaponConditions = new List<WeaponConditionChip>();
 
     [Header("Tactical Environment Maneuvering (TEM)")]
     public LayerMask environmentLayer;
@@ -95,11 +125,18 @@ public class PrototypeAIBrain : MonoBehaviour
     private float activeJumpTimer = 0f;
     private float activeFlightTimer = 0f;
 
+    // Weapon Firing State Memory
+    private bool wasFiringLeft = false;
+    private bool wasFiringRight = false;
+
     void Start()
     {
         controller = GetComponent<MechController>();
         charController = GetComponent<CharacterController>();
         stats = GetComponent<MechStats>();
+
+        if (mechWeaponManager == null) mechWeaponManager = GetComponent<MechWeaponManager>();
+        if (weaponManager == null) weaponManager = GetComponent<WeaponManager>();
 
         LoadNextChip(0);
     }
@@ -110,11 +147,16 @@ public class PrototypeAIBrain : MonoBehaviour
 
         FindTargetContinuously();
 
+        // --- LOSING TARGET LOCK ---
         if (currentTarget == null)
         {
             controller.moveInput = Vector3.zero;
             controller.isBoosting = false;
             controller.isJumping = false;
+
+            // Release triggers immediately if the target is fully lost
+            ProcessWeaponFiring(true, false);
+            ProcessWeaponFiring(false, false);
             return;
         }
 
@@ -134,6 +176,97 @@ public class PrototypeAIBrain : MonoBehaviour
 
         HandleRandomActions();
         ApplyFinalActions();
+
+        EvaluateWeaponConditions();
+    }
+
+    private void EvaluateWeaponConditions()
+    {
+        if (mechWeaponManager == null || weaponManager == null || currentTarget == null) return;
+
+        float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
+
+        // 1. Evaluate Left Weapons
+        bool wantsToFireLeft = false;
+        foreach (WeaponConditionChip chip in leftWeaponConditions)
+        {
+            int targetSlot = (chip.installLocation == WeaponConditionSlot.Arm) ? 0 : 1;
+            float maxAmmo = weaponManager.GetMaxResource(true, targetSlot);
+            float currentAmmo = weaponManager.GetCurrentResource(true, targetSlot);
+
+            // --- THE FIX: Ammo Depletion Fallback ---
+            // If this is an ammo-based weapon and it's empty, skip this chip entirely to check backups
+            if (maxAmmo > 0 && currentAmmo <= 0) continue;
+
+            if (distanceToTarget >= chip.minActiveRange && distanceToTarget <= chip.maxActiveRange)
+            {
+                bool isArmTargeted = (chip.installLocation == WeaponConditionSlot.Arm);
+
+                if (mechWeaponManager.leftArmActive != isArmTargeted)
+                {
+                    if (!mechWeaponManager.IsLeftTransitioning)
+                    {
+                        mechWeaponManager.SendMessage("ProcessLeftSwap", SendMessageOptions.DontRequireReceiver);
+                    }
+                }
+                else if (distanceToTarget >= chip.minAttackRange && distanceToTarget <= chip.maxAttackRange)
+                {
+                    // --- THE FIX: Line of Sight Stop ---
+                    // Only pull the trigger if the AI can actually see the enemy
+                    if (hasLineOfSight) wantsToFireLeft = true;
+                }
+
+                break; // Stop evaluating lower-priority chips if we found a valid range match
+            }
+        }
+
+        // 2. Evaluate Right Weapons
+        bool wantsToFireRight = false;
+        foreach (WeaponConditionChip chip in rightWeaponConditions)
+        {
+            int targetSlot = (chip.installLocation == WeaponConditionSlot.Arm) ? 0 : 1;
+            float maxAmmo = weaponManager.GetMaxResource(false, targetSlot);
+            float currentAmmo = weaponManager.GetCurrentResource(false, targetSlot);
+
+            if (maxAmmo > 0 && currentAmmo <= 0) continue;
+
+            if (distanceToTarget >= chip.minActiveRange && distanceToTarget <= chip.maxActiveRange)
+            {
+                bool isArmTargeted = (chip.installLocation == WeaponConditionSlot.Arm);
+
+                if (mechWeaponManager.rightArmActive != isArmTargeted)
+                {
+                    if (!mechWeaponManager.IsRightTransitioning)
+                    {
+                        mechWeaponManager.SendMessage("ProcessRightSwap", SendMessageOptions.DontRequireReceiver);
+                    }
+                }
+                else if (distanceToTarget >= chip.minAttackRange && distanceToTarget <= chip.maxAttackRange)
+                {
+                    if (hasLineOfSight) wantsToFireRight = true;
+                }
+
+                break;
+            }
+        }
+
+        ProcessWeaponFiring(true, wantsToFireLeft);
+        ProcessWeaponFiring(false, wantsToFireRight);
+    }
+
+    private void ProcessWeaponFiring(bool isLeft, bool shouldFire)
+    {
+        int activeSlot = isLeft ? mechWeaponManager.ActiveLeftSlot : mechWeaponManager.ActiveRightSlot;
+        bool wasFiring = isLeft ? wasFiringLeft : wasFiringRight;
+
+        bool pressed = shouldFire && !wasFiring;
+        bool held = shouldFire;
+        bool released = !shouldFire && wasFiring;
+
+        weaponManager.FireWeapon(isLeft, activeSlot, pressed, held, released);
+
+        if (isLeft) wasFiringLeft = shouldFire;
+        else wasFiringRight = shouldFire;
     }
 
     private void FindTargetContinuously()
@@ -144,7 +277,6 @@ public class PrototypeAIBrain : MonoBehaviour
 
         foreach (Collider hit in hits)
         {
-            // Ignore self or children (like our own weapons)
             if (hit.transform.IsChildOf(transform)) continue;
 
             float dist = Vector3.Distance(transform.position, hit.transform.position);
@@ -161,7 +293,6 @@ public class PrototypeAIBrain : MonoBehaviour
     {
         Vector3 dirToTarget3D = currentTarget.position - transform.position;
 
-        // Flatten for body orientation
         Vector3 dirToTargetFlat = dirToTarget3D;
         dirToTargetFlat.y = 0f;
         if (dirToTargetFlat.sqrMagnitude > 0.1f)
@@ -169,7 +300,6 @@ public class PrototypeAIBrain : MonoBehaviour
             controller.lookTargetForward = dirToTargetFlat.normalized;
         }
 
-        // Handle physical camera/head pivot for actual visual tracking
         if (cameraPivot != null && dirToTarget3D.sqrMagnitude > 0.1f)
         {
             Quaternion targetPivotRot = Quaternion.LookRotation(dirToTarget3D.normalized);
@@ -216,7 +346,6 @@ public class PrototypeAIBrain : MonoBehaviour
 
         if (isBlockedLow || isBlockedMid)
         {
-            // Check if there is space to jump OVER it
             if (!Physics.Raycast(clearanceHeight, worldMoveDirection, checkDist + 1f, environmentLayer))
             {
                 Vector3 scanDownPos = transform.position + (worldMoveDirection.normalized * checkDist) + (Vector3.up * maxObstacleJumpHeight);
@@ -229,10 +358,8 @@ public class PrototypeAIBrain : MonoBehaviour
 
                 if (charController != null && charController.isGrounded && activeJumpTimer <= 0f)
                 {
-                    // Trigger a jump
                     activeJumpTimer = 0.1f;
 
-                    // If it's tall, trigger flight to clear it (if we have energy)
                     if (obstacleHeight > standardJumpHeight && !isConservingEnergy)
                     {
                         activeFlightTimer = 0.3f + Mathf.Lerp(0.1f, 0.6f, (obstacleHeight - standardJumpHeight) / (maxObstacleJumpHeight - standardJumpHeight));
@@ -240,7 +367,6 @@ public class PrototypeAIBrain : MonoBehaviour
                 }
                 else if (charController != null && !charController.isGrounded && activeFlightTimer <= 0f && !isConservingEnergy)
                 {
-                    // We are in the air, but might need more height to clear it
                     activeFlightTimer = 0.2f;
                 }
             }
@@ -341,7 +467,6 @@ public class PrototypeAIBrain : MonoBehaviour
         Vector3 desiredWorldMoveDir = Vector3.zero;
         float currentDistance = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z), new Vector3(currentTarget.position.x, 0, currentTarget.position.z));
 
-        // ELEVATION CHECK
         float myElevatedY = transform.position.y + eyeHeight;
         float targetY = currentTarget.root.position.y + currentChip.relativeElevation;
 
@@ -353,7 +478,7 @@ public class PrototypeAIBrain : MonoBehaviour
             }
             else if (!charController.isGrounded)
             {
-                activeFlightTimer = 0.2f; // Fly up!
+                activeFlightTimer = 0.2f;
             }
         }
 
@@ -394,7 +519,6 @@ public class PrototypeAIBrain : MonoBehaviour
 
         if (!hasLineOfSight && currentChip.actionType == MovementActionType.MoveForward)
         {
-            // Force strafe to find LOS
             Vector3 right = Vector3.Cross(Vector3.up, controller.lookTargetForward);
             desiredWorldMoveDir += (right * strafeDirection);
             desiredWorldMoveDir.Normalize();
