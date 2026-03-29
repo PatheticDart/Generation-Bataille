@@ -48,9 +48,14 @@ public class MissileArrayWeapon : FunctionalWeapon
 
                 if (_fcs != null && _fcs.isHardLocked)
                 {
-                    currentLocks = _fcs.currentLockCount;
+                    // --- NEW: Ask the FCS for THIS weapon's specific lock count ---
+                    bool isLeftWeapon = transform.parent.name.Contains("Left");
+                    currentLocks = _fcs.GetMissileLocks(isLeftWeapon, _missileData.maxLocks);
+
                     _burstTarget = _fcs.currentTarget;
-                    _fcs.ConsumeLocks();
+
+                    // Consume only this weapon's lock timers!
+                    _fcs.ConsumeMissileLocks(isLeftWeapon);
                 }
 
                 _missilesToFireThisBurst = Mathf.Min(currentLocks, muzzlePoints.Count, Mathf.FloorToInt(currentResource));
@@ -113,7 +118,6 @@ public class MissileArrayWeapon : FunctionalWeapon
         BaseProjectile proj = GlobalProjectilePool.Instance.GetProjectile(
             _missileData.bulletPrefab, muzzle.position, spawnRotation);
 
-        // --- FIXED: Pass the shooterLayer ---
         proj.SetupStats(_missileData.attackPower, _missileData.bulletSpeed, shooterLayer);
         proj.SetPrefabReference(_missileData.bulletPrefab);
 

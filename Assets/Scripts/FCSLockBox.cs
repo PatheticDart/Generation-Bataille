@@ -11,13 +11,9 @@ public class FCSLockBox : MonoBehaviour
     public float fcsHeight = 30f;
     public float fcsRange = 300f;
     public float lockSpeed = 1.5f;
-    [Tooltip("Maximum tracking speed in degrees per second. Try 180 to 300 for a snappy feel.")]
     public float fcsTurnRate = 180f;
 
-    // --- NEW MULTI-LOCK STATS ---
-    [Tooltip("Maximum number of targets/missiles the FCS can lock onto at once.")]
-    public int maxMultiLocks = 6;
-    [Tooltip("How fast subsequent locks are acquired after the first hard lock.")]
+    [Header("Multi-Lock Stats")]
     public float multiLockInterval = 0.3f;
 
     [Header("Colors")]
@@ -38,6 +34,12 @@ public class FCSLockBox : MonoBehaviour
     public RectTransform reticleUI;
     public TextMeshProUGUI rangefinderText;
 
+    [Header("Missile Lock UI")]
+    public GameObject leftMissileLockUI;
+    public TextMeshProUGUI leftMissileLockText;
+    public GameObject rightMissileLockUI;
+    public TextMeshProUGUI rightMissileLockText;
+
     [Header("Weapon UI Integration")]
     public MechWeaponManager weaponManager;
     public float activeWeaponAlpha = 1.0f;
@@ -55,8 +57,15 @@ public class FCSLockBox : MonoBehaviour
     public bool isSoftLocked { get; private set; }
     public bool isHardLocked { get; private set; }
 
-    public int currentLockCount { get; private set; }
-    private float currentLockTimer = 0f;
+    // --- PREDICTIVE AIMING DATA ---
+    public Vector3 TargetVelocity { get; private set; }
+    public Vector3 MyVelocity { get; private set; }
+    private Vector3 lastTargetPos;
+    private Vector3 lastMyPos;
+
+    // --- SEPARATED MISSILE TIMERS ---
+    private float leftMissileTimer = 0f;
+    private float rightMissileTimer = 0f;
 
     void Start()
     {
@@ -74,17 +83,46 @@ public class FCSLockBox : MonoBehaviour
 
     void LateUpdate()
     {
+        TrackVelocities();
         UpdateFCSTrailingRotation();
         DetectAndManageTargets();
 
         if (isPlayer) UpdateUI();
     }
 
+    private void TrackVelocities()
+    {
+        if (Time.deltaTime > 0f)
+        {
+            MyVelocity = (transform.position - lastMyPos) / Time.deltaTime;
+            
+            if (currentTarget != null) TargetVelocity = (currentTarget.position - lastTargetPos) / Time.deltaTime;
+            else TargetVelocity = Vector3.zero;
+        }
+
+        lastMyPos = transform.position;
+        if (currentTarget != null) lastTargetPos = currentTarget.position;
+    }
+
+    // --- INDEPENDENT MISSILE LOCK LOGIC ---
+    public int GetMissileLocks(bool isLeft, int maxLocks)
+    {
+        if (!isHardLocked || maxLocks <= 0) return 0;
+        float timer = isLeft ? leftMissileTimer : rightMissileTimer;
+        return Mathf.Clamp(1 + Mathf.FloorToInt(timer / multiLockInterval), 1, maxLocks);
+    }
+
+    public void ConsumeMissileLocks(bool isLeft)
+    {
+        if (isLeft) leftMissileTimer = 0f;
+        else rightMissileTimer = 0f;
+    }
+
     public void ConsumeLocks()
     {
-        currentLockCount = 0;
-        currentLockTimer = 0f;
         isHardLocked = false;
+        leftMissileTimer = 0f;
+        rightMissileTimer = 0f;
     }
 
     private void UpdateFCSTrailingRotation()
@@ -101,15 +139,12 @@ public class FCSLockBox : MonoBehaviour
         Vector3 origin = (isPlayer && mainCamera != null) ? mainCamera.transform.position : transform.position;
         float oversizedPhysicsRadius = fcsRange * 1.5f;
 
-        // This already filters out everything EXCEPT the target layer (e.g., the enemy team)
         Collider[] potentialTargets = Physics.OverlapSphere(origin, oversizedPhysicsRadius, targetLayer);
-
         Transform bestTarget = null;
         float closestDistance = Mathf.Infinity;
 
         foreach (Collider col in potentialTargets)
         {
-            // --- THE FIX: Filter out everything that isn't explicitly tagged as the target center ---
             if (!col.CompareTag("TargetObject")) continue;
 
             Transform targetTransform = col.transform;
@@ -145,20 +180,25 @@ public class FCSLockBox : MonoBehaviour
                 currentTarget = bestTarget;
                 isSoftLocked = true;
                 isHardLocked = false;
-                currentLockTimer = 0f;
-                currentLockCount = 0;
+                leftMissileTimer = 0f;
+                rightMissileTimer = 0f;
             }
             else
             {
-                currentLockTimer += Time.deltaTime;
+                float prevTimer = Mathf.Max(leftMissileTimer, rightMissileTimer);
+                float newTimer = prevTimer + Time.deltaTime;
 
-                if (currentLockTimer >= lockSpeed)
+                if (newTimer >= lockSpeed)
                 {
                     isHardLocked = true;
-
-                    float extraTime = currentLockTimer - lockSpeed;
-                    currentLockCount = 1 + Mathf.FloorToInt(extraTime / multiLockInterval);
-                    currentLockCount = Mathf.Clamp(currentLockCount, 1, maxMultiLocks);
+                    // Only start accumulating extra time after the base lockSpeed is reached
+                    leftMissileTimer += Time.deltaTime;
+                    rightMissileTimer += Time.deltaTime;
+                }
+                else
+                {
+                    leftMissileTimer = newTimer;
+                    rightMissileTimer = newTimer;
                 }
             }
         }
@@ -167,8 +207,8 @@ public class FCSLockBox : MonoBehaviour
             currentTarget = null;
             isSoftLocked = false;
             isHardLocked = false;
-            currentLockTimer = 0f;
-            currentLockCount = 0;
+            leftMissileTimer = 0f;
+            rightMissileTimer = 0f;
         }
     }
 
@@ -219,6 +259,31 @@ public class FCSLockBox : MonoBehaviour
             else reticleUI.gameObject.SetActive(false);
         }
         else reticleUI.gameObject.SetActive(false);
+
+        // --- UPDATE MISSILE UI PANELS ---
+        int leftMax = 0; int rightMax = 0;
+        if (weaponManager != null && weaponManager.weaponManager != null)
+        {
+            var lw = weaponManager.weaponManager.GetWeapon(true, 1);
+            if (lw != null && lw.GetWeaponData() is MissileLauncherPart lmp) leftMax = lmp.maxLocks;
+
+            var rw = weaponManager.weaponManager.GetWeapon(false, 1);
+            if (rw != null && rw.GetWeaponData() is MissileLauncherPart rmp) rightMax = rmp.maxLocks;
+        }
+
+        if (leftMissileLockUI != null)
+        {
+            int currentL = GetMissileLocks(true, leftMax);
+            leftMissileLockUI.SetActive(isHardLocked && leftMax > 0);
+            if (leftMissileLockText != null && currentL > 0) leftMissileLockText.text = currentL.ToString();
+        }
+
+        if (rightMissileLockUI != null)
+        {
+            int currentR = GetMissileLocks(false, rightMax);
+            rightMissileLockUI.SetActive(isHardLocked && rightMax > 0);
+            if (rightMissileLockText != null && currentR > 0) rightMissileLockText.text = currentR.ToString();
+        }
     }
 
     private void ApplyAmmoAlpha(List<TextMeshProUGUI> textList, Color baseColor, float targetAlpha)
@@ -232,47 +297,5 @@ public class FCSLockBox : MonoBehaviour
                 txt.color = finalColor;
             }
         }
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.cyan;
-
-        Vector3 origin = transform.position;
-        if (Application.isPlaying && isPlayer && mainCamera != null)
-        {
-            origin = mainCamera.transform.position;
-        }
-        else if (!Application.isPlaying && isPlayer && mainCamera != null)
-        {
-            origin = mainCamera.transform.position;
-        }
-
-        float halfWidth = fcsWidth / 2f;
-        float halfHeight = fcsHeight / 2f;
-
-        Vector3 topLeftLocal = Quaternion.Euler(-halfHeight, -halfWidth, 0) * Vector3.forward * fcsRange;
-        Vector3 topRightLocal = Quaternion.Euler(-halfHeight, halfWidth, 0) * Vector3.forward * fcsRange;
-        Vector3 bottomLeftLocal = Quaternion.Euler(halfHeight, -halfWidth, 0) * Vector3.forward * fcsRange;
-        Vector3 bottomRightLocal = Quaternion.Euler(halfHeight, halfWidth, 0) * Vector3.forward * fcsRange;
-
-        Vector3 topLeftWorld = origin + transform.rotation * topLeftLocal;
-        Vector3 topRightWorld = origin + transform.rotation * topRightLocal;
-        Vector3 bottomLeftWorld = origin + transform.rotation * bottomLeftLocal;
-        Vector3 bottomRightWorld = origin + transform.rotation * bottomRightLocal;
-
-        Gizmos.DrawLine(origin, topLeftWorld);
-        Gizmos.DrawLine(origin, topRightWorld);
-        Gizmos.DrawLine(origin, bottomLeftWorld);
-        Gizmos.DrawLine(origin, bottomRightWorld);
-
-        Gizmos.DrawLine(topLeftWorld, topRightWorld);
-        Gizmos.DrawLine(topRightWorld, bottomRightWorld);
-        Gizmos.DrawLine(bottomRightWorld, bottomLeftWorld);
-        Gizmos.DrawLine(bottomLeftWorld, topLeftWorld);
-
-        Gizmos.color = new Color(0f, 1f, 1f, 0.2f);
-        Vector3 distanceOrigin = (aimMaster != null) ? aimMaster.position : transform.position;
-        Gizmos.DrawWireSphere(distanceOrigin, fcsRange);
     }
 }
