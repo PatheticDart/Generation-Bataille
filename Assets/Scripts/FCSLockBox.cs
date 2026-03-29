@@ -57,11 +57,11 @@ public class FCSLockBox : MonoBehaviour
     public bool isSoftLocked { get; private set; }
     public bool isHardLocked { get; private set; }
 
-    // --- PREDICTIVE AIMING DATA ---
     public Vector3 TargetVelocity { get; private set; }
     private Vector3 lastTargetPos;
 
-    // --- SEPARATED MISSILE TIMERS ---
+    // --- NEW: Separated Timers to prevent UI glitches ---
+    private float baseLockTimer = 0f;
     private float leftMissileTimer = 0f;
     private float rightMissileTimer = 0f;
 
@@ -78,7 +78,6 @@ public class FCSLockBox : MonoBehaviour
             reticleChildTexts = reticleUI.GetComponentsInChildren<TextMeshProUGUI>(true);
         }
 
-        // --- THE FIX: Hide the missile UI panels by default! ---
         if (isPlayer)
         {
             if (leftMissileLockUI != null) leftMissileLockUI.SetActive(false);
@@ -100,12 +99,9 @@ public class FCSLockBox : MonoBehaviour
         if (Time.deltaTime > 0f && currentTarget != null)
         {
             Vector3 rawVelocity = (currentTarget.position - lastTargetPos) / Time.deltaTime;
-            // Clamp against physics glitches that generate insane single-frame speeds
             if (rawVelocity.magnitude > 500f) rawVelocity = rawVelocity.normalized * 500f;
 
-            // Smooth the velocity to prevent weapon jitter
             TargetVelocity = Vector3.Lerp(TargetVelocity, rawVelocity, Time.deltaTime * 15f);
-
             lastTargetPos = currentTarget.position;
         }
         else
@@ -114,9 +110,25 @@ public class FCSLockBox : MonoBehaviour
         }
     }
 
+    // --- NEW: Checks if the specific side is active and not currently firing ---
+    public bool CanAcquireMissileLocks(bool isLeft)
+    {
+        if (weaponManager == null || weaponManager.weaponManager == null) return false;
+
+        bool isBackActive = isLeft ? weaponManager.leftBackActive : weaponManager.rightBackActive;
+        if (!isBackActive) return false;
+
+        FunctionalWeapon wep = weaponManager.weaponManager.GetWeapon(isLeft, 1);
+        if (wep == null || !(wep.GetWeaponData() is MissileLauncherPart)) return false;
+
+        if (wep is MissileArrayWeapon arrayWep && arrayWep.IsFiringBurst) return false;
+
+        return true;
+    }
+
     public int GetMissileLocks(bool isLeft, int maxLocks)
     {
-        if (!isHardLocked || maxLocks <= 0) return 0;
+        if (!isHardLocked || maxLocks <= 0 || !CanAcquireMissileLocks(isLeft)) return 0;
         float timer = isLeft ? leftMissileTimer : rightMissileTimer;
         return Mathf.Clamp(1 + Mathf.FloorToInt(timer / multiLockInterval), 1, maxLocks);
     }
@@ -130,6 +142,7 @@ public class FCSLockBox : MonoBehaviour
     public void ConsumeLocks()
     {
         isHardLocked = false;
+        baseLockTimer = 0f;
         leftMissileTimer = 0f;
         rightMissileTimer = 0f;
     }
@@ -189,25 +202,29 @@ public class FCSLockBox : MonoBehaviour
                 currentTarget = bestTarget;
                 isSoftLocked = true;
                 isHardLocked = false;
+                baseLockTimer = 0f;
                 leftMissileTimer = 0f;
                 rightMissileTimer = 0f;
                 lastTargetPos = currentTarget.position;
             }
             else
             {
-                float prevTimer = Mathf.Max(leftMissileTimer, rightMissileTimer);
-                float newTimer = prevTimer + Time.deltaTime;
-
-                if (newTimer >= lockSpeed)
+                if (!isHardLocked)
                 {
-                    isHardLocked = true;
-                    leftMissileTimer += Time.deltaTime;
-                    rightMissileTimer += Time.deltaTime;
+                    baseLockTimer += Time.deltaTime;
+                    if (baseLockTimer >= lockSpeed)
+                    {
+                        isHardLocked = true;
+                    }
                 }
                 else
                 {
-                    leftMissileTimer = newTimer;
-                    rightMissileTimer = newTimer;
+                    // --- NEW: Only accumulate locks if the weapon is ready and active! ---
+                    if (CanAcquireMissileLocks(true)) leftMissileTimer += Time.deltaTime;
+                    else leftMissileTimer = 0f;
+
+                    if (CanAcquireMissileLocks(false)) rightMissileTimer += Time.deltaTime;
+                    else rightMissileTimer = 0f;
                 }
             }
         }
@@ -216,6 +233,7 @@ public class FCSLockBox : MonoBehaviour
             currentTarget = null;
             isSoftLocked = false;
             isHardLocked = false;
+            baseLockTimer = 0f;
             leftMissileTimer = 0f;
             rightMissileTimer = 0f;
         }
@@ -282,7 +300,7 @@ public class FCSLockBox : MonoBehaviour
 
         if (leftMissileLockUI != null)
         {
-            bool showL = isHardLocked && leftMax > 0;
+            bool showL = isHardLocked && leftMax > 0 && CanAcquireMissileLocks(true);
             if (leftMissileLockUI.activeSelf != showL) leftMissileLockUI.SetActive(showL);
 
             if (showL && leftMissileLockText != null)
@@ -294,7 +312,7 @@ public class FCSLockBox : MonoBehaviour
 
         if (rightMissileLockUI != null)
         {
-            bool showR = isHardLocked && rightMax > 0;
+            bool showR = isHardLocked && rightMax > 0 && CanAcquireMissileLocks(false);
             if (rightMissileLockUI.activeSelf != showR) rightMissileLockUI.SetActive(showR);
 
             if (showR && rightMissileLockText != null)

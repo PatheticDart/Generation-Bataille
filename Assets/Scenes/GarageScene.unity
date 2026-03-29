@@ -4627,6 +4627,17 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!114 &550398087 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 85833473935521176, guid: 87f502632bef993498969963b3faa77b, type: 3}
+  m_PrefabInstance: {fileID: 7889212731696259941}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fff313398196926498b3f9061e47b8f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PopOutPanels
 --- !u!43 &673867180
 Mesh:
   m_ObjectHideFlags: 0
@@ -13520,6 +13531,34 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3132648312725732118, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3132648312725732118, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3132648312725732118, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 550398087}
+    - target: {fileID: 3132648312725732118, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3132648312725732118, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ToggleArenaPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 3132648312725732118, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: PopOutPanels, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 3132648312725732118, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 3447332215535825253, guid: 87f502632bef993498969963b3faa77b, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -13816,6 +13855,62 @@ PrefabInstance:
       propertyPath: cameraManager
       value: 
       objectReference: {fileID: 1258697904}
+    - target: {fileID: 7757008305335044337, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7757008305335044337, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7757008305335044337, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 550398087}
+    - target: {fileID: 7757008305335044337, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7757008305335044337, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ToggleArenaPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 7757008305335044337, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: PopOutPanels, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7757008305335044337, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 8065000375968974412, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8065000375968974412, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8065000375968974412, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 550398087}
+    - target: {fileID: 8065000375968974412, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8065000375968974412, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ToggleArenaPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 8065000375968974412, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: PopOutPanels, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 8065000375968974412, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 8903939565612223718, guid: 87f502632bef993498969963b3faa77b, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

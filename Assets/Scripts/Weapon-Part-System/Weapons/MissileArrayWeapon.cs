@@ -17,7 +17,9 @@ public class MissileArrayWeapon : FunctionalWeapon
     private float _nextFireTime = 0f;
     private float _nextStaggerTime = 0f;
 
-    private bool _isFiringBurst = false;
+    // --- NEW: Exposed so the FCS knows when to pause lock accumulation ---
+    public bool IsFiringBurst { get; private set; } = false;
+    
     private int _currentBarrelIndex = 0;
     private int _missilesToFireThisBurst = 0;
     private int _missilesFiredSoFar = 0;
@@ -39,7 +41,7 @@ public class MissileArrayWeapon : FunctionalWeapon
     {
         if (isReloading || _missileData == null) return;
 
-        if (!_isFiringBurst && Time.time >= _nextFireTime)
+        if (!IsFiringBurst && Time.time >= _nextFireTime)
         {
             if (currentResource > 0)
             {
@@ -48,13 +50,10 @@ public class MissileArrayWeapon : FunctionalWeapon
 
                 if (_fcs != null && _fcs.isHardLocked)
                 {
-                    // --- NEW: Ask the FCS for THIS weapon's specific lock count ---
                     bool isLeftWeapon = transform.parent.name.Contains("Left");
                     currentLocks = _fcs.GetMissileLocks(isLeftWeapon, _missileData.maxLocks);
-
+                    
                     _burstTarget = _fcs.currentTarget;
-
-                    // Consume only this weapon's lock timers!
                     _fcs.ConsumeMissileLocks(isLeftWeapon);
                 }
 
@@ -62,7 +61,7 @@ public class MissileArrayWeapon : FunctionalWeapon
 
                 if (_missilesToFireThisBurst > 0)
                 {
-                    _isFiringBurst = true;
+                    IsFiringBurst = true;
                     _missilesFiredSoFar = 0;
                     _currentBarrelIndex = 0;
                     _nextStaggerTime = Time.time;
@@ -78,14 +77,14 @@ public class MissileArrayWeapon : FunctionalWeapon
 
     private void Update()
     {
-        if (isReloading && _isFiringBurst)
+        if (isReloading && IsFiringBurst)
         {
-            _isFiringBurst = false;
+            IsFiringBurst = false;
             _nextFireTime = Time.time + (_missileData.firingInterval / 1000f);
             return;
         }
 
-        if (_isFiringBurst && Time.time >= _nextStaggerTime)
+        if (IsFiringBurst && Time.time >= _nextStaggerTime)
         {
             FireMissileFromCurrentTube();
 
@@ -95,7 +94,7 @@ public class MissileArrayWeapon : FunctionalWeapon
 
             if (_missilesFiredSoFar >= _missilesToFireThisBurst || currentResource <= 0)
             {
-                _isFiringBurst = false;
+                IsFiringBurst = false;
                 _nextFireTime = Time.time + (_missileData.firingInterval / 1000f);
             }
         }
