@@ -207,5 +207,5 @@ MonoBehaviour:
   hitMask:
     serializedVersion: 2
     m_Bits: 8384
-  explosionRadius: 5
+  explosionRadius: 230.68
   explosionForce: 500

@@ -320,4 +320,18 @@ public class MechAimController : MonoBehaviour
     {
         backNode.localRotation = Quaternion.Slerp(backNode.localRotation, Quaternion.identity, Time.deltaTime * aimSmoothSpeed);
     }
+
+    // --- NEW: ON DISABLE (DEATH LOGIC) ---
+    // When MechAnimator shuts this script off upon death, force the arms to stop overriding!
+    private void OnDisable()
+    {
+        if (leftArmSync != null) leftArmSync.overrideRotation = false;
+        if (leftLowerArmSync != null) leftLowerArmSync.overrideRotation = false;
+
+        if (rightArmSync != null) rightArmSync.overrideRotation = false;
+        if (rightLowerArmSync != null) rightLowerArmSync.overrideRotation = false;
+
+        // Force the torso weight to 0 immediately so it stops aiming
+        if (torsoAimConstraint != null) torsoAimConstraint.weight = 0f;
+    }
 }

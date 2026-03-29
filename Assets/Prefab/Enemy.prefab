@@ -12125,7 +12125,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArenaMechLoader
   partSystem: {fileID: 6482751215267176655}
   mechStats: {fileID: 4892868396162854129}
-  globalBaseMaterials: []
+  globalBaseMaterials:
+  - map: 0
+    material: {fileID: 2100000, guid: 790a98ff0c7d9d74183d4dd8b93c84e7, type: 2}
+  - map: 1
+    material: {fileID: 2100000, guid: 5596eddb18cd0654eb4d9ed3bc189e15, type: 2}
+  - map: 2
+    material: {fileID: 2100000, guid: b36ce978ff218a343a34a3f770cbc479, type: 2}
+  - map: 3
+    material: {fileID: 2100000, guid: d5ae22ebb1b5e464e8694cd0cd804edd, type: 2}
+  - map: 4
+    material: {fileID: 2100000, guid: 0eea8a76db9550f41b57e63bba120548, type: 2}
 --- !u!114 &2378307291731604742
 MonoBehaviour:
   m_ObjectHideFlags: 0
