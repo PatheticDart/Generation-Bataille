@@ -1371,45 +1371,6 @@ MonoBehaviour:
     emissionTexture: {fileID: 0}
   availableAlbedoTextures: []
   availableEmissionTextures: []
-  availableHeads:
-  - {fileID: 11400000, guid: fe8f5ec60a5f70d4282481dfe2c1234b, type: 2}
-  - {fileID: 11400000, guid: 98efda7a953f62f498d6ab09332e1353, type: 2}
-  availableTorsos:
-  - {fileID: 11400000, guid: 195905ff58a71ab4ba69ee55e47e8f72, type: 2}
-  - {fileID: 11400000, guid: 7d1850266530ef14487205653895dc65, type: 2}
-  availableArms:
-  - {fileID: 11400000, guid: 356e7e35596178c4cbdf8dce34909bb4, type: 2}
-  - {fileID: 11400000, guid: 8f9fbdac92749f64d8271b21d4b957fe, type: 2}
-  availableLegs:
-  - {fileID: 11400000, guid: a0d8e29c4862e41478ca49b626fd2b0a, type: 2}
-  - {fileID: 11400000, guid: f3dc03589331be143989088c3c117b03, type: 2}
-  availableBoosters:
-  - {fileID: 11400000, guid: 1c8d2caafb3720747b479e3ddd849fe0, type: 2}
-  - {fileID: 11400000, guid: 2c770737123d062479e6fd9ac69f1601, type: 2}
-  availableGenerators:
-  - {fileID: 11400000, guid: e9b2c84c5a524024aa244a613764a137, type: 2}
-  - {fileID: 11400000, guid: 9c2ef2d4398725f4eb1d81dae3beddef, type: 2}
-  - {fileID: 11400000, guid: 854d4e2340fd9174e9ebe42d9baa92f0, type: 2}
-  availableFCS:
-  - {fileID: 11400000, guid: fb6366968963ba64d88bb76b136b9171, type: 2}
-  availableLeftArmWeapons:
-  - {fileID: 11400000, guid: 1e2bad12e4455b44595852a57f867586, type: 2}
-  - {fileID: 11400000, guid: 21d28d17156617044a9f5c13492092e1, type: 2}
-  - {fileID: 11400000, guid: 7769537fa209c154cabcbc2006da6c34, type: 2}
-  - {fileID: 11400000, guid: 96822680f477cfb48a6a17d1fefb3b77, type: 2}
-  availableRightArmWeapons:
-  - {fileID: 11400000, guid: 1e2bad12e4455b44595852a57f867586, type: 2}
-  - {fileID: 11400000, guid: 21d28d17156617044a9f5c13492092e1, type: 2}
-  - {fileID: 11400000, guid: 7769537fa209c154cabcbc2006da6c34, type: 2}
-  - {fileID: 11400000, guid: 96822680f477cfb48a6a17d1fefb3b77, type: 2}
-  availableLeftBackWeapons:
-  - {fileID: 11400000, guid: e9ad598c56a310f40b997fccc01a3904, type: 2}
-  - {fileID: 11400000, guid: 144db7560c2785d4c8d552a9a7c0eb81, type: 2}
-  - {fileID: 11400000, guid: 5ac209751e713144c9fa3a1332ad4ec4, type: 2}
-  availableRightBackWeapons:
-  - {fileID: 11400000, guid: e9ad598c56a310f40b997fccc01a3904, type: 2}
-  - {fileID: 11400000, guid: 144db7560c2785d4c8d552a9a7c0eb81, type: 2}
-  - {fileID: 11400000, guid: 5ac209751e713144c9fa3a1332ad4ec4, type: 2}
 --- !u!114 &7173920421151748999
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1762,7 +1723,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5501302221097283315
 Transform:
   m_ObjectHideFlags: 0
@@ -1771,8 +1732,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7987671600669320466}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.0000000066495227, y: 0.98836154, z: -0.15212338, w: 0.000000043202643}
-  m_LocalPosition: {x: 0.0000013668372, y: 2.652131, z: 25.305756}
+  m_LocalRotation: {x: 0.15212339, y: 0, z: 0, w: 0.98836154}
+  m_LocalPosition: {x: 0.000002617486, y: 2.652131, z: -3.3057556}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2080,7 +2041,7 @@ Transform:
   m_GameObject: {fileID: 8365750763002893324}
   serializedVersion: 2
   m_LocalRotation: {x: 0.15212335, y: 0, z: 0, w: 0.98836154}
-  m_LocalPosition: {x: 0.000002617486, y: -0.35492802, z: 6.2314143}
+  m_LocalPosition: {x: 0.000002617486, y: 2.652131, z: -3.3057556}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

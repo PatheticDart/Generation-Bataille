@@ -3,59 +3,108 @@ using System.Collections.Generic;
 
 public class GarageLoader : MonoBehaviour
 {
-    // --- THE PERSISTENT LOADOUT ---
     public static Dictionary<PartType, Part> ActiveLoadout = new Dictionary<PartType, Part>();
 
     [Header("System Reference")]
     public PartSystem partSystem;
-
-    [Header("Master Base Materials")]
     public BaseMaterialSetup[] globalBaseMaterials;
-
-    // Kept exactly as requested so MechCardManager can access it normally
     public PlayerPaint[] globalPaintJob;
 
     [Header("Available Patterns & Decals")]
     public List<Texture2D> availableAlbedoTextures;
     public List<Texture2D> availableEmissionTextures;
 
-    [Header("Available Parts Inventory")]
-    public List<HeadPart> availableHeads;
-    public List<TorsoPart> availableTorsos;
-    public List<ArmPart> availableArms;
-    public List<LegPart> availableLegs;
-    public List<Booster> availableBoosters;
-    public List<Generator> availableGenerators;
-    public List<FCSPart> availableFCS;
+    // --- INVENTORY REFERENCES ---
+    public List<HeadPart> availableHeads => PlayerInventoryManager.Instance.ownedHeads;
+    public List<TorsoPart> availableTorsos => PlayerInventoryManager.Instance.ownedTorsos;
+    public List<ArmPart> availableArms => PlayerInventoryManager.Instance.ownedArms;
+    public List<LegPart> availableLegs => PlayerInventoryManager.Instance.ownedLegs;
+    public List<Booster> availableBoosters => PlayerInventoryManager.Instance.ownedBoosters;
+    public List<Generator> availableGenerators => PlayerInventoryManager.Instance.ownedGenerators;
+    public List<FCSPart> availableFCS => PlayerInventoryManager.Instance.ownedFCS;
+    public List<WeaponPart> allAvailableWeapons => PlayerInventoryManager.Instance.ownedWeapons;
 
-    [Header("Available Weapons")]
-    public List<WeaponPart> availableLeftArmWeapons;
-    public List<WeaponPart> availableRightArmWeapons;
-    public List<WeaponPart> availableLeftBackWeapons;
-    public List<WeaponPart> availableRightBackWeapons;
-
-    void Start()
+    public void InitializeStartupMech()
     {
-        if (ActiveLoadout.Count == 0) LoadDefaultMech();
-        else RefreshVisualMech();
+        ValidateLoadout();
+        RefreshVisualMech();
     }
 
-    private void LoadDefaultMech()
+    private void ValidateLoadout()
     {
-        if (availableHeads.Count > 0) ActiveLoadout[PartType.Head] = availableHeads[0];
-        if (availableTorsos.Count > 0) ActiveLoadout[PartType.Torso] = availableTorsos[0];
-        if (availableArms.Count > 0) ActiveLoadout[PartType.Arms] = availableArms[0];
-        if (availableLegs.Count > 0) ActiveLoadout[PartType.Legs] = availableLegs[0];
-        if (availableBoosters.Count > 0) ActiveLoadout[PartType.Booster] = availableBoosters[0];
-        if (availableGenerators.Count > 0) ActiveLoadout[PartType.Generator] = availableGenerators[0];
-        if (availableFCS.Count > 0) ActiveLoadout[PartType.FCS] = availableFCS[0];
+        if (PlayerInventoryManager.Instance == null)
+        {
+            Debug.LogError("GarageLoader needs PlayerInventoryManager in the scene to load parts!");
+            return;
+        }
 
-        if (availableLeftArmWeapons.Count > 0) ActiveLoadout[PartType.ArmL] = availableLeftArmWeapons[0];
-        if (availableRightArmWeapons.Count > 0) ActiveLoadout[PartType.ArmR] = availableRightArmWeapons[0];
-        if (availableLeftBackWeapons.Count > 0) ActiveLoadout[PartType.BackL] = availableLeftBackWeapons[0];
-        if (availableRightBackWeapons.Count > 0) ActiveLoadout[PartType.BackR] = availableRightBackWeapons[0];
+        // Helper to check standard body parts
+        void CheckAndEquipDefault<T>(PartType slot, List<T> inventory) where T : Part
+        {
+            // If the part is missing, null, or NOT owned by the player, overwrite it with the default
+            if (!ActiveLoadout.TryGetValue(slot, out Part currentPart) || currentPart == null || !PlayerInventoryManager.Instance.IsPartOwned(currentPart))
+            {
+                if (inventory.Count > 0) ActiveLoadout[slot] = inventory[0];
+                else ActiveLoadout.Remove(slot); // Strip it if no default exists
+            }
+        }
 
-        RefreshVisualMech();
+        // Helper to check weapons (uses the WeaponLocation flags)
+        void CheckAndEquipDefaultWeapon(PartType slot, WeaponLocation location)
+        {
+            if (!ActiveLoadout.TryGetValue(slot, out Part currentPart) || currentPart == null || !PlayerInventoryManager.Instance.IsPartOwned(currentPart))
+            {
+                WeaponPart defaultWeapon = GetFirstValidWeapon(location);
+                if (defaultWeapon != null) ActiveLoadout[slot] = defaultWeapon;
+                else ActiveLoadout.Remove(slot);
+            }
+        }
+
+        // 1. Validate Body Parts
+        CheckAndEquipDefault(PartType.Head, availableHeads);
+        CheckAndEquipDefault(PartType.Torso, availableTorsos);
+        CheckAndEquipDefault(PartType.Arms, availableArms);
+        CheckAndEquipDefault(PartType.Legs, availableLegs);
+        CheckAndEquipDefault(PartType.Booster, availableBoosters);
+        CheckAndEquipDefault(PartType.Generator, availableGenerators);
+        CheckAndEquipDefault(PartType.FCS, availableFCS);
+
+        // 2. Validate Weapons
+        CheckAndEquipDefaultWeapon(PartType.ArmL, WeaponLocation.ArmL);
+        CheckAndEquipDefaultWeapon(PartType.ArmR, WeaponLocation.ArmR);
+        CheckAndEquipDefaultWeapon(PartType.BackL, WeaponLocation.BackL);
+        CheckAndEquipDefaultWeapon(PartType.BackR, WeaponLocation.BackR);
+    }
+
+    // --- HELPER METHODS FOR INGAME ALLOCATION & UI ---
+
+    public List<WeaponPart> GetValidWeaponsForSlot(WeaponLocation targetLocation)
+    {
+        List<WeaponPart> validWeapons = new List<WeaponPart>();
+        if (allAvailableWeapons == null) return validWeapons;
+
+        foreach (WeaponPart weapon in allAvailableWeapons)
+        {
+            if (weapon.allowedLocations.HasFlag(targetLocation))
+            {
+                validWeapons.Add(weapon);
+            }
+        }
+        return validWeapons;
+    }
+
+    private WeaponPart GetFirstValidWeapon(WeaponLocation targetLocation)
+    {
+        if (allAvailableWeapons == null) return null;
+
+        foreach (WeaponPart weapon in allAvailableWeapons)
+        {
+            if (weapon.allowedLocations.HasFlag(targetLocation))
+            {
+                return weapon;
+            }
+        }
+        return null;
     }
 
     public void EquipPart(PartType slot, Part newPart)
@@ -96,7 +145,6 @@ public class GarageLoader : MonoBehaviour
             {
                 if (i < globalPaintJob.Length)
                 {
-                    // --- THE BUG FIX: Force Inspector Colors to be 100% Solid ---
                     Color safeAlbedo = globalPaintJob[i].albedoColor;
                     safeAlbedo.a = 1f;
 

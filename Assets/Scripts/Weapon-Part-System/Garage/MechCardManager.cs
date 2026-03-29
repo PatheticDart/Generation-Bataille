@@ -5,7 +5,6 @@ using System.Text;
 using UnityEngine;
 using NaughtyAttributes;
 
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -135,10 +134,11 @@ public class MechCardManager : MonoBehaviour
             genIdx     = active.ContainsKey(PartType.Generator) ? garageLoader.availableGenerators.IndexOf((Generator)active[PartType.Generator]) : -1,
             fcsIdx     = active.ContainsKey(PartType.FCS) ? garageLoader.availableFCS.IndexOf((FCSPart)active[PartType.FCS]) : -1,
 
-            armLIdx  = active.ContainsKey(PartType.ArmL) ? garageLoader.availableLeftArmWeapons.IndexOf((WeaponPart)active[PartType.ArmL]) : -1,
-            armRIdx  = active.ContainsKey(PartType.ArmR) ? garageLoader.availableRightArmWeapons.IndexOf((WeaponPart)active[PartType.ArmR]) : -1,
-            backLIdx = active.ContainsKey(PartType.BackL) ? garageLoader.availableLeftBackWeapons.IndexOf((WeaponPart)active[PartType.BackL]) : -1,
-            backRIdx = active.ContainsKey(PartType.BackR) ? garageLoader.availableRightBackWeapons.IndexOf((WeaponPart)active[PartType.BackR]) : -1,
+            // --- UPDATED: Now looks at the unified allAvailableWeapons list ---
+            armLIdx  = active.ContainsKey(PartType.ArmL) ? garageLoader.allAvailableWeapons.IndexOf((WeaponPart)active[PartType.ArmL]) : -1,
+            armRIdx  = active.ContainsKey(PartType.ArmR) ? garageLoader.allAvailableWeapons.IndexOf((WeaponPart)active[PartType.ArmR]) : -1,
+            backLIdx = active.ContainsKey(PartType.BackL) ? garageLoader.allAvailableWeapons.IndexOf((WeaponPart)active[PartType.BackL]) : -1,
+            backRIdx = active.ContainsKey(PartType.BackR) ? garageLoader.allAvailableWeapons.IndexOf((WeaponPart)active[PartType.BackR]) : -1,
             
             paintJobs = new List<SavedPaint>()
         };
@@ -235,10 +235,11 @@ public class MechCardManager : MonoBehaviour
         TryEquip(PartType.Generator, data.genIdx, garageLoader.availableGenerators);
         TryEquip(PartType.FCS, data.fcsIdx, garageLoader.availableFCS);
 
-        TryEquip(PartType.ArmL, data.armLIdx, garageLoader.availableLeftArmWeapons);
-        TryEquip(PartType.ArmR, data.armRIdx, garageLoader.availableRightArmWeapons);
-        TryEquip(PartType.BackL, data.backLIdx, garageLoader.availableLeftBackWeapons);
-        TryEquip(PartType.BackR, data.backRIdx, garageLoader.availableRightBackWeapons);
+        // --- UPDATED: Now equips weapons strictly from the unified allAvailableWeapons list ---
+        TryEquip(PartType.ArmL, data.armLIdx, garageLoader.allAvailableWeapons);
+        TryEquip(PartType.ArmR, data.armRIdx, garageLoader.allAvailableWeapons);
+        TryEquip(PartType.BackL, data.backLIdx, garageLoader.allAvailableWeapons);
+        TryEquip(PartType.BackR, data.backRIdx, garageLoader.allAvailableWeapons);
 
         if (data.paintJobs != null && data.paintJobs.Count > 0)
         {
