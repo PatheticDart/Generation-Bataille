@@ -33,7 +33,7 @@ public class MatchManager : MonoBehaviour
         // --- AUTO-FIND PLAYER ---
         if (playerBrain == null)
             playerBrain = FindObjectOfType<PlayerBrain>();
-            
+
         if (playerBrain != null)
         {
             if (playerStats == null) playerStats = playerBrain.GetComponent<MechStats>();
@@ -46,7 +46,7 @@ public class MatchManager : MonoBehaviour
         // --- AUTO-FIND AI ---
         if (aiBrain == null)
             aiBrain = FindObjectOfType<PrototypeAIBrain>();
-            
+
         if (aiBrain != null)
         {
             if (aiStats == null) aiStats = aiBrain.GetComponent<MechStats>();
@@ -110,11 +110,11 @@ public class MatchManager : MonoBehaviour
         // Display the countdown
         while (timer > 0)
         {
-            if (matchText != null) 
+            if (matchText != null)
             {
                 matchText.text = Mathf.CeilToInt(timer).ToString();
             }
-            
+
             timer -= Time.deltaTime;
             yield return null;
         }
@@ -161,13 +161,25 @@ public class MatchManager : MonoBehaviour
         StartCoroutine(MatchEndRoutine());
     }
 
+    // (Inside MatchManager.cs) Replace your existing RewardPlayerCredits method with this:
+
     private void RewardPlayerCredits()
     {
-        // TODO: Implement your credit rewarding logic here!
-        // Example: 
-        // int rewardAmount = 5000;
-        // GameManager.Instance.AddCredits(rewardAmount);
-        // Debug.Log($"Player won! Rewarded {rewardAmount} credits.");
+        int rewardAmount = 20000;
+
+        if (PlayerInventoryManager.Instance != null)
+        {
+            PlayerInventoryManager.Instance.AddCredits(rewardAmount);
+
+            // Ensure winnings are saved to the hard drive immediately!
+            PlayerInventoryManager.Instance.SaveInventory();
+
+            Debug.Log($"Player won! Rewarded {rewardAmount} credits. Total is now: {PlayerInventoryManager.Instance.currentCredits}");
+        }
+        else
+        {
+            Debug.LogError("MatchManager could not find PlayerInventoryManager to award credits!");
+        }
     }
 
     private IEnumerator MatchEndRoutine()

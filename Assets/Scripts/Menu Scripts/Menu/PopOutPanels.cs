@@ -3,33 +3,33 @@ using UnityEngine;
 public class PopOutPanels : MonoBehaviour
 {
     [Header("Main Hub")]
-    public GameObject mainHubPanel; // The main screen with Customize, Shop, Arena, etc.
+    public GameObject mainHubPanel;
 
     [Header("Pop-out Panels")]
     public GameObject customizePopOut;
     public GameObject shopPopOut;
-    public GameObject arenaPopOut; // --- NEW: Added Arena Pop-Out Reference ---
+    public GameObject arenaPopOut;
 
     [Header("Full Screen Menus")]
     public GameObject assemblyScreen;
-    public GameObject paintScreen; // --- NEW: Added Paint Screen Reference ---
-    public GameObject arenaScreen; // --- NEW: Added Arena Screen Reference ---
+    public GameObject paintScreen;
+    public GameObject arenaScreen;
 
+    [Header("Shop Integration")]
+    public GameObject shopScreen; // --- NEW: Drag your main Shop panel here
+    public ShopUI shopUI;         // --- NEW: Drag the object with the ShopUI script here
 
     private void Start()
     {
-        // Ensure we start in a clean state
         ReturnToMainHub();
     }
 
-    // --- POP-OUT TOGGLES ---
     public void ToggleCustomizePanel()
     {
         if (customizePopOut != null)
         {
             bool isOpening = !customizePopOut.activeSelf;
             customizePopOut.SetActive(isOpening);
-
             if (isOpening && shopPopOut != null) shopPopOut.SetActive(false);
         }
     }
@@ -40,97 +40,71 @@ public class PopOutPanels : MonoBehaviour
         {
             bool isOpening = !shopPopOut.activeSelf;
             shopPopOut.SetActive(isOpening);
-
             if (isOpening && customizePopOut != null) customizePopOut.SetActive(false);
         }
     }
 
     public void ToggleArenaPanel()
     {
-       if (arenaPopOut != null)
-       {
+        if (arenaPopOut != null)
+        {
             bool isOpening = !arenaPopOut.activeSelf;
             arenaPopOut.SetActive(isOpening);
-       }
+        }
+    }
+
+    // --- NEW: SHOP ROUTING ---
+    public void OpenShopBuyMode()
+    {
+        CloseAllPopOutsAndScreens();
+        shopScreen.SetActive(true);
+        if (shopUI != null) shopUI.OpenBuyMenu();
+    }
+
+    public void OpenShopSellMode()
+    {
+        CloseAllPopOutsAndScreens();
+        shopScreen.SetActive(true);
+        if (shopUI != null) shopUI.OpenSellMenu();
     }
 
     // --- SCREEN ROUTING ---
-
-    // Link this to the "ASSEMBLY" button inside your Customize Pop-Out
     public void OpenAssemblyScreen()
     {
-        mainHubPanel.SetActive(false);
-
-        // Safely close the pop-out only if it is currently open
-        if (customizePopOut != null && customizePopOut.activeSelf) ToggleCustomizePanel();
-
-        if (paintScreen != null) paintScreen.SetActive(false); // Safety catch
+        CloseAllPopOutsAndScreens();
         assemblyScreen.SetActive(true);
     }
 
-    public void CloseAssemblyScreen()
+    public void OpenPaintScreen()
     {
-        assemblyScreen.SetActive(false);
-
-        // Re-open the customize pop-out when backing out
-        if (customizePopOut != null && !customizePopOut.activeSelf) ToggleCustomizePanel();
-
-        mainHubPanel.SetActive(true);
+        CloseAllPopOutsAndScreens();
+        paintScreen.SetActive(true);
     }
 
     public void OpenArenaScreen()
     {
-        mainHubPanel.SetActive(false);
-        if (arenaPopOut != null) arenaScreen.SetActive(true);
-        if (arenaPopOut != null && arenaPopOut.activeSelf) ToggleArenaPanel(); // Safety catch
-        if (customizePopOut != null && customizePopOut.activeSelf) ToggleCustomizePanel(); // Safety catch
-        if (shopPopOut != null && shopPopOut.activeSelf) ToggleShopPanel(); // Safety catch
-    }
-
-    public void CloseArenaScreen()
-    {
-        if (arenaScreen != null) arenaScreen.SetActive(false);
-        mainHubPanel.SetActive(true);
-    }
-
-    // --- NEW: PAINT SCREEN ROUTING ---
-
-    // Link this to the "PAINT" button inside your Customize Pop-Out
-    public void OpenPaintScreen()
-    {
-        mainHubPanel.SetActive(false);
-
-        // Safely close the pop-out only if it is currently open
-        if (customizePopOut != null && customizePopOut.activeSelf) ToggleCustomizePanel();
-
-        if (assemblyScreen != null) assemblyScreen.SetActive(false); // Safety catch
-        paintScreen.SetActive(true);
-    }
-
-    public void ClosePaintScreen()
-    {
-        paintScreen.SetActive(false);
-
-        // Re-open the customize pop-out when backing out
-        if (customizePopOut != null && !customizePopOut.activeSelf) ToggleCustomizePanel();
-
-        mainHubPanel.SetActive(true);
+        CloseAllPopOutsAndScreens();
+        if (arenaScreen != null) arenaScreen.SetActive(true);
     }
 
     // --- MASTER RESET ---
-
-    // Link this to a hard "BACK" button if you want to bypass the pop-out and just go straight to the hub
     public void ReturnToMainHub()
     {
-        if (assemblyScreen != null) assemblyScreen.SetActive(false);
-        if (paintScreen != null) paintScreen.SetActive(false); // --- NEW: Hide paint screen ---
-        if (arenaScreen != null) arenaScreen.SetActive(false); // --- NEW: Hide arena screen ---
-
+        CloseAllPopOutsAndScreens();
         mainHubPanel.SetActive(true);
+    }
 
-        // Hide pop-outs when returning
+    private void CloseAllPopOutsAndScreens()
+    {
+        mainHubPanel.SetActive(false);
+
         if (customizePopOut != null) customizePopOut.SetActive(false);
         if (shopPopOut != null) shopPopOut.SetActive(false);
         if (arenaPopOut != null) arenaPopOut.SetActive(false);
+
+        if (assemblyScreen != null) assemblyScreen.SetActive(false);
+        if (paintScreen != null) paintScreen.SetActive(false);
+        if (arenaScreen != null) arenaScreen.SetActive(false);
+        if (shopScreen != null) shopScreen.SetActive(false);
     }
 }

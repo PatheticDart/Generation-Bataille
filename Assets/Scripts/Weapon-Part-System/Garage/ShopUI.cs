@@ -14,17 +14,23 @@ public class ShopUI : MonoBehaviour
     public MechShopManager shopManager;
     public GarageLoader garageLoader;
     public GarageCameraManager cameraManager;
-    
+
     [Header("UI Text Fields")]
     public TextMeshProUGUI categoryTitleText;
     public TextMeshProUGUI playerCreditsText;
-    
-    [Header("Purchase Panel")]
+
+    [Header("Action Panel")]
     public Button masterBuyButton;
     public TextMeshProUGUI buyButtonText;
 
+    [Header("Mode Toggles")]
+    public Button buyModeButton;
+    public Button sellModeButton;
+    public Color activeModeColor = Color.white;
+    public Color inactiveModeColor = new Color(0.5f, 0.5f, 0.5f, 1f);
+
     [Header("Button Spawning")]
-    public GameObject shopButtonPrefab; 
+    public GameObject shopButtonPrefab;
     public Transform buttonContainer;
 
     private ShopCategory[] categoryOrder = new ShopCategory[]
@@ -35,33 +41,81 @@ public class ShopUI : MonoBehaviour
 
     private int currentCategoryIndex = 0;
 
-    // --- PREVIEW STATE TRACKING ---
     private Part _previewedPart = null;
     private PartType _previewSlot;
     private Part _originalPartInSlot = null;
+    public bool isSellMode = false;
+
+    private bool _isShuttingDown = false;
 
     void Start()
     {
-        // Hook up the master buy button
-        if (masterBuyButton != null)
+        if (masterBuyButton != null) masterBuyButton.onClick.AddListener(ExecuteAction);
+
+        if (buyModeButton != null) buyModeButton.onClick.AddListener(() => SetShopMode(false));
+        if (sellModeButton != null) sellModeButton.onClick.AddListener(() => SetShopMode(true));
+    }
+
+    // --- NEW: Block Missing Reference Exceptions during scene unloads ---
+    private void OnApplicationQuit() { _isShuttingDown = true; }
+    private void OnDestroy() { _isShuttingDown = true; }
+
+    private void OnEnable()
+    {
+        // 1. AUTO-REASSIGN REFERENCES
+        // If we lost our managers due to a scene reload, find them again instantly.
+        if (shopManager == null) shopManager = Object.FindFirstObjectByType<MechShopManager>();
+        if (garageLoader == null) garageLoader = Object.FindFirstObjectByType<GarageLoader>();
+        if (cameraManager == null) cameraManager = Object.FindFirstObjectByType<GarageCameraManager>();
+
+        if (shopManager != null && PlayerInventoryManager.Instance != null)
         {
-            masterBuyButton.onClick.AddListener(ExecutePurchase);
+            UpdateCategoryDisplay();
         }
-        
+    }
+
+    private void OnDisable()
+    {
+        // If the game is closing, or the scene is actively unloading, DO NOT touch the mech!
+        if (_isShuttingDown || !gameObject.scene.isLoaded) return;
+        if (garageLoader == null) return;
+
+        try
+        {
+            RestoreOriginalLoadout();
+            ClearPreviewState();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning("ShopUI suppressed a preview restore error during transition: " + e.Message);
+        }
+    }
+
+    public void OpenBuyMenu()
+    {
+        SetShopMode(false);
+    }
+
+    public void OpenSellMenu()
+    {
+        SetShopMode(true);
+    }
+
+    public void SetShopMode(bool toSellMode)
+    {
+        isSellMode = toSellMode;
+
+        if (buyModeButton != null) buyModeButton.image.color = !isSellMode ? activeModeColor : inactiveModeColor;
+        if (sellModeButton != null) sellModeButton.image.color = isSellMode ? activeModeColor : inactiveModeColor;
+
+        RestoreOriginalLoadout();
         ClearPreviewState();
         UpdateCategoryDisplay();
     }
 
-    // Call this if the player closes the shop menu!
-    public void OnCloseShop()
-    {
-        RestoreOriginalLoadout();
-        ClearPreviewState();
-    }
-
     public void NextCategory()
     {
-        RestoreOriginalLoadout(); // Put original part back before switching tabs
+        RestoreOriginalLoadout();
         currentCategoryIndex++;
         if (currentCategoryIndex >= categoryOrder.Length) currentCategoryIndex = 0;
         UpdateCategoryDisplay();
@@ -78,34 +132,31 @@ public class ShopUI : MonoBehaviour
     private void UpdateCategoryDisplay()
     {
         ShopCategory currentType = categoryOrder[currentCategoryIndex];
-        categoryTitleText.text = currentType.ToString().ToUpper();
-        
-        ClearPreviewState(); // Reset the buy button
+        if (categoryTitleText != null) categoryTitleText.text = currentType.ToString().ToUpper();
 
-        if (PlayerInventoryManager.Instance != null)
+        ClearPreviewState();
+
+        if (PlayerInventoryManager.Instance != null && playerCreditsText != null)
         {
             playerCreditsText.text = $"CREDITS: {PlayerInventoryManager.Instance.currentCredits:N0}";
         }
 
-        // --- CAMERA PANNING ---
         if (cameraManager != null)
         {
-            // Map the shop category to the closest PartType for the camera to look at
-            PartType cameraTarget = MapCategoryToPartType(currentType);
-            cameraManager.SwitchCameraForPartCategory(cameraTarget);
+            cameraManager.SwitchCameraForPartCategory(MapCategoryToPartType(currentType));
         }
 
         foreach (Transform child in buttonContainer) Destroy(child.gameObject);
 
-        List<Part> unpurchasedParts = GetUnpurchasedPartsForCategory(currentType);
-        if (unpurchasedParts == null || unpurchasedParts.Count == 0) return;
+        List<Part> partsToShow = GetPartsToDisplay(currentType);
+        if (partsToShow == null || partsToShow.Count == 0) return;
 
-        foreach (Part partData in unpurchasedParts)
+        foreach (Part partData in partsToShow)
         {
             GameObject newBtnObj = Instantiate(shopButtonPrefab, buttonContainer);
             TextMeshProUGUI btnText = newBtnObj.GetComponentInChildren<TextMeshProUGUI>();
-            
-            if (btnText != null) 
+
+            if (btnText != null)
             {
                 string displayName = string.IsNullOrEmpty(partData.partName) ? partData.name : partData.partName;
                 btnText.text = $"{displayName}";
@@ -115,55 +166,73 @@ public class ShopUI : MonoBehaviour
             if (btn != null)
             {
                 Part partToSelect = partData;
-                btn.onClick.AddListener(() =>
-                {
-                    SelectAndPreviewPart(currentType, partToSelect);
-                });
+                btn.onClick.AddListener(() => SelectAndPreviewPart(currentType, partToSelect));
             }
         }
     }
 
-    // --- PREVIEW & PURCHASE LOGIC ---
-
     private void SelectAndPreviewPart(ShopCategory category, Part part)
     {
-        RestoreOriginalLoadout(); // Revert the last thing they previewed
+        RestoreOriginalLoadout();
 
         _previewedPart = part;
         _previewSlot = MapCategoryToPartType(category, part);
 
-        // Save what they currently have equipped in this slot
         GarageLoader.ActiveLoadout.TryGetValue(_previewSlot, out _originalPartInSlot);
 
-        // Force GarageLoader to wear the preview item
         if (garageLoader != null)
         {
             garageLoader.EquipPart(_previewSlot, part);
-            
-            // Refocus camera to account for size changes (like a tall head or long gun)
             if (cameraManager != null) cameraManager.SwitchCameraForPartCategory(_previewSlot);
         }
 
-        // Update the Master Buy Button
-        if (masterBuyButton != null && buyButtonText != null)
+        UpdateActionButtonState();
+    }
+
+    private void UpdateActionButtonState()
+    {
+        if (masterBuyButton == null || buyButtonText == null) return;
+
+        if (_previewedPart == null)
         {
-            masterBuyButton.interactable = PlayerInventoryManager.Instance.HasEnoughCredits(part.price);
-            buyButtonText.text = $"Purchase\n({part.price:N0} C)";
+            masterBuyButton.interactable = false;
+            buyButtonText.text = isSellMode ? "SELECT TO SELL" : "SELECT AN ITEM";
+            return;
+        }
+
+        if (isSellMode)
+        {
+            masterBuyButton.interactable = true;
+            buyButtonText.text = $"SELL (+{_previewedPart.price:N0} C)";
+        }
+        else
+        {
+            bool canAfford = PlayerInventoryManager.Instance.HasEnoughCredits(_previewedPart.price);
+            masterBuyButton.interactable = canAfford;
+            buyButtonText.text = canAfford ? $"BUY ({_previewedPart.price:N0} C)" : $"NOT ENOUGH ({_previewedPart.price:N0} C)";
         }
     }
 
-    private void ExecutePurchase()
+    private void ExecuteAction()
     {
         if (_previewedPart == null || shopManager == null) return;
 
-        shopManager.AttemptPurchase(_previewedPart);
-
-        // If successful, the preview part becomes their new permanent original part!
-        if (PlayerInventoryManager.Instance.IsPartOwned(_previewedPart))
+        if (isSellMode)
         {
-            _originalPartInSlot = _previewedPart; 
-            UpdateCategoryDisplay(); // Refresh list so it disappears
+            shopManager.AttemptSell(_previewedPart);
+            _originalPartInSlot = null;
         }
+        else
+        {
+            shopManager.AttemptPurchase(_previewedPart);
+            if (PlayerInventoryManager.Instance.IsPartOwned(_previewedPart))
+            {
+                _originalPartInSlot = _previewedPart;
+            }
+        }
+
+        PlayerInventoryManager.Instance.SaveInventory();
+        UpdateCategoryDisplay();
     }
 
     private void RestoreOriginalLoadout()
@@ -173,7 +242,7 @@ public class ShopUI : MonoBehaviour
             if (_originalPartInSlot != null)
                 garageLoader.EquipPart(_previewSlot, _originalPartInSlot);
             else
-                GarageLoader.ActiveLoadout.Remove(_previewSlot); // If slot was originally empty
+                GarageLoader.ActiveLoadout.Remove(_previewSlot);
         }
     }
 
@@ -181,15 +250,8 @@ public class ShopUI : MonoBehaviour
     {
         _previewedPart = null;
         _originalPartInSlot = null;
-        
-        if (masterBuyButton != null && buyButtonText != null)
-        {
-            masterBuyButton.interactable = false;
-            buyButtonText.text = "SELECT AN ITEM";
-        }
+        UpdateActionButtonState();
     }
-
-    // --- HELPER ROUTING ---
 
     private PartType MapCategoryToPartType(ShopCategory category, Part specificPart = null)
     {
@@ -203,7 +265,6 @@ public class ShopUI : MonoBehaviour
             case ShopCategory.Generator: return PartType.Generator;
             case ShopCategory.FCS: return PartType.FCS;
             case ShopCategory.Weapons:
-                // For weapons, check where it is allowed to mount so we preview it in a valid spot
                 if (specificPart is WeaponPart weapon)
                 {
                     if (weapon.allowedLocations.HasFlag(WeaponLocation.ArmR)) return PartType.ArmR;
@@ -211,12 +272,29 @@ public class ShopUI : MonoBehaviour
                     if (weapon.allowedLocations.HasFlag(WeaponLocation.BackR)) return PartType.BackR;
                     if (weapon.allowedLocations.HasFlag(WeaponLocation.BackL)) return PartType.BackL;
                 }
-                return PartType.ArmR; // Fallback for the camera
+                return PartType.ArmR;
             default: return PartType.Torso;
         }
     }
 
-    private List<Part> GetUnpurchasedPartsForCategory(ShopCategory category)
+    private int GetOwnedCountForCategory(ShopCategory category)
+    {
+        if (PlayerInventoryManager.Instance == null) return 0;
+        switch (category)
+        {
+            case ShopCategory.Head: return PlayerInventoryManager.Instance.ownedHeads.Count;
+            case ShopCategory.Torso: return PlayerInventoryManager.Instance.ownedTorsos.Count;
+            case ShopCategory.Arms: return PlayerInventoryManager.Instance.ownedArms.Count;
+            case ShopCategory.Legs: return PlayerInventoryManager.Instance.ownedLegs.Count;
+            case ShopCategory.Booster: return PlayerInventoryManager.Instance.ownedBoosters.Count;
+            case ShopCategory.Generator: return PlayerInventoryManager.Instance.ownedGenerators.Count;
+            case ShopCategory.FCS: return PlayerInventoryManager.Instance.ownedFCS.Count;
+            case ShopCategory.Weapons: return PlayerInventoryManager.Instance.ownedWeapons.Count;
+            default: return 0;
+        }
+    }
+
+    private List<Part> GetPartsToDisplay(ShopCategory category)
     {
         if (shopManager == null || PlayerInventoryManager.Instance == null) return new List<Part>();
 
@@ -234,25 +312,22 @@ public class ShopUI : MonoBehaviour
             case ShopCategory.Weapons: allPartsInCategory.AddRange(shopManager.shopWeapons); break;
         }
 
-        List<Part> unpurchasedOnly = new List<Part>();
+        List<Part> filteredList = new List<Part>();
+        int ownedCount = GetOwnedCountForCategory(category);
+
         foreach (Part p in allPartsInCategory)
         {
-            if (!PlayerInventoryManager.Instance.IsPartOwned(p))
+            bool isOwned = PlayerInventoryManager.Instance.IsPartOwned(p);
+
+            if (isSellMode)
             {
-                unpurchasedOnly.Add(p);
+                if (isOwned && p.price > 0 && ownedCount > 1) filteredList.Add(p);
+            }
+            else
+            {
+                if (!isOwned) filteredList.Add(p);
             }
         }
-        return unpurchasedOnly;
+        return filteredList;
     }
-
-
-
-    // public void purchaseItem(Part part)
-    // {
-    //     if (shopManager != null)
-    //     {
-    //         shopManager.AttemptPurchase(part);
-    //         UpdateCategoryDisplay(); // Refresh the UI after purchase
-    //     }
-    // }
 }

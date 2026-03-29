@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MechShopManager : MonoBehaviour
 {
@@ -14,23 +15,74 @@ public class MechShopManager : MonoBehaviour
     public List<Booster> shopBoosters;
     public List<Generator> shopGenerators;
     public List<FCSPart> shopFCS;
-    
-    [Header("Shop Catalog (Combined Weapons)")]
-    public List<WeaponPart> shopWeapons; 
+    public List<WeaponPart> shopWeapons;
+
+    private bool _hasInitializedThisScene = false;
+
+    private void Awake()
+    {
+        // Hook into the scene load event to catch when we return from the Arena
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        _hasInitializedThisScene = false;
+        InitializeShopAndMech();
+    }
 
     private void Start()
     {
-        // 1. Give the player the starter parts first
-        GrantStarterParts(); 
+        // Fallback for the very first time the game boots up
+        if (!_hasInitializedThisScene)
+        {
+            InitializeShopAndMech();
+        }
+    }
 
-        // 2. NOW explicitly tell GarageLoader to build the mech.
+    public void InitializeShopAndMech()
+    {
+        _hasInitializedThisScene = true;
+
+        // 1. AUTOMATICALLY REASSIGN GARAGE LOADER
+        if (garageLoader == null)
+        {
+            garageLoader = Object.FindFirstObjectByType<GarageLoader>();
+        }
+
+        // 2. Combine all parts into a master catalog instantly (No yield delay!)
+        List<Part> allGameParts = new List<Part>();
+        allGameParts.AddRange(shopHeads);
+        allGameParts.AddRange(shopTorsos);
+        allGameParts.AddRange(shopArms);
+        allGameParts.AddRange(shopLegs);
+        allGameParts.AddRange(shopBoosters);
+        allGameParts.AddRange(shopGenerators);
+        allGameParts.AddRange(shopFCS);
+        allGameParts.AddRange(shopWeapons);
+
+        // 3. Instruct the persistent inventory to rebuild itself using our catalog
+        if (PlayerInventoryManager.Instance != null)
+        {
+            PlayerInventoryManager.Instance.ForceSyncFromDiskAndCatalog(allGameParts);
+        }
+
+        // 4. Grant starter parts (only happens if they own nothing)
+        GrantStarterParts();
+
+        // 5. Build the mech!
         if (garageLoader != null)
         {
             garageLoader.InitializeStartupMech();
         }
         else
         {
-            Debug.LogWarning("ShopManager needs a reference to GarageLoader to spawn the starter mech!");
+            Debug.LogWarning("MechShopManager: Could not find a GarageLoader in the scene to spawn the mech!");
         }
     }
 
@@ -39,22 +91,28 @@ public class MechShopManager : MonoBehaviour
         PlayerInventoryManager inv = PlayerInventoryManager.Instance;
         if (inv == null) return;
 
-        // Give the first index of every base body part if the player owns nothing
-        if (inv.ownedHeads.Count == 0 && shopHeads.Count > 0) inv.UnlockPart(shopHeads[0]);
-        if (inv.ownedTorsos.Count == 0 && shopTorsos.Count > 0) inv.UnlockPart(shopTorsos[0]);
-        if (inv.ownedArms.Count == 0 && shopArms.Count > 0) inv.UnlockPart(shopArms[0]);
-        if (inv.ownedLegs.Count == 0 && shopLegs.Count > 0) inv.UnlockPart(shopLegs[0]);
-        if (inv.ownedBoosters.Count == 0 && shopBoosters.Count > 0) inv.UnlockPart(shopBoosters[0]);
-        if (inv.ownedGenerators.Count == 0 && shopGenerators.Count > 0) inv.UnlockPart(shopGenerators[0]);
-        if (inv.ownedFCS.Count == 0 && shopFCS.Count > 0) inv.UnlockPart(shopFCS[0]);
+        bool grantedAnything = false;
 
-        // Give the first valid weapon for each of the 4 weapon slots
+        if (inv.ownedHeads.Count == 0 && shopHeads.Count > 0) { inv.UnlockPart(shopHeads[0]); grantedAnything = true; }
+        if (inv.ownedTorsos.Count == 0 && shopTorsos.Count > 0) { inv.UnlockPart(shopTorsos[0]); grantedAnything = true; }
+        if (inv.ownedArms.Count == 0 && shopArms.Count > 0) { inv.UnlockPart(shopArms[0]); grantedAnything = true; }
+        if (inv.ownedLegs.Count == 0 && shopLegs.Count > 0) { inv.UnlockPart(shopLegs[0]); grantedAnything = true; }
+        if (inv.ownedBoosters.Count == 0 && shopBoosters.Count > 0) { inv.UnlockPart(shopBoosters[0]); grantedAnything = true; }
+        if (inv.ownedGenerators.Count == 0 && shopGenerators.Count > 0) { inv.UnlockPart(shopGenerators[0]); grantedAnything = true; }
+        if (inv.ownedFCS.Count == 0 && shopFCS.Count > 0) { inv.UnlockPart(shopFCS[0]); grantedAnything = true; }
+
         if (inv.ownedWeapons.Count == 0)
         {
             UnlockFirstWeaponForSlot(WeaponLocation.ArmL, inv);
             UnlockFirstWeaponForSlot(WeaponLocation.ArmR, inv);
             UnlockFirstWeaponForSlot(WeaponLocation.BackL, inv);
             UnlockFirstWeaponForSlot(WeaponLocation.BackR, inv);
+            grantedAnything = true;
+        }
+
+        if (grantedAnything)
+        {
+            inv.SaveInventory();
         }
     }
 
@@ -65,7 +123,7 @@ public class MechShopManager : MonoBehaviour
             if (weapon.allowedLocations.HasFlag(location))
             {
                 inv.UnlockPart(weapon);
-                return; 
+                return;
             }
         }
     }
@@ -73,49 +131,22 @@ public class MechShopManager : MonoBehaviour
     public void AttemptPurchase(Part partToBuy)
     {
         if (partToBuy == null) return;
-
         PlayerInventoryManager inventory = PlayerInventoryManager.Instance;
-
-        if (inventory.IsPartOwned(partToBuy))
-        {
-            Debug.Log($"You already own {partToBuy.partName}.");
-            return;
-        }
 
         if (inventory.SpendCredits(partToBuy.price))
         {
             inventory.UnlockPart(partToBuy);
-            Debug.Log($"Purchased {partToBuy.partName} for {partToBuy.price} credits! Remaining: {inventory.currentCredits}");
-        }
-        else
-        {
-            Debug.Log($"Not enough credits for {partToBuy.partName}. Need {partToBuy.price}.");
         }
     }
 
-    // --- NEW SELLING LOGIC ---
     public void AttemptSell(Part partToSell)
     {
         if (partToSell == null) return;
-
         PlayerInventoryManager inventory = PlayerInventoryManager.Instance;
 
-        if (!inventory.IsPartOwned(partToSell))
-        {
-            Debug.Log($"You don't own {partToSell.partName}, so you can't sell it.");
-            return;
-        }
-
-        // Add credits back (100% refund as requested)
         inventory.AddCredits(partToSell.price);
-        
-        // Remove from inventory
         inventory.RemovePart(partToSell);
-        
-        Debug.Log($"Sold {partToSell.partName} for {partToSell.price} credits! Remaining: {inventory.currentCredits}");
 
-        // Safety net: If they sold a part they were actively wearing, tell GarageLoader 
-        // to re-evaluate the loadout so it strips the sold part and auto-equips the default!
         if (garageLoader != null)
         {
             garageLoader.InitializeStartupMech();
