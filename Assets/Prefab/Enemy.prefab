@@ -8458,20 +8458,23 @@ MonoBehaviour:
   fcsRange: 300
   lockSpeed: 1
   fcsTurnRate: 120
-  maxMultiLocks: 6
   multiLockInterval: 0.3
   softLockColor: {r: 0, g: 1, b: 0, a: 1}
   hardLockColor: {r: 1, g: 0, b: 0, a: 1}
   stickyThreshold: 0.2
   targetLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 64
   isPlayer: 1
   aimMaster: {fileID: 4519104105286056373}
   mainCamera: {fileID: 459003314504660784}
   lockBoxUI: {fileID: 73382145704349083}
   reticleUI: {fileID: 4822359401326033455}
   rangefinderText: {fileID: 5617868847362924290}
+  leftMissileLockUI: {fileID: 0}
+  leftMissileLockText: {fileID: 0}
+  rightMissileLockUI: {fileID: 0}
+  rightMissileLockText: {fileID: 0}
   weaponManager: {fileID: 7521719328688690239}
   activeWeaponAlpha: 1
   inactiveWeaponAlpha: 0.3
@@ -11971,6 +11974,8 @@ MonoBehaviour:
   cameraEffects: {fileID: 5524404506408981983}
   isQuickBoosting: 0
   isPerfectQuickBoosting: 0
+  stickToGroundForce: 40
+  stickRayLength: 1.5
   thrusterBufferTime: 0.1
   bunnyHopWindow: 0.1
   boostToJumpDelay: 0.2
@@ -12120,6 +12125,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArenaMechLoader
   partSystem: {fileID: 6482751215267176655}
   mechStats: {fileID: 4892868396162854129}
+  globalBaseMaterials: []
 --- !u!114 &2378307291731604742
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12127,11 +12133,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7372188128696635075}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 364cd73ad8b3520449e68450d4ebbb0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  mechWeaponManager: {fileID: 0}
+  weaponManager: {fileID: 0}
+  fcsLockBox: {fileID: 0}
+  postSwapAimDelay: 0.5
   cameraPivot: {fileID: 4519104105286056373}
   aimTrackingSpeed: 15
   eyeHeight: 2
@@ -12176,6 +12186,28 @@ MonoBehaviour:
     relativeElevation: 50
     targetAngle: 180
     angleUncertainty: 0
+  leftWeaponConditions:
+  - installLocation: 0
+    minAttackRange: 0
+    maxAttackRange: 200
+    minActiveRange: 0
+    maxActiveRange: 200
+  - installLocation: 1
+    minAttackRange: 0
+    maxAttackRange: 400
+    minActiveRange: 200
+    maxActiveRange: 400
+  rightWeaponConditions:
+  - installLocation: 0
+    minAttackRange: 0
+    maxAttackRange: 200
+    minActiveRange: 0
+    maxActiveRange: 200
+  - installLocation: 1
+    minAttackRange: 0
+    maxAttackRange: 400
+    minActiveRange: 200
+    maxActiveRange: 400
   environmentLayer:
     serializedVersion: 2
     m_Bits: 8192
