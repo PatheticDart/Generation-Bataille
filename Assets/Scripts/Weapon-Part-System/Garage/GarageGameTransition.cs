@@ -27,6 +27,10 @@ public class GarageGameTransition : MonoBehaviour
     public int gameplaySceneIndex = 1; // Assuming "GameplayScene" is the second scene in your build settings
 
     private CinemachineOrbitalFollow _orbitalFollow;
+    
+    [Header("Timings")]
+    public bool mapSelected = false;
+    public bool enemySelected = false;
 
     private void Start()
     {

@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 public class MapSelect : MonoBehaviour
 {
     public GarageGameTransition gameTransition;
+    public GameObject arenaEnterBtn;
     public Sprite colosseumSprite, buriedCitySprite, testSceneSprite;
     public Image mapPreviewRenderer;
 
@@ -37,7 +38,15 @@ public class MapSelect : MonoBehaviour
 
     public void setIndex(int index)
     {
+        gameTransition.mapSelected = true;
         gameTransition.gameplaySceneIndex = index;
-        Debug.Log(index);
+        if (gameTransition.enemySelected == true)
+        {
+            arenaEnterBtn.SetActive(true);
+        }
+         else if (gameTransition.enemySelected == false)
+        {
+            arenaEnterBtn.SetActive(false);
+        }
     }
 }

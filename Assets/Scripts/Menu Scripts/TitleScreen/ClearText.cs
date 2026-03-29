@@ -6,6 +6,7 @@ public class ClearText : MonoBehaviour
 {
     public TextMeshProUGUI enemyNameText, enemyHealthText, enemyDamageText, enemyDescriptionText;
     public string defaultDescription = "Select your Opponent";
+    public GarageGameTransition transitionManager;
 
     public void ClearEnemyInfo()
     {
@@ -13,5 +14,6 @@ public class ClearText : MonoBehaviour
         if (enemyHealthText != null) enemyHealthText.text = "";
         if (enemyDamageText != null) enemyDamageText.text = "";
         if (enemyDescriptionText != null) enemyDescriptionText.text = defaultDescription;
+        transitionManager.enemySelected = false;
     }
 }

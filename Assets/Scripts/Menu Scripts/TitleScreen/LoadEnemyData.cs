@@ -17,6 +17,10 @@ public class LoadEnemyData : MonoBehaviour
     public GameObject rankSpriteObject;
     public GameObject arenaEnterBtn;
 
+    public bool mapSelected = false;
+    public GarageGameTransition transitionManager;
+    
+
     void Start()
     {
         if (buttonLabel != null && enemyData != null)
@@ -31,14 +35,19 @@ public class LoadEnemyData : MonoBehaviour
 
     void Update()
     {
-        
+        mapSelected = transitionManager.mapSelected;
     }
 
     public void LoadData()
     {
-        if (arenaEnterBtn != null)
+        transitionManager.enemySelected = true;
+        if (arenaEnterBtn != null && mapSelected == true)
         {
             arenaEnterBtn.SetActive(true);
+        }
+        else if (arenaEnterBtn != null && mapSelected == false)
+        {
+            arenaEnterBtn.SetActive(false);
         }
         if (rankSpriteObject != null){
             rankSpriteObject.SetActive(true);
