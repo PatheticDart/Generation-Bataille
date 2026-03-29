@@ -73,7 +73,7 @@ public class AssemblyUI : MonoBehaviour
                 {
                     garageLoader.EquipPart(currentType, partToEquip);
 
-                    // --- THE FIX: Tell the camera to recalculate the height of the newly spawned part! ---
+                    // Tell the camera to recalculate the height of the newly spawned part
                     if (cameraManager != null) cameraManager.SwitchCameraForPartCategory(currentType);
                 });
             }
@@ -82,21 +82,28 @@ public class AssemblyUI : MonoBehaviour
 
     private List<Part> GetPartsListForCategory(PartType type)
     {
-        if (garageLoader == null) return null;
+        // Safety check to ensure both managers exist
+        if (garageLoader == null || PlayerInventoryManager.Instance == null) return new List<Part>();
+
+        PlayerInventoryManager inv = PlayerInventoryManager.Instance;
 
         switch (type)
         {
-            case PartType.Head: return new List<Part>(garageLoader.availableHeads);
-            case PartType.Torso: return new List<Part>(garageLoader.availableTorsos);
-            case PartType.Arms: return new List<Part>(garageLoader.availableArms);
-            case PartType.Legs: return new List<Part>(garageLoader.availableLegs);
-            case PartType.Booster: return new List<Part>(garageLoader.availableBoosters);
-            case PartType.Generator: return new List<Part>(garageLoader.availableGenerators);
-            case PartType.FCS: return new List<Part>(garageLoader.availableFCS);
-            case PartType.ArmL: return new List<Part>(garageLoader.availableLeftArmWeapons);
-            case PartType.ArmR: return new List<Part>(garageLoader.availableRightArmWeapons);
-            case PartType.BackL: return new List<Part>(garageLoader.availableLeftBackWeapons);
-            case PartType.BackR: return new List<Part>(garageLoader.availableRightBackWeapons);
+            // --- UPDATED: Directly accesses explicit lists from the Inventory Manager ---
+            case PartType.Head: return new List<Part>(inv.ownedHeads);
+            case PartType.Torso: return new List<Part>(inv.ownedTorsos);
+            case PartType.Arms: return new List<Part>(inv.ownedArms);
+            case PartType.Legs: return new List<Part>(inv.ownedLegs);
+            case PartType.Booster: return new List<Part>(inv.ownedBoosters);
+            case PartType.Generator: return new List<Part>(inv.ownedGenerators);
+            case PartType.FCS: return new List<Part>(inv.ownedFCS);
+            
+            // --- WEAPONS: Still asks GarageLoader to filter the unified weapon list ---
+            case PartType.ArmL: return new List<Part>(garageLoader.GetValidWeaponsForSlot(WeaponLocation.ArmL));
+            case PartType.ArmR: return new List<Part>(garageLoader.GetValidWeaponsForSlot(WeaponLocation.ArmR));
+            case PartType.BackL: return new List<Part>(garageLoader.GetValidWeaponsForSlot(WeaponLocation.BackL));
+            case PartType.BackR: return new List<Part>(garageLoader.GetValidWeaponsForSlot(WeaponLocation.BackR));
+            
             default: return new List<Part>();
         }
     }
