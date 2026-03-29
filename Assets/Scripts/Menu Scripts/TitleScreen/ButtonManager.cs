@@ -3,7 +3,7 @@ using UnityEngine;
 public class ButtonManager : MonoBehaviour
 {
     [Header("SCENE INDEXES")]
-    public int titleSceneIndex = 0;
+    public int GarageSceneIndex = 0;
     public int ColosseumSceneIndex = 1;
     public int BurriedCitySceneIndex = 2;
 
@@ -15,7 +15,7 @@ public class ButtonManager : MonoBehaviour
     //public GameObject settingsPanel;
     //public GameObject creditsPanel;
     public GameObject opponentViewPanel;
-    
+
 
     public void opponentSelect()
     {
@@ -29,5 +29,10 @@ public class ButtonManager : MonoBehaviour
         mainMenuPanel.SetActive(true);
         titleScreenContainer.SetActive(false);
         opponentViewPanel.SetActive(false);
+    }
+
+    public void LoadGarage()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(GarageSceneIndex);
     }
 }

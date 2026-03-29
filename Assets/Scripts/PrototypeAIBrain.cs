@@ -55,6 +55,10 @@ public class PrototypeAIBrain : MonoBehaviour
     [Header("Weapon Systems")]
     public MechWeaponManager mechWeaponManager;
     public WeaponManager weaponManager;
+    public FCSLockBox fcsLockBox; // --- NEW: FCS Link for Missiles ---
+
+    [Tooltip("How long the AI waits to fire after a weapon swap finishes, allowing the rig to aim.")]
+    public float postSwapAimDelay = 0.5f;
 
     [Header("Aiming & Vision")]
     public Transform cameraPivot;
@@ -129,6 +133,10 @@ public class PrototypeAIBrain : MonoBehaviour
     private bool wasFiringLeft = false;
     private bool wasFiringRight = false;
 
+    // Aim Readiness Timers
+    private float leftAimReadyTimer = 0f;
+    private float rightAimReadyTimer = 0f;
+
     void Start()
     {
         controller = GetComponent<MechController>();
@@ -137,24 +145,45 @@ public class PrototypeAIBrain : MonoBehaviour
 
         if (mechWeaponManager == null) mechWeaponManager = GetComponent<MechWeaponManager>();
         if (weaponManager == null) weaponManager = GetComponent<WeaponManager>();
+        if (fcsLockBox == null) fcsLockBox = GetComponent<FCSLockBox>(); // Auto-assign FCS
+
+        if (mechWeaponManager != null)
+        {
+            mechWeaponManager.OnWeaponSwapCompleted += HandleWeaponSwapCompleted;
+        }
 
         LoadNextChip(0);
+    }
+
+    private void OnDestroy()
+    {
+        if (mechWeaponManager != null)
+        {
+            mechWeaponManager.OnWeaponSwapCompleted -= HandleWeaponSwapCompleted;
+        }
+    }
+
+    private void HandleWeaponSwapCompleted(bool isLeft, int slotIndex)
+    {
+        if (isLeft) leftAimReadyTimer = postSwapAimDelay;
+        else rightAimReadyTimer = postSwapAimDelay;
     }
 
     void Update()
     {
         if (Time.timeScale == 0f) return;
 
+        if (leftAimReadyTimer > 0f) leftAimReadyTimer -= Time.deltaTime;
+        if (rightAimReadyTimer > 0f) rightAimReadyTimer -= Time.deltaTime;
+
         FindTargetContinuously();
 
-        // --- LOSING TARGET LOCK ---
         if (currentTarget == null)
         {
             controller.moveInput = Vector3.zero;
             controller.isBoosting = false;
             controller.isJumping = false;
 
-            // Release triggers immediately if the target is fully lost
             ProcessWeaponFiring(true, false);
             ProcessWeaponFiring(false, false);
             return;
@@ -180,73 +209,143 @@ public class PrototypeAIBrain : MonoBehaviour
         EvaluateWeaponConditions();
     }
 
+    // --- UPDATED: Now checks Reserve Ammo so reloading doesn't trigger a forced swap! ---
+    private bool HasAmmo(bool isLeft, int slot)
+    {
+        if (weaponManager == null) return false;
+        FunctionalWeapon wep = weaponManager.GetWeapon(isLeft, slot);
+        if (wep == null) return false;
+
+        return wep.maxResource == 0f || wep.currentResource > 0f || wep.currentReserveAmmo > 0f;
+    }
+
+    // --- NEW: Asks the FCS if the missile barrage is fully locked and ready ---
+    private bool IsMissileReadyToFire(bool isLeft, int slot)
+    {
+        if (weaponManager == null || fcsLockBox == null) return true;
+
+        FunctionalWeapon wep = weaponManager.GetWeapon(isLeft, slot);
+        if (wep == null) return false;
+
+        if (wep.GetWeaponData() is MissileLauncherPart missileData)
+        {
+            int currentLocks = fcsLockBox.GetMissileLocks(isLeft, missileData.maxLocks);
+            int ammoLeftInMag = Mathf.FloorToInt(wep.currentResource);
+            int desiredLocks = Mathf.Min(missileData.maxLocks, ammoLeftInMag);
+
+            // Wait until locks match the desired amount, and ensure we have at least 1 lock
+            return currentLocks >= desiredLocks && currentLocks > 0;
+        }
+
+        return true; // Not a missile launcher, standard firing applies
+    }
+
+    private bool IsInAttackRange(bool isLeft, WeaponConditionSlot slot, float distance)
+    {
+        List<WeaponConditionChip> chips = isLeft ? leftWeaponConditions : rightWeaponConditions;
+        foreach (var chip in chips)
+        {
+            if (chip.installLocation == slot)
+            {
+                return distance >= chip.minAttackRange && distance <= chip.maxAttackRange;
+            }
+        }
+        return distance <= 500f;
+    }
+
     private void EvaluateWeaponConditions()
     {
         if (mechWeaponManager == null || weaponManager == null || currentTarget == null) return;
 
         float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
 
-        // 1. Evaluate Left Weapons
+        // ==========================================
+        // 1. EVALUATE LEFT WEAPONS
+        // ==========================================
         bool wantsToFireLeft = false;
-        foreach (WeaponConditionChip chip in leftWeaponConditions)
+        bool armAmmoL = HasAmmo(true, 0);
+        bool backAmmoL = HasAmmo(true, 1);
+
+        if (armAmmoL && !backAmmoL)
         {
-            int targetSlot = (chip.installLocation == WeaponConditionSlot.Arm) ? 0 : 1;
-            float maxAmmo = weaponManager.GetMaxResource(true, targetSlot);
-            float currentAmmo = weaponManager.GetCurrentResource(true, targetSlot);
-
-            // --- THE FIX: Ammo Depletion Fallback ---
-            // If this is an ammo-based weapon and it's empty, skip this chip entirely to check backups
-            if (maxAmmo > 0 && currentAmmo <= 0) continue;
-
-            if (distanceToTarget >= chip.minActiveRange && distanceToTarget <= chip.maxActiveRange)
+            if (!mechWeaponManager.leftArmActive && !mechWeaponManager.IsLeftTransitioning)
+                mechWeaponManager.SendMessage("ToggleLeftWeapon", SendMessageOptions.DontRequireReceiver);
+            else if (mechWeaponManager.leftArmActive && hasLineOfSight && leftAimReadyTimer <= 0f && IsInAttackRange(true, WeaponConditionSlot.Arm, distanceToTarget))
+                if (IsMissileReadyToFire(true, 0)) wantsToFireLeft = true;
+        }
+        else if (!armAmmoL && backAmmoL)
+        {
+            if (mechWeaponManager.leftArmActive && !mechWeaponManager.IsLeftTransitioning)
+                mechWeaponManager.SendMessage("ToggleLeftWeapon", SendMessageOptions.DontRequireReceiver);
+            else if (!mechWeaponManager.leftArmActive && hasLineOfSight && leftAimReadyTimer <= 0f && IsInAttackRange(true, WeaponConditionSlot.Back, distanceToTarget))
+                if (IsMissileReadyToFire(true, 1)) wantsToFireLeft = true;
+        }
+        else if (armAmmoL && backAmmoL)
+        {
+            foreach (WeaponConditionChip chip in leftWeaponConditions)
             {
-                bool isArmTargeted = (chip.installLocation == WeaponConditionSlot.Arm);
-
-                if (mechWeaponManager.leftArmActive != isArmTargeted)
+                if (distanceToTarget >= chip.minActiveRange && distanceToTarget <= chip.maxActiveRange)
                 {
-                    if (!mechWeaponManager.IsLeftTransitioning)
+                    bool isArmTargeted = (chip.installLocation == WeaponConditionSlot.Arm);
+                    int slot = isArmTargeted ? 0 : 1;
+
+                    if (mechWeaponManager.leftArmActive != isArmTargeted)
                     {
-                        mechWeaponManager.SendMessage("ProcessLeftSwap", SendMessageOptions.DontRequireReceiver);
+                        if (!mechWeaponManager.IsLeftTransitioning)
+                            mechWeaponManager.SendMessage("ToggleLeftWeapon", SendMessageOptions.DontRequireReceiver);
                     }
+                    else if (distanceToTarget >= chip.minAttackRange && distanceToTarget <= chip.maxAttackRange)
+                    {
+                        if (hasLineOfSight && leftAimReadyTimer <= 0f && IsMissileReadyToFire(true, slot))
+                            wantsToFireLeft = true;
+                    }
+                    break;
                 }
-                else if (distanceToTarget >= chip.minAttackRange && distanceToTarget <= chip.maxAttackRange)
-                {
-                    // --- THE FIX: Line of Sight Stop ---
-                    // Only pull the trigger if the AI can actually see the enemy
-                    if (hasLineOfSight) wantsToFireLeft = true;
-                }
-
-                break; // Stop evaluating lower-priority chips if we found a valid range match
             }
         }
 
-        // 2. Evaluate Right Weapons
+        // ==========================================
+        // 2. EVALUATE RIGHT WEAPONS
+        // ==========================================
         bool wantsToFireRight = false;
-        foreach (WeaponConditionChip chip in rightWeaponConditions)
+        bool armAmmoR = HasAmmo(false, 0);
+        bool backAmmoR = HasAmmo(false, 1);
+
+        if (armAmmoR && !backAmmoR)
         {
-            int targetSlot = (chip.installLocation == WeaponConditionSlot.Arm) ? 0 : 1;
-            float maxAmmo = weaponManager.GetMaxResource(false, targetSlot);
-            float currentAmmo = weaponManager.GetCurrentResource(false, targetSlot);
-
-            if (maxAmmo > 0 && currentAmmo <= 0) continue;
-
-            if (distanceToTarget >= chip.minActiveRange && distanceToTarget <= chip.maxActiveRange)
+            if (!mechWeaponManager.rightArmActive && !mechWeaponManager.IsRightTransitioning)
+                mechWeaponManager.SendMessage("ToggleRightWeapon", SendMessageOptions.DontRequireReceiver);
+            else if (mechWeaponManager.rightArmActive && hasLineOfSight && rightAimReadyTimer <= 0f && IsInAttackRange(false, WeaponConditionSlot.Arm, distanceToTarget))
+                if (IsMissileReadyToFire(false, 0)) wantsToFireRight = true;
+        }
+        else if (!armAmmoR && backAmmoR)
+        {
+            if (mechWeaponManager.rightArmActive && !mechWeaponManager.IsRightTransitioning)
+                mechWeaponManager.SendMessage("ToggleRightWeapon", SendMessageOptions.DontRequireReceiver);
+            else if (!mechWeaponManager.rightArmActive && hasLineOfSight && rightAimReadyTimer <= 0f && IsInAttackRange(false, WeaponConditionSlot.Back, distanceToTarget))
+                if (IsMissileReadyToFire(false, 1)) wantsToFireRight = true;
+        }
+        else if (armAmmoR && backAmmoR)
+        {
+            foreach (WeaponConditionChip chip in rightWeaponConditions)
             {
-                bool isArmTargeted = (chip.installLocation == WeaponConditionSlot.Arm);
-
-                if (mechWeaponManager.rightArmActive != isArmTargeted)
+                if (distanceToTarget >= chip.minActiveRange && distanceToTarget <= chip.maxActiveRange)
                 {
-                    if (!mechWeaponManager.IsRightTransitioning)
+                    bool isArmTargeted = (chip.installLocation == WeaponConditionSlot.Arm);
+                    int slot = isArmTargeted ? 0 : 1;
+
+                    if (mechWeaponManager.rightArmActive != isArmTargeted)
                     {
-                        mechWeaponManager.SendMessage("ProcessRightSwap", SendMessageOptions.DontRequireReceiver);
+                        if (!mechWeaponManager.IsRightTransitioning)
+                            mechWeaponManager.SendMessage("ToggleRightWeapon", SendMessageOptions.DontRequireReceiver);
                     }
+                    else if (distanceToTarget >= chip.minAttackRange && distanceToTarget <= chip.maxAttackRange)
+                    {
+                        if (hasLineOfSight && rightAimReadyTimer <= 0f && IsMissileReadyToFire(false, slot))
+                            wantsToFireRight = true;
+                    }
+                    break;
                 }
-                else if (distanceToTarget >= chip.minAttackRange && distanceToTarget <= chip.maxAttackRange)
-                {
-                    if (hasLineOfSight) wantsToFireRight = true;
-                }
-
-                break;
             }
         }
 
@@ -268,6 +367,10 @@ public class PrototypeAIBrain : MonoBehaviour
         if (isLeft) wasFiringLeft = shouldFire;
         else wasFiringRight = shouldFire;
     }
+
+    // ==========================================
+    // EXISTING MOVEMENT AND STATE LOGIC BELOW
+    // ==========================================
 
     private void FindTargetContinuously()
     {

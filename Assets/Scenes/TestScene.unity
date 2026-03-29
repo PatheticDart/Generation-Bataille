@@ -46741,7 +46741,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
       propertyPath: leftWeaponConditions.Array.data[1].minAttackRange
-      value: 200
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
       propertyPath: leftWeaponConditions.Array.data[1].installLocation
@@ -46773,7 +46773,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
       propertyPath: rightWeaponConditions.Array.data[1].minAttackRange
-      value: 200
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2378307291731604742, guid: 30d3c832767ebe54fa681c856ef7e89f, type: 3}
       propertyPath: rightWeaponConditions.Array.data[1].installLocation
