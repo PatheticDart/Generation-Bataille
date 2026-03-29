@@ -6,7 +6,7 @@ public class LoadEnemyData : MonoBehaviour
 {
     public EnemyDataSO enemyData;
 
-    public TextMeshProUGUI enemyNameText, enemyHealthText, enemyDamageText, enemyDescriptionText;
+    public TextMeshProUGUI enemyNameText, enemyDescriptionText;
     public TextMeshProUGUI buttonLabel;
 
     public GameObject spawnPointObject;
@@ -19,7 +19,7 @@ public class LoadEnemyData : MonoBehaviour
 
     public bool mapSelected = false;
     public GarageGameTransition transitionManager;
-    
+
 
     void Start()
     {
@@ -49,7 +49,8 @@ public class LoadEnemyData : MonoBehaviour
         {
             arenaEnterBtn.SetActive(false);
         }
-        if (rankSpriteObject != null){
+        if (rankSpriteObject != null)
+        {
             rankSpriteObject.SetActive(true);
         }
         if (enemyData == null)
@@ -59,8 +60,6 @@ public class LoadEnemyData : MonoBehaviour
         }
 
         if (enemyNameText != null) enemyNameText.text = enemyData.enemyName;
-        if (enemyHealthText != null) enemyHealthText.text = enemyData.health.ToString();
-        if (enemyDamageText != null) enemyDamageText.text = enemyData.damage.ToString();
         if (enemyDescriptionText != null) enemyDescriptionText.text = enemyData.description;
 
         // Choose parent transform
@@ -101,7 +100,7 @@ public class LoadEnemyData : MonoBehaviour
         }
         LoadRank(enemyData.rank);
     }
-    
+
     public void LoadRank(EnemyDataSO.EnemyRank rank)
     {
         if (rankSpriteRenderer == null)

@@ -4,7 +4,7 @@ using TMPro;
 
 public class EnemyButton : MonoBehaviour
 {
-    public TextMeshProUGUI buttonLabel, enemyNameText, enemyHealthText, enemyDamageText, enemyDescriptionText;
+    public TextMeshProUGUI buttonLabel, enemyNameText, enemyDescriptionText;
     public EnemyDataSO enemyData;
     public GameObject rotateObject;
     public GameObject buttonManager;
@@ -24,12 +24,10 @@ public class EnemyButton : MonoBehaviour
     {
         buttonLabel.text = enemyData.enemyName;
         enemyNameText.text = enemyData.enemyName;
-        enemyHealthText.text = enemyData.health.ToString();
-        enemyDamageText.text = enemyData.damage.ToString();
         enemyDescriptionText.text = enemyData.description;
         rotateObject = enemyData.enemyPrefab;
         rotateScript.objectToRotate = rotateObject;
-        
+
         if (buttonManager.GetComponent<SelectOpponent>().selectedEnemyData == enemyData)
         {
             confirmationPanel.SetActive(true);
