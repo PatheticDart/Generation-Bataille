@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PauseManager : MonoBehaviour
 {
@@ -75,4 +77,17 @@ public class PauseManager : MonoBehaviour
         mainViewPanel.SetActive(false);
         optionsPanel.SetActive(true);
     }
+
+    public void RestartLevel()
+    {
+        // This will reload the current active scene
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        ResumeGame(); // Ensure time scale is reset in case we were paused
+    }
+
+    public void AbortMatch()
+    {
+        SceneManager.LoadScene(0); // Assuming your main menu is at index 0
+    }
+
 }
