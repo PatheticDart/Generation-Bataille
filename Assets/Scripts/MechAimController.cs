@@ -93,7 +93,6 @@ public class MechAimController : MonoBehaviour
             rightBackWeaponAnim = rightBackNode.GetChild(0).GetComponent<Animator>();
     }
 
-    // --- PREDICTIVE AIM MATH ---
     private float GetBulletSpeed(bool isLeft, int slot)
     {
         if (weaponManager == null || weaponManager.weaponManager == null) return -1f;
@@ -103,7 +102,7 @@ public class MechAimController : MonoBehaviour
         {
             return proj.bulletSpeed;
         }
-        return -1f; // -1 means no prediction needed (missiles, hitscan, melee)
+        return -1f;
     }
 
     private Vector3 GetPredictedTargetPosition(Transform weaponNode, Vector3 baseTargetPos, bool isLeft, int slot)
@@ -114,10 +113,12 @@ public class MechAimController : MonoBehaviour
         if (bulletSpeed <= 0f) return baseTargetPos;
 
         float distance = Vector3.Distance(weaponNode.position, lockedTarget.position);
-        float timeToHit = distance / bulletSpeed;
 
-        // Kinematic Prediction: Target Velocity - My Velocity 
-        Vector3 predictedPos = lockedTarget.position + (fcsLockBox.TargetVelocity - fcsLockBox.MyVelocity) * timeToHit;
+        // --- THE FIX: Clamp the time so it doesn't over-predict at extreme distances! ---
+        float timeToHit = Mathf.Clamp(distance / bulletSpeed, 0f, 3f);
+
+        // --- THE FIX: Exclude Mech Velocity from the equation! ---
+        Vector3 predictedPos = lockedTarget.position + (fcsLockBox.TargetVelocity * timeToHit);
         return predictedPos;
     }
 
@@ -137,13 +138,11 @@ public class MechAimController : MonoBehaviour
             else baseTargetPos = transform.position + transform.forward * 300f;
         }
 
-        // --- GET PREDICTED POSITIONS FOR EACH WEAPON SLOT ---
         Vector3 leftArmTarget = (leftArmSync != null) ? GetPredictedTargetPosition(leftArmSync.transform, baseTargetPos, true, 0) : baseTargetPos;
         Vector3 rightArmTarget = (rightArmSync != null) ? GetPredictedTargetPosition(rightArmSync.transform, baseTargetPos, false, 0) : baseTargetPos;
         Vector3 leftBackTarget = (leftBackNode != null) ? GetPredictedTargetPosition(leftBackNode, baseTargetPos, true, 1) : baseTargetPos;
         Vector3 rightBackTarget = (rightBackNode != null) ? GetPredictedTargetPosition(rightBackNode, baseTargetPos, false, 1) : baseTargetPos;
 
-        // Torso tracks the general base target so the mech faces the enemy naturally
         if (torsoIKProxyTarget != null)
             torsoIKProxyTarget.position = Vector3.Lerp(torsoIKProxyTarget.position, baseTargetPos, Time.deltaTime * aimSmoothSpeed);
 
@@ -181,7 +180,7 @@ public class MechAimController : MonoBehaviour
             }
         }
 
-        // --- 2. LEFT ARM LOGIC (Uses Predictive Target) ---
+        // --- 2. LEFT ARM LOGIC ---
         if (leftArmSync != null && leftArmSync.targetBone != null)
         {
             leftArmSync.overrideRotation = true;
@@ -224,7 +223,7 @@ public class MechAimController : MonoBehaviour
             }
         }
 
-        // --- 3. RIGHT ARM LOGIC (Uses Predictive Target) ---
+        // --- 3. RIGHT ARM LOGIC ---
         if (rightArmSync != null && rightArmSync.targetBone != null)
         {
             rightArmSync.overrideRotation = true;
@@ -267,7 +266,7 @@ public class MechAimController : MonoBehaviour
             }
         }
 
-        // --- 4. BACK WEAPONS (Uses Predictive Targets) ---
+        // --- 4. BACK WEAPONS ---
         float targetTorsoWeight = 0f;
         if (!torsoNeedsAiming && (weaponManager.leftArmActive || weaponManager.rightArmActive)) targetTorsoWeight = 0.5f;
 
@@ -290,10 +289,16 @@ public class MechAimController : MonoBehaviour
     private void AimBackWeaponPitch(Transform backNode, Vector3 targetPosition)
     {
         Vector3 localTargetDir = backNode.parent.InverseTransformDirection(targetPosition - backNode.position);
-        float angle = Mathf.Atan2(localTargetDir.y, localTargetDir.z) * Mathf.Rad2Deg;
-        float targetX = Mathf.Clamp(-angle, -30f, 45f);
 
-        backNode.localRotation = Quaternion.Euler(targetX, 0f, 0f);
+        // Prevent micro-jitter when target is basically right on top of the node
+        if (localTargetDir.sqrMagnitude < 0.01f) return;
+
+        float angle = Mathf.Atan2(localTargetDir.y, localTargetDir.z) * Mathf.Rad2Deg;
+        float targetX = Mathf.Clamp(-angle, -45f, 45f);
+
+        // --- THE FIX: Slerp the rotation so the back cannon smoothly tracks and doesn't snap erratically! ---
+        Quaternion targetRot = Quaternion.Euler(targetX, 0f, 0f);
+        backNode.localRotation = Quaternion.Slerp(backNode.localRotation, targetRot, Time.deltaTime * aimSmoothSpeed);
     }
 
     private void ResetBackWeaponPitch(Transform backNode)

@@ -59,9 +59,7 @@ public class FCSLockBox : MonoBehaviour
 
     // --- PREDICTIVE AIMING DATA ---
     public Vector3 TargetVelocity { get; private set; }
-    public Vector3 MyVelocity { get; private set; }
     private Vector3 lastTargetPos;
-    private Vector3 lastMyPos;
 
     // --- SEPARATED MISSILE TIMERS ---
     private float leftMissileTimer = 0f;
@@ -79,6 +77,13 @@ public class FCSLockBox : MonoBehaviour
             reticleChildImages = reticleUI.GetComponentsInChildren<Image>(true);
             reticleChildTexts = reticleUI.GetComponentsInChildren<TextMeshProUGUI>(true);
         }
+
+        // --- THE FIX: Hide the missile UI panels by default! ---
+        if (isPlayer)
+        {
+            if (leftMissileLockUI != null) leftMissileLockUI.SetActive(false);
+            if (rightMissileLockUI != null) rightMissileLockUI.SetActive(false);
+        }
     }
 
     void LateUpdate()
@@ -92,19 +97,23 @@ public class FCSLockBox : MonoBehaviour
 
     private void TrackVelocities()
     {
-        if (Time.deltaTime > 0f)
+        if (Time.deltaTime > 0f && currentTarget != null)
         {
-            MyVelocity = (transform.position - lastMyPos) / Time.deltaTime;
-            
-            if (currentTarget != null) TargetVelocity = (currentTarget.position - lastTargetPos) / Time.deltaTime;
-            else TargetVelocity = Vector3.zero;
-        }
+            Vector3 rawVelocity = (currentTarget.position - lastTargetPos) / Time.deltaTime;
+            // Clamp against physics glitches that generate insane single-frame speeds
+            if (rawVelocity.magnitude > 500f) rawVelocity = rawVelocity.normalized * 500f;
 
-        lastMyPos = transform.position;
-        if (currentTarget != null) lastTargetPos = currentTarget.position;
+            // Smooth the velocity to prevent weapon jitter
+            TargetVelocity = Vector3.Lerp(TargetVelocity, rawVelocity, Time.deltaTime * 15f);
+
+            lastTargetPos = currentTarget.position;
+        }
+        else
+        {
+            TargetVelocity = Vector3.zero;
+        }
     }
 
-    // --- INDEPENDENT MISSILE LOCK LOGIC ---
     public int GetMissileLocks(bool isLeft, int maxLocks)
     {
         if (!isHardLocked || maxLocks <= 0) return 0;
@@ -182,6 +191,7 @@ public class FCSLockBox : MonoBehaviour
                 isHardLocked = false;
                 leftMissileTimer = 0f;
                 rightMissileTimer = 0f;
+                lastTargetPos = currentTarget.position;
             }
             else
             {
@@ -191,7 +201,6 @@ public class FCSLockBox : MonoBehaviour
                 if (newTimer >= lockSpeed)
                 {
                     isHardLocked = true;
-                    // Only start accumulating extra time after the base lockSpeed is reached
                     leftMissileTimer += Time.deltaTime;
                     rightMissileTimer += Time.deltaTime;
                 }
@@ -273,16 +282,26 @@ public class FCSLockBox : MonoBehaviour
 
         if (leftMissileLockUI != null)
         {
-            int currentL = GetMissileLocks(true, leftMax);
-            leftMissileLockUI.SetActive(isHardLocked && leftMax > 0);
-            if (leftMissileLockText != null && currentL > 0) leftMissileLockText.text = currentL.ToString();
+            bool showL = isHardLocked && leftMax > 0;
+            if (leftMissileLockUI.activeSelf != showL) leftMissileLockUI.SetActive(showL);
+
+            if (showL && leftMissileLockText != null)
+            {
+                int currentL = GetMissileLocks(true, leftMax);
+                leftMissileLockText.text = currentL.ToString();
+            }
         }
 
         if (rightMissileLockUI != null)
         {
-            int currentR = GetMissileLocks(false, rightMax);
-            rightMissileLockUI.SetActive(isHardLocked && rightMax > 0);
-            if (rightMissileLockText != null && currentR > 0) rightMissileLockText.text = currentR.ToString();
+            bool showR = isHardLocked && rightMax > 0;
+            if (rightMissileLockUI.activeSelf != showR) rightMissileLockUI.SetActive(showR);
+
+            if (showR && rightMissileLockText != null)
+            {
+                int currentR = GetMissileLocks(false, rightMax);
+                rightMissileLockText.text = currentR.ToString();
+            }
         }
     }
 
