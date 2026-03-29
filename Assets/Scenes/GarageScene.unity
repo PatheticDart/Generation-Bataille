@@ -4627,6 +4627,11 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &610821165 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6433511476085866006, guid: 87f502632bef993498969963b3faa77b, type: 3}
+  m_PrefabInstance: {fileID: 8251223353439773156}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &673867180
 Mesh:
   m_ObjectHideFlags: 0
@@ -13512,6 +13517,14 @@ PrefabInstance:
       propertyPath: enemyHealthText
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 564785473918707011, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: transitionManager
+      value: 
+      objectReference: {fileID: 981112289}
+    - target: {fileID: 810243299408278756, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: arenaEnterBtn
+      value: 
+      objectReference: {fileID: 610821165}
     - target: {fileID: 810243299408278756, guid: 87f502632bef993498969963b3faa77b, type: 3}
       propertyPath: gameTransition
       value: 
@@ -13528,6 +13541,10 @@ PrefabInstance:
       propertyPath: enemyHealthText
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 1550865098762701479, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: transitionManager
+      value: 
+      objectReference: {fileID: 981112289}
     - target: {fileID: 1727884622176461865, guid: 87f502632bef993498969963b3faa77b, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -13540,6 +13557,10 @@ PrefabInstance:
       propertyPath: enemyHealthText
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 2141552353330174903, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: transitionManager
+      value: 
+      objectReference: {fileID: 981112289}
     - target: {fileID: 2812944819405816961, guid: 87f502632bef993498969963b3faa77b, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
@@ -13680,6 +13701,10 @@ PrefabInstance:
       propertyPath: enemyHealthText
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 4950624978859752245, guid: 87f502632bef993498969963b3faa77b, type: 3}
+      propertyPath: transitionManager
+      value: 
+      objectReference: {fileID: 981112289}
     - target: {fileID: 5152167060928683264, guid: 87f502632bef993498969963b3faa77b, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
