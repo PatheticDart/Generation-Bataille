@@ -20,10 +20,10 @@ MonoBehaviour:
   energyDrain: 310
   allowedLocations: 6
   isAimableBackWeapon: 0
-  attackPower: 800
+  attackPower: 89
   ammo: 40
   magSize: 8
-  reloadTime: 2
+  reloadTime: 5
   triggerType: 1
   firingInterval: 2000
   effectiveRange: 400

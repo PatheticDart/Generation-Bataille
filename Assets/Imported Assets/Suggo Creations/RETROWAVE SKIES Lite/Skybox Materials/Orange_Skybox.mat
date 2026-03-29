@@ -92,7 +92,7 @@ Material:
     - _FogContrast: 5.4
     - _FogHeight: 1
     - _FogPower: 0.61
-    - _HorizonHeight: -1
+    - _HorizonHeight: 0.77
     - _HorizonStrength: 1
     - _LinesMaskPower: 50
     - _LinesSpeed: 1
@@ -138,7 +138,7 @@ Material:
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _HorizonColor: {r: 0.9150943, g: 0.45614085, b: 0.31510323, a: 1}
     - _LinesColor: {r: 0.92156863, g: 0.5540544, b: 0, a: 1}
-    - _SkyColor: {r: 0.054901965, g: 0.21568629, b: 0.3019608, a: 1}
+    - _SkyColor: {r: 0.0014833016, g: 0.10284393, b: 0.15723258, a: 1}
     - _StarColor: {r: 0.9056604, g: 0.9056604, b: 0.9056604, a: 0}
     - _SunColorOne: {r: 0.9960785, g: 0.9686275, b: 0.7411765, a: 1}
     - _SunColorTwo: {r: 1, g: 0.752211, b: 0.5424528, a: 1}

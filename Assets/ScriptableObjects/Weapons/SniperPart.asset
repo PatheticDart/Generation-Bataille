@@ -20,13 +20,13 @@ MonoBehaviour:
   energyDrain: 10
   allowedLocations: 24
   isAimableBackWeapon: 0
-  attackPower: 230
+  attackPower: 93
   ammo: 120
-  magSize: -1
+  magSize: 8
   reloadTime: 2
   triggerType: 1
   firingInterval: 600
   effectiveRange: 700
-  bulletSpeed: 2000
+  bulletSpeed: 1000
   bulletPrefab: {fileID: 1248065161744127623, guid: 17a7957f1b799304594f0be12f86ea04, type: 3}
   ammoType: 0

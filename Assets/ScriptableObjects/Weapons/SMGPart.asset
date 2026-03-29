@@ -13,16 +13,17 @@ MonoBehaviour:
   m_Name: SMGPart
   m_EditorClassIdentifier: Assembly-CSharp::Rifle
   partName: P7S-SHARD
-  partDescription: A medium-range rifle, good all-rounder. Favored by Bataille rookies.
+  partDescription: Close-range machine gun designed by Vermillion Armory. Exceptional
+    damage per second.
   price: 16000
   weight: 432
   prefab: {fileID: 4309120590859779937, guid: 40a7513705137cf42994a0b590b8229f, type: 3}
   energyDrain: 2
   allowedLocations: 24
   isAimableBackWeapon: 0
-  attackPower: 6
+  attackPower: 12
   ammo: 560
-  magSize: -1
+  magSize: 34
   reloadTime: 2
   triggerType: 0
   firingInterval: 75

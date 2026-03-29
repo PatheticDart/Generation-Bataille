@@ -13,22 +13,23 @@ MonoBehaviour:
   m_Name: ShotgunPart
   m_EditorClassIdentifier: Assembly-CSharp::ShotgunPart
   partName: THR-ONE
-  partDescription: A medium-range rifle, good all-rounder. Favored by Bataille rookies.
+  partDescription: A double barrel automatic shotgun designed by Vermillion Armory.
+    Devastating in close range.
   price: 16000
   weight: 250
   prefab: {fileID: 4309120590859779937, guid: 286e90539fbfe2c49855f39755b01492, type: 3}
   energyDrain: 10
   allowedLocations: 24
   isAimableBackWeapon: 0
-  attackPower: 64
+  attackPower: 210
   ammo: 120
   magSize: 4
   reloadTime: 1
   triggerType: 0
   firingInterval: 750
-  effectiveRange: 75
+  effectiveRange: 50
   bulletSpeed: 400
   bulletPrefab: {fileID: 1248065161744127623, guid: 17a7957f1b799304594f0be12f86ea04, type: 3}
   ammoType: 0
-  pelletCount: 8
-  spreadAngle: 7.5
+  pelletCount: 12
+  spreadAngle: 6.5
