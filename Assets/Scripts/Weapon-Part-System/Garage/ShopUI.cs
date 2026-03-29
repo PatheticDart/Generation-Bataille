@@ -108,7 +108,7 @@ public class ShopUI : MonoBehaviour
             if (btnText != null) 
             {
                 string displayName = string.IsNullOrEmpty(partData.partName) ? partData.name : partData.partName;
-                btnText.text = $"{displayName} - {partData.price:N0} C";
+                btnText.text = $"{displayName}";
             }
 
             Button btn = newBtnObj.GetComponent<Button>();
@@ -148,7 +148,7 @@ public class ShopUI : MonoBehaviour
         if (masterBuyButton != null && buyButtonText != null)
         {
             masterBuyButton.interactable = PlayerInventoryManager.Instance.HasEnoughCredits(part.price);
-            buyButtonText.text = $"BUY {part.partName.ToUpper()}\n({part.price:N0} C)";
+            buyButtonText.text = $"Purchase\n({part.price:N0} C)";
         }
     }
 
@@ -244,4 +244,15 @@ public class ShopUI : MonoBehaviour
         }
         return unpurchasedOnly;
     }
+
+
+
+    // public void purchaseItem(Part part)
+    // {
+    //     if (shopManager != null)
+    //     {
+    //         shopManager.AttemptPurchase(part);
+    //         UpdateCategoryDisplay(); // Refresh the UI after purchase
+    //     }
+    // }
 }
