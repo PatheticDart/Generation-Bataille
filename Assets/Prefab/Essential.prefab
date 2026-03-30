@@ -80,7 +80,7 @@ MonoBehaviour:
   matchText: {fileID: 0}
   startCountdownTime: 3
   matchEndWaitTime: 5
-  menuSceneIndex: 0
+  menuSceneIndex: 1
 --- !u!82 &5291293923993956151
 AudioSource:
   m_ObjectHideFlags: 0

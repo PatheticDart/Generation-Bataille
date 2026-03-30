@@ -22,7 +22,7 @@ public class MatchManager : MonoBehaviour
     [Header("Match Settings")]
     public float startCountdownTime = 3f;
     public float matchEndWaitTime = 5f;
-    public int menuSceneIndex = 0;
+    public int menuSceneIndex = 1;
 
     // Internal State Tracker
     private bool isMatchActive = false;

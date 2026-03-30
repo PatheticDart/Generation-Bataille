@@ -13,7 +13,7 @@ public class MapSelect : MonoBehaviour
     {
         if (gameTransition != null)
         {
-            setIndex(3);
+            setIndex(4);
             if (mapPreviewRenderer != null) mapPreviewRenderer.sprite = testSceneSprite;
         }
     }
@@ -22,7 +22,7 @@ public class MapSelect : MonoBehaviour
     {
         if (gameTransition != null)
         {
-            setIndex(1);
+            setIndex(2);
             if (mapPreviewRenderer != null) mapPreviewRenderer.sprite = colosseumSprite;
         }
     }
@@ -31,7 +31,7 @@ public class MapSelect : MonoBehaviour
     {
         if (gameTransition != null)
         {
-            setIndex(2);
+            setIndex(3);
             if (mapPreviewRenderer != null) mapPreviewRenderer.sprite = buriedCitySprite;
         }
     }
@@ -44,7 +44,7 @@ public class MapSelect : MonoBehaviour
         {
             arenaEnterBtn.SetActive(true);
         }
-         else if (gameTransition.enemySelected == false)
+        else if (gameTransition.enemySelected == false)
         {
             arenaEnterBtn.SetActive(false);
         }

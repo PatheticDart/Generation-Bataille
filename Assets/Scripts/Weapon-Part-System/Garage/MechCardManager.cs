@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -15,24 +16,31 @@ public class MechCardManager : MonoBehaviour
     public GarageLoader garageLoader;
 
     [Header("Capture Setup")]
-    public Camera snapshotCamera; 
+    public Camera snapshotCamera;
     public Vector2Int resolution = new Vector2Int(1024, 1024);
+
+    [Header("UI Feedback")]
+    [Tooltip("Drag your TMPro Error Text GameObject here")]
+    public GameObject missingPartsWarningUI;
 
     private string _defaultSaveDirectory;
 
     private void Awake()
     {
         if (snapshotCamera != null) snapshotCamera.gameObject.SetActive(false);
-        
-        // Ensure a dedicated folder exists for our cards if we aren't using the OS file picker
-        _defaultSaveDirectory = Path.Combine(Application.persistentDataPath, "MechCards");
-        if (!Directory.Exists(_defaultSaveDirectory))
-        {
-            Directory.CreateDirectory(_defaultSaveDirectory);
-        }
+        if (missingPartsWarningUI != null) missingPartsWarningUI.SetActive(false);
     }
 
-    // --- SERIALIZATION STRUCTURES ---
+    public string GetSaveDirectory()
+    {
+        if (string.IsNullOrEmpty(_defaultSaveDirectory))
+        {
+            _defaultSaveDirectory = Path.Combine(Application.persistentDataPath, "MechCards");
+            if (!Directory.Exists(_defaultSaveDirectory)) Directory.CreateDirectory(_defaultSaveDirectory);
+        }
+        return _defaultSaveDirectory;
+    }
+
     [Serializable]
     public struct SavedPaint
     {
@@ -46,33 +54,43 @@ public class MechCardManager : MonoBehaviour
     [Serializable]
     private struct MechSaveData
     {
-        public int headIdx;
-        public int torsoIdx;
-        public int armsIdx;
-        public int legsIdx;
-        public int boosterIdx;
-        public int genIdx;
-        public int fcsIdx;
-        
-        public int armLIdx;
-        public int armRIdx;
-        public int backLIdx;
-        public int backRIdx;
-
+        public int headIdx, torsoIdx, armsIdx, legsIdx, boosterIdx, genIdx, fcsIdx;
+        public int armLIdx, armRIdx, backLIdx, backRIdx;
         public List<SavedPaint> paintJobs;
     }
 
-    // --- 1. SAVING ---
+    // ==========================================
+    // 1. SAVING COMMANDS
+    // ==========================================
 
-    [ContextMenu("Take Snapshot & Save"), Button("Take Snapshot & Save")] 
+    [ContextMenu("Take Snapshot & Save"), Button("Take Snapshot & Save")]
     public void CaptureMechCard()
+    {
+        string filePath = "";
+        string defaultName = $"MechCard_{DateTime.Now.ToString("yyyyMMdd_HHmmss")}";
+
+#if UNITY_EDITOR
+        filePath = EditorUtility.SaveFilePanel("Save Mech Card", "", defaultName, "png");
+        if (string.IsNullOrEmpty(filePath)) return; 
+#else
+        filePath = Path.Combine(GetSaveDirectory(), defaultName + ".png");
+#endif
+        ExecuteCaptureAndSave(filePath);
+    }
+
+    public void CaptureMechCard(string fileName)
+    {
+        string filePath = Path.Combine(GetSaveDirectory(), fileName + ".png");
+        ExecuteCaptureAndSave(filePath);
+    }
+
+    private void ExecuteCaptureAndSave(string filePath)
     {
         if (snapshotCamera == null || garageLoader == null) return;
 
         byte[] encodedSaveData = EncodeMechData();
 
         snapshotCamera.gameObject.SetActive(true);
-
         RenderTexture rt = new RenderTexture(resolution.x, resolution.y, 24, RenderTextureFormat.ARGB32);
         snapshotCamera.targetTexture = rt;
         snapshotCamera.Render();
@@ -84,33 +102,18 @@ public class MechCardManager : MonoBehaviour
 
         byte[] pngImageData = screenShot.EncodeToPNG();
 
-        // Cleanup Camera Resources immediately
         snapshotCamera.targetTexture = null;
         RenderTexture.active = null;
         DestroyImmediate(rt);
         DestroyImmediate(screenShot);
         snapshotCamera.gameObject.SetActive(false);
 
-        // --- FILE MANAGER: SAVING ---
-        string filePath = "";
-
-        #if UNITY_EDITOR
-                // Opens the OS Save Dialog in the Editor
-                string defaultName = $"MechCard_{DateTime.Now.ToString("yyyyMMdd_HHmmss")}";
-                filePath = EditorUtility.SaveFilePanel("Save Mech Card", "", defaultName, "png");
-                if (string.IsNullOrEmpty(filePath)) return; // User canceled the save dialog
-        #else
-                // Silent fallback for built games
-                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                filePath = Path.Combine(_defaultSaveDirectory, $"MechCard_{timestamp}.png");
-        #endif
-
         try
         {
             using (FileStream fileStream = File.Open(filePath, FileMode.Create))
             {
-                fileStream.Write(pngImageData, 0, pngImageData.Length);       
-                fileStream.Write(encodedSaveData, 0, encodedSaveData.Length); 
+                fileStream.Write(pngImageData, 0, pngImageData.Length);
+                fileStream.Write(encodedSaveData, 0, encodedSaveData.Length);
             }
             Debug.Log($"<color=green>Mech Card Saved:</color> {filePath}");
         }
@@ -122,24 +125,23 @@ public class MechCardManager : MonoBehaviour
 
     private byte[] EncodeMechData()
     {
-        var active = GarageLoader.ActiveLoadout; 
+        var active = GarageLoader.ActiveLoadout;
 
         MechSaveData data = new MechSaveData
         {
-            headIdx    = active.ContainsKey(PartType.Head) ? garageLoader.availableHeads.IndexOf((HeadPart)active[PartType.Head]) : -1,
-            torsoIdx   = active.ContainsKey(PartType.Torso) ? garageLoader.availableTorsos.IndexOf((TorsoPart)active[PartType.Torso]) : -1,
-            armsIdx    = active.ContainsKey(PartType.Arms) ? garageLoader.availableArms.IndexOf((ArmPart)active[PartType.Arms]) : -1,
-            legsIdx    = active.ContainsKey(PartType.Legs) ? garageLoader.availableLegs.IndexOf((LegPart)active[PartType.Legs]) : -1,
+            headIdx = active.ContainsKey(PartType.Head) ? garageLoader.availableHeads.IndexOf((HeadPart)active[PartType.Head]) : -1,
+            torsoIdx = active.ContainsKey(PartType.Torso) ? garageLoader.availableTorsos.IndexOf((TorsoPart)active[PartType.Torso]) : -1,
+            armsIdx = active.ContainsKey(PartType.Arms) ? garageLoader.availableArms.IndexOf((ArmPart)active[PartType.Arms]) : -1,
+            legsIdx = active.ContainsKey(PartType.Legs) ? garageLoader.availableLegs.IndexOf((LegPart)active[PartType.Legs]) : -1,
             boosterIdx = active.ContainsKey(PartType.Booster) ? garageLoader.availableBoosters.IndexOf((Booster)active[PartType.Booster]) : -1,
-            genIdx     = active.ContainsKey(PartType.Generator) ? garageLoader.availableGenerators.IndexOf((Generator)active[PartType.Generator]) : -1,
-            fcsIdx     = active.ContainsKey(PartType.FCS) ? garageLoader.availableFCS.IndexOf((FCSPart)active[PartType.FCS]) : -1,
+            genIdx = active.ContainsKey(PartType.Generator) ? garageLoader.availableGenerators.IndexOf((Generator)active[PartType.Generator]) : -1,
+            fcsIdx = active.ContainsKey(PartType.FCS) ? garageLoader.availableFCS.IndexOf((FCSPart)active[PartType.FCS]) : -1,
 
-            // --- UPDATED: Now looks at the unified allAvailableWeapons list ---
-            armLIdx  = active.ContainsKey(PartType.ArmL) ? garageLoader.allAvailableWeapons.IndexOf((WeaponPart)active[PartType.ArmL]) : -1,
-            armRIdx  = active.ContainsKey(PartType.ArmR) ? garageLoader.allAvailableWeapons.IndexOf((WeaponPart)active[PartType.ArmR]) : -1,
+            armLIdx = active.ContainsKey(PartType.ArmL) ? garageLoader.allAvailableWeapons.IndexOf((WeaponPart)active[PartType.ArmL]) : -1,
+            armRIdx = active.ContainsKey(PartType.ArmR) ? garageLoader.allAvailableWeapons.IndexOf((WeaponPart)active[PartType.ArmR]) : -1,
             backLIdx = active.ContainsKey(PartType.BackL) ? garageLoader.allAvailableWeapons.IndexOf((WeaponPart)active[PartType.BackL]) : -1,
             backRIdx = active.ContainsKey(PartType.BackR) ? garageLoader.allAvailableWeapons.IndexOf((WeaponPart)active[PartType.BackR]) : -1,
-            
+
             paintJobs = new List<SavedPaint>()
         };
 
@@ -162,8 +164,9 @@ public class MechCardManager : MonoBehaviour
         return Encoding.UTF8.GetBytes(json);
     }
 
-
-    // --- 2. LOADING ---
+    // ==========================================
+    // 2. LOADING COMMANDS
+    // ==========================================
 
     [ContextMenu("Load From Mech Card"), Button("Load From Mech Card")]
     public void LoadFromMechCard()
@@ -171,24 +174,37 @@ public class MechCardManager : MonoBehaviour
         string filePath = "";
 
 #if UNITY_EDITOR
-        // Opens the OS Open File Dialog in the Editor
         filePath = EditorUtility.OpenFilePanel("Load Mech Card", "", "png");
-        if (string.IsNullOrEmpty(filePath)) return; // User canceled the load dialog
+        if (string.IsNullOrEmpty(filePath)) return; 
 #else
-        // In a real build, you'd likely want to load the newest file, or build a UI to pick one.
-        // For now, it just looks for a generic test file in the persistent path.
-        filePath = Path.Combine(_defaultSaveDirectory, "MechCard_Test.png");
+        if (Directory.Exists(GetSaveDirectory()))
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(GetSaveDirectory());
+            FileInfo[] files = dirInfo.GetFiles("*.png");
+            if (files.Length > 0)
+            {
+                Array.Sort(files, (a, b) => b.CreationTime.CompareTo(a.CreationTime));
+                filePath = files[0].FullName;
+            }
+        }
 #endif
 
-        if (!File.Exists(filePath))
+        if (!string.IsNullOrEmpty(filePath))
         {
-            Debug.LogError($"Load Failed: File not found at {filePath}");
-            return;
+            ExecuteLoad(filePath);
         }
+    }
+
+    public void LoadFromMechCard(string filePath)
+    {
+        ExecuteLoad(filePath);
+    }
+
+    private void ExecuteLoad(string filePath)
+    {
+        if (!File.Exists(filePath)) return;
 
         byte[] fileBytes = File.ReadAllBytes(filePath);
-
-        // Find the PNG end chunk (IEND + CRC)
         byte[] iendSignature = new byte[] { 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82 };
         int iendIndex = -1;
 
@@ -202,11 +218,7 @@ public class MechCardManager : MonoBehaviour
             if (match) { iendIndex = i; break; }
         }
 
-        if (iendIndex == -1 || iendIndex + iendSignature.Length >= fileBytes.Length)
-        {
-            Debug.LogError("Load Failed: This image does not contain embedded Mech data.");
-            return;
-        }
+        if (iendIndex == -1 || iendIndex + iendSignature.Length >= fileBytes.Length) return;
 
         int dataStartIndex = iendIndex + iendSignature.Length;
         int dataLength = fileBytes.Length - dataStartIndex;
@@ -218,6 +230,57 @@ public class MechCardManager : MonoBehaviour
 
     private void ReconstructMech(MechSaveData data)
     {
+        // --- 1. THE BULLETPROOF FAILSAFE CHECK ---
+        List<string> missingParts = new List<string>();
+
+        void VerifyOwnership<T>(int index, List<T> inventory) where T : Part
+        {
+            if (index >= 0 && index < inventory.Count)
+            {
+                Part targetPart = inventory[index];
+                // If the part exists in the catalog but the player DOES NOT own it...
+                if (targetPart != null && !PlayerInventoryManager.Instance.IsPartOwned(targetPart))
+                {
+                    missingParts.Add(targetPart.name); // Add it to our missing list
+                }
+            }
+        }
+
+        VerifyOwnership(data.headIdx, garageLoader.availableHeads);
+        VerifyOwnership(data.torsoIdx, garageLoader.availableTorsos);
+        VerifyOwnership(data.armsIdx, garageLoader.availableArms);
+        VerifyOwnership(data.legsIdx, garageLoader.availableLegs);
+        VerifyOwnership(data.boosterIdx, garageLoader.availableBoosters);
+        VerifyOwnership(data.genIdx, garageLoader.availableGenerators);
+        VerifyOwnership(data.fcsIdx, garageLoader.availableFCS);
+        VerifyOwnership(data.armLIdx, garageLoader.allAvailableWeapons);
+        VerifyOwnership(data.armRIdx, garageLoader.allAvailableWeapons);
+        VerifyOwnership(data.backLIdx, garageLoader.allAvailableWeapons);
+        VerifyOwnership(data.backRIdx, garageLoader.allAvailableWeapons);
+
+        // If even a SINGLE part was added to our missing list, ABORT!
+        if (missingParts.Count > 0)
+        {
+            Debug.LogWarning($"<color=orange>Load Aborted!</color> Missing parts: " + string.Join(", ", missingParts));
+
+            if (missingPartsWarningUI != null)
+            {
+                // Find the TextMeshPro component and physically update the text with the list of missing parts!
+                TMPro.TextMeshProUGUI textUI = missingPartsWarningUI.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+                if (textUI != null)
+                {
+                    textUI.text = "Missing Required Parts:\n- " + string.Join("\n- ", missingParts);
+                }
+
+                StopAllCoroutines();
+                StartCoroutine(ShowWarningMessage());
+            }
+            return; // EXIT IMMEDIATELY. DO NOT CLEAR ACTIVE LOADOUT OR EQUIP ANYTHING.
+        }
+
+        // --- 2. THE ACTUAL LOAD (If player owns everything) ---
+        if (missingPartsWarningUI != null) missingPartsWarningUI.SetActive(false);
+
         var loadout = GarageLoader.ActiveLoadout;
         loadout.Clear();
 
@@ -235,7 +298,6 @@ public class MechCardManager : MonoBehaviour
         TryEquip(PartType.Generator, data.genIdx, garageLoader.availableGenerators);
         TryEquip(PartType.FCS, data.fcsIdx, garageLoader.availableFCS);
 
-        // --- UPDATED: Now equips weapons strictly from the unified allAvailableWeapons list ---
         TryEquip(PartType.ArmL, data.armLIdx, garageLoader.allAvailableWeapons);
         TryEquip(PartType.ArmR, data.armRIdx, garageLoader.allAvailableWeapons);
         TryEquip(PartType.BackL, data.backLIdx, garageLoader.allAvailableWeapons);
@@ -266,6 +328,17 @@ public class MechCardManager : MonoBehaviour
         }
 
         garageLoader.RefreshVisualMech();
+
+        if (PlayerInventoryManager.Instance != null) PlayerInventoryManager.Instance.SaveInventory();
+
         Debug.Log("<color=cyan>Mech successfully loaded from card!</color>");
+    }
+
+    // --- UX: Auto-Hide the Warning Message ---
+    private IEnumerator ShowWarningMessage()
+    {
+        missingPartsWarningUI.SetActive(true);
+        yield return new WaitForSeconds(3.5f); // Hangs around for 3.5 seconds so they can read the list
+        missingPartsWarningUI.SetActive(false);
     }
 }

@@ -23,9 +23,9 @@ MonoBehaviour:
   isAimableBackWeapon: 1
   attackPower: 854
   ammo: 12
-  magSize: -1
-  reloadTime: 2
-  triggerType: 1
+  magSize: 1
+  reloadTime: 5
+  triggerType: 0
   firingInterval: 1000
   effectiveRange: 1000
   bulletSpeed: 1000

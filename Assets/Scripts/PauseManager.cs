@@ -87,7 +87,10 @@ public class PauseManager : MonoBehaviour
 
     public void AbortMatch()
     {
-        SceneManager.LoadScene(0); // Assuming your main menu is at index 0
+        SceneManager.LoadScene(1); // Assuming your main menu is at index 0
+        ResumeGame();
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
 }

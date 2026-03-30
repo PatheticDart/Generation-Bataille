@@ -167,9 +167,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fc47f48626b40e4694661feb24c78a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonManager
-  GarageSceneIndex: 0
-  ColosseumSceneIndex: 1
-  BurriedCitySceneIndex: 2
+  GarageSceneIndex: 1
+  ColosseumSceneIndex: 2
+  BurriedCitySceneIndex: 3
   titleScreenContainer: {fileID: 2047451194}
   mainMenuPanel: {fileID: 874796680}
   opponentViewPanel: {fileID: 696778385}
