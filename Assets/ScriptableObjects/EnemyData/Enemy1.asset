@@ -40,7 +40,7 @@ MonoBehaviour:
   approachCriticalENRate: 30
   approachRequiredENRate: 70
   boostChance: 40
-  quickBoostChance: 25
+  quickBoostChance: 35
   perfectQuickBoostChance: 15
   movementChips:
   - actionType: 0
@@ -74,22 +74,22 @@ MonoBehaviour:
   leftWeaponChips:
   - installLocation: 0
     minAttackRange: 0
-    maxAttackRange: 75
+    maxAttackRange: 140
     minActiveRange: 0
-    maxActiveRange: 75
+    maxActiveRange: 140
   - installLocation: 1
     minAttackRange: 0
     maxAttackRange: 300
-    minActiveRange: 75
+    minActiveRange: 140
     maxActiveRange: 300
   rightWeaponChips:
   - installLocation: 0
     minAttackRange: 0
-    maxAttackRange: 125
+    maxAttackRange: 200
     minActiveRange: 0
-    maxActiveRange: 125
+    maxActiveRange: 200
   - installLocation: 1
     minAttackRange: 0
-    maxAttackRange: 30
-    minActiveRange: 125
+    maxAttackRange: 300
+    minActiveRange: 200
     maxActiveRange: 300
