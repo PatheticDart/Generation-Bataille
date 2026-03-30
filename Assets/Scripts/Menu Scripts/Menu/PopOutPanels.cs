@@ -14,10 +14,11 @@ public class PopOutPanels : MonoBehaviour
     public GameObject assemblyScreen;
     public GameObject paintScreen;
     public GameObject arenaScreen;
+    public GameObject optionsScreen; // --- NEW: Drag your Options panel here
 
     [Header("Shop Integration")]
-    public GameObject shopScreen; // --- NEW: Drag your main Shop panel here
-    public ShopUI shopUI;         // --- NEW: Drag the object with the ShopUI script here
+    public GameObject shopScreen;
+    public ShopUI shopUI;
 
     private void Start()
     {
@@ -53,7 +54,7 @@ public class PopOutPanels : MonoBehaviour
         }
     }
 
-    // --- NEW: SHOP ROUTING ---
+    // --- SHOP ROUTING ---
     public void OpenShopBuyMode()
     {
         CloseAllPopOutsAndScreens();
@@ -72,13 +73,13 @@ public class PopOutPanels : MonoBehaviour
     public void OpenAssemblyScreen()
     {
         CloseAllPopOutsAndScreens();
-        assemblyScreen.SetActive(true);
+        if (assemblyScreen != null) assemblyScreen.SetActive(true);
     }
 
     public void OpenPaintScreen()
     {
         CloseAllPopOutsAndScreens();
-        paintScreen.SetActive(true);
+        if (paintScreen != null) paintScreen.SetActive(true);
     }
 
     public void OpenArenaScreen()
@@ -87,24 +88,34 @@ public class PopOutPanels : MonoBehaviour
         if (arenaScreen != null) arenaScreen.SetActive(true);
     }
 
+    // --- NEW: OPTIONS ROUTING ---
+    public void OpenOptionsScreen()
+    {
+        CloseAllPopOutsAndScreens();
+        if (optionsScreen != null) optionsScreen.SetActive(true);
+    }
+
     // --- MASTER RESET ---
     public void ReturnToMainHub()
     {
         CloseAllPopOutsAndScreens();
-        mainHubPanel.SetActive(true);
+        if (mainHubPanel != null) mainHubPanel.SetActive(true);
     }
 
     private void CloseAllPopOutsAndScreens()
     {
-        mainHubPanel.SetActive(false);
+        if (mainHubPanel != null) mainHubPanel.SetActive(false);
 
+        // Hide Pop-outs
         if (customizePopOut != null) customizePopOut.SetActive(false);
         if (shopPopOut != null) shopPopOut.SetActive(false);
         if (arenaPopOut != null) arenaPopOut.SetActive(false);
 
+        // Hide Full Screens
         if (assemblyScreen != null) assemblyScreen.SetActive(false);
         if (paintScreen != null) paintScreen.SetActive(false);
         if (arenaScreen != null) arenaScreen.SetActive(false);
         if (shopScreen != null) shopScreen.SetActive(false);
+        if (optionsScreen != null) optionsScreen.SetActive(false); // --- NEW: Ensures Options hides when switching menus
     }
 }

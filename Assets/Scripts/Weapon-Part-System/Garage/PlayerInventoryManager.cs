@@ -7,7 +7,7 @@ public class PlayerInventoryManager : MonoBehaviour
     public static PlayerInventoryManager Instance { get; private set; }
 
     [Header("Currency")]
-    public int currentCredits = 5000;
+    public int currentCredits = 0;
 
     [Header("Owned Parts (Explicit)")]
     public List<HeadPart> ownedHeads = new List<HeadPart>();
