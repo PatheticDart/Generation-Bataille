@@ -48,7 +48,7 @@ public class PlayerInventoryManager : MonoBehaviour
         ownedLegs.Clear(); ownedBoosters.Clear(); ownedGenerators.Clear();
         ownedFCS.Clear(); ownedWeapons.Clear();
 
-        currentCredits = 5000;
+        currentCredits = 0;
         PlayerPrefs.Save();
         Debug.Log("Player Progress has been completely reset!");
     }
@@ -76,7 +76,7 @@ public class PlayerInventoryManager : MonoBehaviour
 
     public void LoadInventory()
     {
-        currentCredits = PlayerPrefs.GetInt("PlayerCredits", 5000);
+        currentCredits = PlayerPrefs.GetInt("PlayerCredits", 0);
     }
 
     // --- THE FIX: The Shop Manager forces the inventory to safely rebuild itself ---

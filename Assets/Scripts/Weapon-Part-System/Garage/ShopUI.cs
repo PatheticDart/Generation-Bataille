@@ -196,7 +196,7 @@ public class ShopUI : MonoBehaviour
         if (_previewedPart == null)
         {
             masterBuyButton.interactable = false;
-            buyButtonText.text = isSellMode ? "SELECT TO SELL" : "SELECT AN ITEM";
+            buyButtonText.text = isSellMode ? "SELECT TO SELL" : "SELECT TO BUY";
             return;
         }
 

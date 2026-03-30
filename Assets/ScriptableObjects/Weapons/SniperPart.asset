@@ -24,7 +24,7 @@ MonoBehaviour:
   ammo: 120
   magSize: 8
   reloadTime: 2
-  triggerType: 1
+  triggerType: 0
   firingInterval: 600
   effectiveRange: 700
   bulletSpeed: 1000
