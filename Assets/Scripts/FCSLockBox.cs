@@ -50,6 +50,14 @@ public class FCSLockBox : MonoBehaviour
     public List<TextMeshProUGUI> leftBackAmmoTexts = new List<TextMeshProUGUI>();
     public List<TextMeshProUGUI> rightBackAmmoTexts = new List<TextMeshProUGUI>();
 
+    // --- NEW: Audio Settings ---
+    [Header("Audio SFX")]
+    public AudioClip sfxSoftLock;
+    public AudioClip sfxHardLock;
+    public AudioClip sfxMissileLock;
+    public AudioClip sfxLockLost;
+    private AudioSource fcsAudioSource;
+
     private Image[] reticleChildImages;
     private TextMeshProUGUI[] reticleChildTexts;
 
@@ -60,10 +68,16 @@ public class FCSLockBox : MonoBehaviour
     public Vector3 TargetVelocity { get; private set; }
     private Vector3 lastTargetPos;
 
-    // --- NEW: Separated Timers to prevent UI glitches ---
+    // --- State Trackers ---
     private float baseLockTimer = 0f;
     private float leftMissileTimer = 0f;
     private float rightMissileTimer = 0f;
+
+    // --- NEW: Memory variables to detect state changes for audio ---
+    private Transform _previousTarget;
+    private bool _previousHardLockState = false;
+    private int _previousLeftLocks = 0;
+    private int _previousRightLocks = 0;
 
     void Start()
     {
@@ -82,6 +96,15 @@ public class FCSLockBox : MonoBehaviour
         {
             if (leftMissileLockUI != null) leftMissileLockUI.SetActive(false);
             if (rightMissileLockUI != null) rightMissileLockUI.SetActive(false);
+
+            // Setup the Audio Source for HUD sounds
+            fcsAudioSource = GetComponent<AudioSource>();
+            if (fcsAudioSource == null)
+            {
+                fcsAudioSource = gameObject.AddComponent<AudioSource>();
+                fcsAudioSource.playOnAwake = false;
+                fcsAudioSource.spatialBlend = 0f; // Force 2D sound so it plays clearly in the UI
+            }
         }
     }
 
@@ -91,7 +114,11 @@ public class FCSLockBox : MonoBehaviour
         UpdateFCSTrailingRotation();
         DetectAndManageTargets();
 
-        if (isPlayer) UpdateUI();
+        if (isPlayer)
+        {
+            HandleAudioCues();
+            UpdateUI();
+        }
     }
 
     private void TrackVelocities()
@@ -110,7 +137,6 @@ public class FCSLockBox : MonoBehaviour
         }
     }
 
-    // --- NEW: Checks if the specific side is active and not currently firing ---
     public bool CanAcquireMissileLocks(bool isLeft)
     {
         if (weaponManager == null || weaponManager.weaponManager == null) return false;
@@ -219,7 +245,6 @@ public class FCSLockBox : MonoBehaviour
                 }
                 else
                 {
-                    // --- NEW: Only accumulate locks if the weapon is ready and active! ---
                     if (CanAcquireMissileLocks(true)) leftMissileTimer += Time.deltaTime;
                     else leftMissileTimer = 0f;
 
@@ -236,6 +261,58 @@ public class FCSLockBox : MonoBehaviour
             baseLockTimer = 0f;
             leftMissileTimer = 0f;
             rightMissileTimer = 0f;
+        }
+    }
+
+    // --- NEW: Audio State Monitor ---
+    private void HandleAudioCues()
+    {
+        // 1. Soft Lock & Lock Lost Cues
+        if (currentTarget != _previousTarget)
+        {
+            if (currentTarget != null && _previousTarget == null)
+                PlaySFX(sfxSoftLock);
+            else if (currentTarget == null && _previousTarget != null)
+                PlaySFX(sfxLockLost);
+
+            _previousTarget = currentTarget;
+        }
+
+        // 2. Hard Lock Cue
+        if (isHardLocked && !_previousHardLockState)
+        {
+            PlaySFX(sfxHardLock);
+        }
+        _previousHardLockState = isHardLocked;
+
+        // 3. Missile Lock Accumulation Cues
+        int currentLeftLocks = 0;
+        int currentRightLocks = 0;
+
+        if (weaponManager != null && weaponManager.weaponManager != null)
+        {
+            var lw = weaponManager.weaponManager.GetWeapon(true, 1);
+            if (lw != null && lw.GetWeaponData() is MissileLauncherPart lmp)
+                currentLeftLocks = GetMissileLocks(true, lmp.maxLocks);
+
+            var rw = weaponManager.weaponManager.GetWeapon(false, 1);
+            if (rw != null && rw.GetWeaponData() is MissileLauncherPart rmp)
+                currentRightLocks = GetMissileLocks(false, rmp.maxLocks);
+        }
+
+        // Play the sound if the lock count went UP
+        if (currentLeftLocks > _previousLeftLocks) PlaySFX(sfxMissileLock);
+        if (currentRightLocks > _previousRightLocks) PlaySFX(sfxMissileLock);
+
+        _previousLeftLocks = currentLeftLocks;
+        _previousRightLocks = currentRightLocks;
+    }
+
+    private void PlaySFX(AudioClip clip)
+    {
+        if (clip != null && fcsAudioSource != null)
+        {
+            fcsAudioSource.PlayOneShot(clip);
         }
     }
 

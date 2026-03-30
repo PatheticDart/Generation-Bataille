@@ -1,0 +1,94 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d44459729e361f48b932918d4f04aa4, type: 3}
+  m_Name: Enemy (WINCH FLOW)
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
+  enemyName: WINCH FLOW
+  description: A VETERAN OF THE SPORT. HE SPECIALIZES IN LONG-RANGE SNIPING
+  rank: 3
+  enemyPrefab: {fileID: 7474755267847157253, guid: 432d594bd82e913448cd8cad186411f6, type: 3}
+  rewardCredits: 15400
+  head: {fileID: 11400000, guid: fe8f5ec60a5f70d4282481dfe2c1234b, type: 2}
+  torso: {fileID: 11400000, guid: 195905ff58a71ab4ba69ee55e47e8f72, type: 2}
+  arms: {fileID: 11400000, guid: 8f9fbdac92749f64d8271b21d4b957fe, type: 2}
+  legs: {fileID: 11400000, guid: f3dc03589331be143989088c3c117b03, type: 2}
+  booster: {fileID: 11400000, guid: 2c770737123d062479e6fd9ac69f1601, type: 2}
+  generator: {fileID: 11400000, guid: e9b2c84c5a524024aa244a613764a137, type: 2}
+  fcs: {fileID: 11400000, guid: fb6366968963ba64d88bb76b136b9171, type: 2}
+  armL: {fileID: 11400000, guid: 96822680f477cfb48a6a17d1fefb3b77, type: 2}
+  armR: {fileID: 11400000, guid: 96822680f477cfb48a6a17d1fefb3b77, type: 2}
+  backL: {fileID: 11400000, guid: e9ad598c56a310f40b997fccc01a3904, type: 2}
+  backR: {fileID: 11400000, guid: e9ad598c56a310f40b997fccc01a3904, type: 2}
+  primaryColor: {r: 0.20395, g: 0.3773585, b: 0, a: 1}
+  secondaryColor: {r: 0.3207547, g: 0.16692096, b: 0, a: 1}
+  tertiaryColor: {r: 0, g: 0, b: 0, a: 1}
+  accentColor: {r: 0, g: 1, b: 0.376024, a: 1}
+  glowColor: {r: 0.35630393, g: 1, b: 0, a: 1}
+  energyEfficiency: 60
+  approachType: 0
+  approachRange: 300
+  approachCriticalENRate: 30
+  approachRequiredENRate: 70
+  boostChance: 30
+  quickBoostChance: 25
+  perfectQuickBoostChance: 15
+  movementChips:
+  - actionType: 0
+    duration: 5
+    targetRange: 250
+    distanceUncertainty: 0
+    relativeElevation: 20
+    targetAngle: 0
+    angleUncertainty: 0
+  - actionType: 1
+    duration: 5
+    targetRange: 280
+    distanceUncertainty: 0
+    relativeElevation: 0
+    targetAngle: 50
+    angleUncertainty: 0
+  - actionType: 1
+    duration: 5
+    targetRange: 200
+    distanceUncertainty: 0
+    relativeElevation: 0
+    targetAngle: -30
+    angleUncertainty: 0
+  - actionType: 1
+    duration: 5
+    targetRange: 200
+    distanceUncertainty: 0
+    relativeElevation: 0
+    targetAngle: 20
+    angleUncertainty: 0
+  leftWeaponChips:
+  - installLocation: 0
+    minAttackRange: 0
+    maxAttackRange: 300
+    minActiveRange: 0
+    maxActiveRange: 300
+  - installLocation: 1
+    minAttackRange: 0
+    maxAttackRange: 500
+    minActiveRange: 300
+    maxActiveRange: 500
+  rightWeaponChips:
+  - installLocation: 0
+    minAttackRange: 0
+    maxAttackRange: 300
+    minActiveRange: 0
+    maxActiveRange: 300
+  - installLocation: 1
+    minAttackRange: 0
+    maxAttackRange: 500
+    minActiveRange: 300
+    maxActiveRange: 500

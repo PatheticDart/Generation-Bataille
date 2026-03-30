@@ -10,79 +10,67 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8d44459729e361f48b932918d4f04aa4, type: 3}
-  m_Name: Enemy1
+  m_Name: Enemy (G-D3X)
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
-  enemyName: DUAL TONE
-  description: A PILOT KNOWN FOR HIS FLANKING MANEUVERS. HE SPORTS A MECH WELL-SUITED
-    FOR CLOSE RANGE ENGAGEMENTS
-  rank: 2
+  enemyName: G-D3X
+  description: A FORMER MERCENARY, HE PREFERS USING A HEAVIER SET OF PARTS.
+  rank: 6
   enemyPrefab: {fileID: 7474755267847157253, guid: 432d594bd82e913448cd8cad186411f6, type: 3}
-  rewardCredits: 20000
-  head: {fileID: 11400000, guid: fe8f5ec60a5f70d4282481dfe2c1234b, type: 2}
-  torso: {fileID: 11400000, guid: 195905ff58a71ab4ba69ee55e47e8f72, type: 2}
-  arms: {fileID: 11400000, guid: 356e7e35596178c4cbdf8dce34909bb4, type: 2}
-  legs: {fileID: 11400000, guid: a0d8e29c4862e41478ca49b626fd2b0a, type: 2}
-  booster: {fileID: 11400000, guid: 2c770737123d062479e6fd9ac69f1601, type: 2}
-  generator: {fileID: 11400000, guid: 854d4e2340fd9174e9ebe42d9baa92f0, type: 2}
+  rewardCredits: 21000
+  head: {fileID: 11400000, guid: 98efda7a953f62f498d6ab09332e1353, type: 2}
+  torso: {fileID: 11400000, guid: 7d1850266530ef14487205653895dc65, type: 2}
+  arms: {fileID: 11400000, guid: 8f9fbdac92749f64d8271b21d4b957fe, type: 2}
+  legs: {fileID: 11400000, guid: f3dc03589331be143989088c3c117b03, type: 2}
+  booster: {fileID: 11400000, guid: 1c8d2caafb3720747b479e3ddd849fe0, type: 2}
+  generator: {fileID: 11400000, guid: 9c2ef2d4398725f4eb1d81dae3beddef, type: 2}
   fcs: {fileID: 11400000, guid: fb6366968963ba64d88bb76b136b9171, type: 2}
-  armL: {fileID: 11400000, guid: 21d28d17156617044a9f5c13492092e1, type: 2}
-  armR: {fileID: 11400000, guid: 7769537fa209c154cabcbc2006da6c34, type: 2}
-  backL: {fileID: 11400000, guid: 144db7560c2785d4c8d552a9a7c0eb81, type: 2}
-  backR: {fileID: 11400000, guid: 144db7560c2785d4c8d552a9a7c0eb81, type: 2}
-  primaryColor: {r: 0, g: 1, b: 0.22284317, a: 1}
-  secondaryColor: {r: 0.012519836, g: 1, b: 0, a: 1}
+  armL: {fileID: 11400000, guid: 1e2bad12e4455b44595852a57f867586, type: 2}
+  armR: {fileID: 11400000, guid: 96822680f477cfb48a6a17d1fefb3b77, type: 2}
+  backL: {fileID: 11400000, guid: 5ac209751e713144c9fa3a1332ad4ec4, type: 2}
+  backR: {fileID: 11400000, guid: e9ad598c56a310f40b997fccc01a3904, type: 2}
+  primaryColor: {r: 1, g: 0.70950454, b: 0.43710685, a: 1}
+  secondaryColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   tertiaryColor: {r: 0, g: 0, b: 0, a: 1}
   accentColor: {r: 1, g: 0, b: 0, a: 1}
   glowColor: {r: 0, g: 1, b: 1, a: 1}
-  energyEfficiency: 80
+  energyEfficiency: 100
   approachType: 0
   approachRange: 300
   approachCriticalENRate: 30
   approachRequiredENRate: 70
   boostChance: 40
-  quickBoostChance: 35
+  quickBoostChance: 25
   perfectQuickBoostChance: 15
   movementChips:
   - actionType: 0
     duration: 5
-    targetRange: 100
+    targetRange: 200
     distanceUncertainty: 0
-    relativeElevation: 0
+    relativeElevation: -40
     targetAngle: 0
     angleUncertainty: 0
   - actionType: 1
     duration: 5
-    targetRange: 50
+    targetRange: 150
     distanceUncertainty: 0
-    relativeElevation: 20
-    targetAngle: -40
+    relativeElevation: -40
+    targetAngle: -30
     angleUncertainty: 0
   - actionType: 1
     duration: 5
     targetRange: 100
     distanceUncertainty: 0
     relativeElevation: -40
-    targetAngle: 50
+    targetAngle: 40
     angleUncertainty: 0
-  - actionType: 1
-    duration: 6
-    targetRange: 50
+  - actionType: 0
+    duration: 5
+    targetRange: 150
     distanceUncertainty: 0
-    relativeElevation: 50
-    targetAngle: 180
+    relativeElevation: 0
+    targetAngle: 0
     angleUncertainty: 0
   leftWeaponChips:
-  - installLocation: 0
-    minAttackRange: 0
-    maxAttackRange: 140
-    minActiveRange: 0
-    maxActiveRange: 140
-  - installLocation: 1
-    minAttackRange: 0
-    maxAttackRange: 300
-    minActiveRange: 140
-    maxActiveRange: 300
-  rightWeaponChips:
   - installLocation: 0
     minAttackRange: 0
     maxAttackRange: 200
@@ -92,4 +80,15 @@ MonoBehaviour:
     minAttackRange: 0
     maxAttackRange: 300
     minActiveRange: 200
+    maxActiveRange: 300
+  rightWeaponChips:
+  - installLocation: 0
+    minAttackRange: 0
+    maxAttackRange: 150
+    minActiveRange: 0
+    maxActiveRange: 150
+  - installLocation: 1
+    minAttackRange: 0
+    maxAttackRange: 300
+    minActiveRange: 150
     maxActiveRange: 300
